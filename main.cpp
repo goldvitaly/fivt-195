@@ -21,8 +21,10 @@ void validate(heap::Node* node) {
 	assert(node->r == 0 || node->l == 0 || node->r->height <= node->l->height);
 	if (node->l) {
 		validate(node->l);
+		assert(node->l->value < node->value);
 	}
 	if (node->r) {
+		assert(node->r->value < node->value);
 		assert(node->height == node->r->height + 1);
 		validate(node->r);
 	}
@@ -32,7 +34,7 @@ void StressTest() {
 
 	heap lh;
 	int expectedSize = 0;
-	std::priority_queue<int, std::vector<int> > pq;
+	std::priority_queue<int> pq;
 	srand(time(0));
 	std::map<int, std::string> m;
 	for (int i = 0; i < 100000; ++i) {

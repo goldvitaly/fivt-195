@@ -36,6 +36,7 @@ template<typename KeyType, typename ValueType, typename Comp = std::less<KeyType
 		if (comp_(right->key, left->key))
 			std::swap(left, right);
 		left->r = destroyAndMerge(left->r, right);
+		// if left->l not null, then left->r not null too. It's checked in test
 		if ((!left->l) || left->l->height < left->r->height)
 			std::swap(left->l, left->r);
 		left->height = left->r ? left->r->height + 1 : 0;
@@ -71,6 +72,12 @@ public:
 		return root_->value;
 	}
 
+	ValueType topKey() const{
+		if(empty())
+			throw NoElements();
+		return root_->key;
+	}
+
 	/**
 	 * @throws NoElements
 	 */
@@ -78,7 +85,7 @@ public:
 		if (empty())
 			throw NoElements();
 		--size_;
-		Node * oldroot = root_;
+		Node *oldroot = root_;
 		root_ = destroyAndMerge(root_->l, root_->r);
 		//не удаляем детей этой вершины.
 		oldroot->l = 0;
