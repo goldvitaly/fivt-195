@@ -5,6 +5,9 @@
  * Created on October 31, 2011, 1:19 PM
  */
 
+#ifndef HEAP_H
+#undef HEAP_H
+
 template<typename KeyType, typename ValueType, typename Comp = std::less<KeyType> >
 		  class LeftHeap {
 	Comp comp_;
@@ -102,3 +105,5 @@ public:
 		delete root_;
 	}
 };
+
+#endif
