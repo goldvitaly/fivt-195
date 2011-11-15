@@ -21,10 +21,10 @@ void validate(heap::Node* node) {
 	assert(node->r == 0 || node->l == 0 || node->r->height <= node->l->height);
 	if (node->l) {
 		validate(node->l);
-		assert(node->l->value < node->value);
+		assert(node->l->key < node->key);
 	}
 	if (node->r) {
-		assert(node->r->value < node->value);
+		assert(node->r->key < node->key);
 		assert(node->height == node->r->height + 1);
 		validate(node->r);
 	}
