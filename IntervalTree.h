@@ -19,7 +19,7 @@ class IntervalTree{
 	std::vector<ModType> mod;
 	size_t shift;
 	MergeFunctorType functor;
-	ModType modify;
+	ModFuncType modify;
 	CalcModType calc_mod;
 	void allocate(size_t n){
 		assert(n>0);
@@ -34,9 +34,9 @@ class IntervalTree{
 		
 	}
 
-	void recalc(int pos){
+	void recalc(size_t pos,int len){
 		assert(pos<shift);
-		tree[pos]=functor(modify(mod[2*pos]),modify(mod[2*pos+1]));
+		tree[pos]=functor(modify(tree[2*pos],mod[2*pos],len>>1),modify(tree[2*pos+1],mod[2*pos+1],len>>1));
 	}
 
 	ElementType _get(size_t v,size_t l,size_t r,size_t v_l,size_t v_r){
@@ -46,7 +46,7 @@ class IntervalTree{
 			return Zero;
 		assert(v<shift);
 		return functor(
-			_get(2*v, l, r, (v_l+v_r)>>1),
+			_get(2*v, l, r, v_l, (v_l+v_r)>>1),
 			_get(2*v+1, l, r, (v_l+v_r)>>1+1,v_r)
 		);
 	}
@@ -61,7 +61,7 @@ class IntervalTree{
 		assert(v<shift);
 		_set(2*v  , l, r, v_l, (v_l+v_r)>>1  , arg);
 		_set(2*v+1, l, r, (v_l+v_r)>>1+1, v_r, arg);
-		recalc(v);
+		recalc(v, v_r - v_l+1);
 	}
 
 	public:
@@ -79,19 +79,28 @@ class IntervalTree{
 	{
 		allocate(end-begin);
 		std::copy(begin, end, tree.begin()+1);
-		for(int i=shift-1;i>0;--i)
-			recalc(i);
+
+
+		int nextLevel = shift;
+		int len = 1;
+		for(int i=shift-1;i>0;--i){
+			if(i<nextLevel){
+				nextLevel>>=1;
+				++len;
+			}
+			recalc(i,len);
+		}
 	}
 
 	ElementType get(size_t left, size_t right){
 		if(left>right)
-			throw std::logic_error;
+			throw std::logic_error("Invalid range");
 		return _get(1, left, right, 0, shift-1);
 	}
 
 	void set(size_t left, size_t right, ModType arg){
 		if(left>right)
-			throw std::logic_error;
+			throw std::logic_error("Invalid range");
 		_set(1, left, right, 0, shift - 1, arg);
 	}
 	
