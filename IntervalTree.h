@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <stdexcept>
+#include <algorithm>
 template <typename ElementType, typename ModType, typename MergeFunctorType,
 	typename ModFuncType, typename CalcModType,ElementType Zero = ElementType(),
 	ModType ModZero = ModType() >
@@ -39,20 +40,26 @@ class IntervalTree{
 		tree[pos]=functor(modify(tree[2*pos],mod[2*pos],len>>1),modify(tree[2*pos+1],mod[2*pos+1],len>>1));
 	}
 
-	ElementType _get(size_t v,size_t l,size_t r,size_t v_l,size_t v_r){
-		if(l<=v_l && r>=v_r)
+	ElementType _get(size_t v,size_t l,size_t r,size_t v_l,size_t v_r) const{
+		l=std::max(l,v_l);
+		r=std::min(r,v_r);
+		if(l==v_l && r==v_r)
 			return modify(tree[v], mod[v], v_r-v_l+1);
 		if(l>r)
 			return Zero;
 		assert(v<shift);
-		return functor(
-			_get(2*v, l, r, v_l, (v_l+v_r)>>1),
-			_get(2*v+1, l, r, (v_l+v_r)>>1+1,v_r)
+		return modify(
+			functor(
+				_get(2*v, l, r, v_l, (v_l+v_r)>>1),
+				_get(2*v+1, l, r, ((v_l+v_r)>>1)+1,v_r)
+			),
+			mod[v],
+			r - l + 1
 		);
 	}
 
 	void _set(size_t v, size_t l,size_t r, size_t v_l,size_t v_r,ModType arg){
-		if(l>=v_l && r<=v_r){
+		if(l<=v_l && r>=v_r){
 			mod[v] = calc_mod(mod[v], arg);
 			return;
 		}
@@ -60,7 +67,7 @@ class IntervalTree{
 			return;
 		assert(v<shift);
 		_set(2*v  , l, r, v_l, (v_l+v_r)>>1  , arg);
-		_set(2*v+1, l, r, (v_l+v_r)>>1+1, v_r, arg);
+		_set(2*v+1, l, r, ((v_l+v_r)>>1)+1, v_r, arg);
 		recalc(v, v_r - v_l+1);
 	}
 
@@ -73,12 +80,12 @@ class IntervalTree{
 	}
 
 	template <typename Iterator>
-	IntervalTree(Iterator begin, Iterator end, MergeFunctorType functor = MergeFunctorType(),
+	IntervalTree(Iterator begin,Iterator end, MergeFunctorType functor = MergeFunctorType(),
 			ModFuncType modify=ModFuncType(), CalcModType calc_mod=CalcModType()):
 			functor(functor), modify(modify), calc_mod(calc_mod)
 	{
 		allocate(end-begin);
-		std::copy(begin, end, tree.begin()+1);
+		std::copy(begin, end, tree.begin()+shift);
 
 
 		int nextLevel = shift;
@@ -92,7 +99,7 @@ class IntervalTree{
 		}
 	}
 
-	ElementType get(size_t left, size_t right){
+	ElementType get(size_t left, size_t right) const{
 		if(left>right)
 			throw std::logic_error("Invalid range");
 		return _get(1, left, right, 0, shift-1);
