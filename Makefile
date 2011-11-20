@@ -1,17 +1,34 @@
-headers=src/general.h src/node.h src/binheap.h
-sources=src/node.cpp src/binheap.cpp
-objects=obj/binheap.o obj/node.o
+srcdir := src
+objdir := obj
+bindir := bin
+logdir := logs
+srcsub := heap test
+relsrc := $(addprefix ../$(srcdir)/,$(srcsub))
+relinc := ../$(srcdir)
+relobj := ../$(objdir)
+relbin := ../$(bindir)
+cflags := -Wall -O3 -I$(relinc)
+lflags := -g
+objfls := $(relobj)/*.o
+srcfls := $(addsuffix /*.cpp,$(relsrc))
 
-test:test/test.cpp obj Makefile
-	cp test/test.cpp src
-	g++ -c src/test.cpp -o obj/test.o
-	rm src/test.cpp
-	g++ -o bin/test $(objects) obj/test.o
+all:$(objdir) $(bindir) $(logdir)
+	make --directory=./obj --makefile=../Makefile binary
 
-obj:$(sources) $(headers)  Makefile 
-	g++ -c $(sources)
-	mv *.o obj
+$(objdir):
+	mkdir $(objdir)
+	
+$(bindir):
+	mkdir $(bindir)
+
+$(logdir):
+	mkdir $(logdir)
+
+binary:objects
+	g++ $(lflags) -o $(relbin)/binary $(objfls)
+
+objects:
+	g++ $(cflags) -c $(srcfls)
 
 clean:
-	rm obj/*
-	rm bin/*
+	rm -r $(objdir) $(bindir) $(logdir)

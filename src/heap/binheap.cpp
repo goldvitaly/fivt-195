@@ -1,4 +1,5 @@
 #include "binheap.h"
+#include <cstdio>
 
 binheap::binheap(int single){
 	node* n = new node(single);

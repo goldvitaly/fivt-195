@@ -1,10 +1,12 @@
-#include "binheap.h"
+#include "heap/binheap.h"
 #include <cstdlib>
 #include <iostream>
+#include <mcheck.h>
 
 using namespace std;
 
 int main(){
+	mtrace();
 	srand(35);
 	binheap h;
 	int sz = 50;
@@ -21,5 +23,6 @@ int main(){
 		//h.print();
 	}
 	cout<<endl;
+	muntrace();
 	return 0;
 }
