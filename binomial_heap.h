@@ -47,9 +47,6 @@ class binomial_heap
             }
         }
 
-
-
-
         void merge(std::vector <node*> *heap2)
         {
             std::vector <node*> new_heap;
@@ -59,21 +56,22 @@ class binomial_heap
             heap_.resize(l, 0);
             for(size_t  i = 0 ; i < l; i++)
             {
-                node *for_check;
-                for_check = heap_[i];
-                for(int j = 0; j < 2; j++)
-                {
-                    if(j)
-                        for_check = (*heap2)[i];
-                    if(for_check != 0)
-                        if(new_heap[i] == 0)
-                            new_heap[i] = for_check;
-                        else
-                        {
-                            new_heap[i + 1] = merge(new_heap[i], for_check);
-                            new_heap[i] = 0;
-                        }
-                }
+                if(heap_[i] != 0)
+                    if(new_heap[i] == NULL)
+                        new_heap[i] = heap_[i];
+                    else
+                    {
+                        new_heap[i + 1] = merge(new_heap[i], heap_[i]);
+                        new_heap[i] = NULL;
+                    }
+                if((*heap2)[i] != NULL)
+                    if(new_heap[i] == NULL)
+                        new_heap[i] = (*heap2)[i];
+                    else
+                    {
+                        new_heap[i + 1] = merge(new_heap[i], (*heap2)[i]);
+                        new_heap[i] = NULL;
+                    }
             }
             heap_.swap(new_heap);
             while(heap_[heap_.size() - 1] == 0)   heap_.resize(heap_.size() - 1);
@@ -90,13 +88,13 @@ class binomial_heap
         }
 
 
-        const size_t size()
+        size_t size() const
         {
             return size_;
         }
 
 
-        size_t count_size(node *x) //this is only for testing
+        size_t count_size(node *x) const  //this is only for testing
         {
             if(x == 0)   return 0;
             else            return 1 + count_size(x -> sibling) + count_size(x -> child);
@@ -117,13 +115,13 @@ class binomial_heap
 
         void merge_and_del(binomial_heap *H)
         {
+            if(H == 0)   return;
             if(size_ == 0)
             {
                 heap_.swap(H -> heap_);
                 std::swap(size_, H -> size_);
                 return;
             }
-            if(H == 0)   return;
             size_ += H -> size_;
             merge(&(H -> heap_));
         }
@@ -139,7 +137,7 @@ class binomial_heap
         }
 
 
-        const T extract_min()
+        T extract_min()
         {
             std::vector <node*> new_heap;
             new_heap.clear();
@@ -169,7 +167,7 @@ class binomial_heap
         }
 
 
-        const T get_min()
+        T get_min() const
         {
             T ret;
             bool found  = false;
