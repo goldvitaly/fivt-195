@@ -8,7 +8,7 @@ class node{
 	
 	private:
 		
-		
+		node(node* copyFrom);
 	
 	public:
 		
@@ -18,6 +18,6 @@ class node{
 		node(int key);
 		~node();
 		
-		void merge(node* n);
+		static node* merge(node* a,node* b);
 		
 };

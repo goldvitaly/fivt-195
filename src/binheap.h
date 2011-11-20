@@ -25,5 +25,6 @@ class binheap{
 		void pop();
 		int top();
 		void merge(binheap* b);
-	
+		void print();
+		//void tree();
 };
