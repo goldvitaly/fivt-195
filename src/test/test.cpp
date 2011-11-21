@@ -1,5 +1,7 @@
 //Hello from child branch!
 
+#define MEMCHK
+
 #include "heap/binheap.h"
 #include <cstdlib>
 #include <iostream>
