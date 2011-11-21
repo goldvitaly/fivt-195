@@ -13,8 +13,7 @@
 #include <stdexcept>
 #include <algorithm>
 template <typename ElementType, typename ModType, typename MergeFunctorType,
-	typename ModFuncType, typename CalcModType,ElementType Zero = ElementType(),
-	ModType ModZero = ModType() >
+	typename ModFuncType, typename CalcModType>
 class IntervalTree{
 	std::vector<ElementType> tree;
 	std::vector<ModType> mod;
@@ -22,6 +21,8 @@ class IntervalTree{
 	MergeFunctorType functor;
 	ModFuncType modify;
 	CalcModType calc_mod;
+	ElementType Zero;
+	ModType ModZero;
 	void allocate(size_t n){
 		assert(n>0);
 		size_t height=0;
@@ -72,17 +73,21 @@ class IntervalTree{
 	}
 
 	public:
-	explicit IntervalTree(size_t n, MergeFunctorType functor = MergeFunctorType(),
+	explicit IntervalTree(size_t n, 
+			ElementType Zero = ElementType(), ModType ModZero = ModType(),
+			MergeFunctorType functor = MergeFunctorType(),
 			ModFuncType modify=ModFuncType(), CalcModType calc_mod=CalcModType()):
-			functor(functor), modify(modify), calc_mod(calc_mod)
+			functor(functor), modify(modify), calc_mod(calc_mod),Zero(Zero),ModZero(ModZero)
 	{
 		allocate(n);
 	}
 
 	template <typename Iterator>
-	IntervalTree(Iterator begin,Iterator end, MergeFunctorType functor = MergeFunctorType(),
+	IntervalTree(Iterator begin,Iterator end,
+			ElementType Zero = ElementType(), ModType ModZero = ModType(),
+			MergeFunctorType functor = MergeFunctorType(),
 			ModFuncType modify=ModFuncType(), CalcModType calc_mod=CalcModType()):
-			functor(functor), modify(modify), calc_mod(calc_mod)
+			functor(functor), modify(modify), calc_mod(calc_mod),Zero(Zero),ModZero(ModZero)
 	{
 		allocate(end-begin);
 		std::copy(begin, end, tree.begin()+shift);
