@@ -21,10 +21,10 @@ int main(){
 		mtrace();
 	#endif
 	srand(35);
-	binheap h;
+	binheap<double> h;
 	int sz = 50;
 	for(int i = 0; i < sz; i++){
-		int n=rand()%100;
+		double n=rand()%100/50.0;
 		cout << n << ' ';
 		h.push(n);
 		//h.print();

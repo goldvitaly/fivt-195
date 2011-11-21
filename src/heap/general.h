@@ -2,6 +2,6 @@
 #define GENERAL_H
 
 #include <cassert>
-#define vnode vector<node*>
+#define vnode vector<node<T> * >
 
 #endif
