@@ -23,8 +23,10 @@ class IntervalTree{
 	CalcModType calc_mod;
 	ElementType Zero;
 	ModType ModZero;
+	size_t size;
 	void allocate(size_t n){
 		assert(n>0);
+		size = n;
 		size_t height=0;
 		while(n>(1<<height)){
 			++height;
@@ -105,13 +107,13 @@ class IntervalTree{
 	}
 
 	ElementType get(size_t left, size_t right) const{
-		if(left>right)
+		if(left>right || right>=size || left<0)
 			throw std::logic_error("Invalid range");
 		return _get(1, left, right, 0, shift-1);
 	}
 
 	void set(size_t left, size_t right, ModType arg){
-		if(left>right)
+		if(left>right || right>=size || left<0)
 			throw std::logic_error("Invalid range");
 		_set(1, left, right, 0, shift - 1, arg);
 	}
