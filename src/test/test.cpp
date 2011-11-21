@@ -1,12 +1,21 @@
+//Hello from parent branch!
+
+#define MEMCHK
+
 #include "heap/binheap.h"
 #include <cstdlib>
 #include <iostream>
-#include <mcheck.h>
+
+#ifdef MEMCHK
+	#include <mcheck.h>
+#endif
 
 using namespace std;
 
 int main(){
-	mtrace();
+	#ifdef MEMCHK
+		mtrace();
+	#endif
 	srand(35);
 	binheap h;
 	int sz = 50;
@@ -23,6 +32,8 @@ int main(){
 		//h.print();
 	}
 	cout<<endl;
-	muntrace();
+	#ifdef MEMCHK
+		muntrace();
+	#endif
 	return 0;
 }
