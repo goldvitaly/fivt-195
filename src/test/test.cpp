@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-//Hello from merged branch!
-=======
-//Hello from merged branch!
->>>>>>> Zakhar.TemplateHeap
+
 
 #define MEMCHK
 
