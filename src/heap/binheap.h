@@ -4,14 +4,14 @@
 
 using namespace std;
 
-class binheap{
+template <typename T> class binheap{
 	
 	private:
 		
 		vnode nodes;
 		
-		binheap(int single);
-		binheap(node* parent);
+		binheap(T single);
+		binheap(node<T>* parent);
 		
 		int bestIndex();
 		void tidy();
@@ -21,10 +21,11 @@ class binheap{
 		binheap();
 		~binheap();
 		
-		void push(int value);
+		void push(T value);
 		void pop();
-		int top();
+		T top();
 		void merge(binheap* b);
 		void print();
 		//void tree();
 };
+

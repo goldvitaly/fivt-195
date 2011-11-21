@@ -4,7 +4,7 @@
 
 using namespace std;
 
-class node{
+template<typename T> class node{
 	
 	private:
 		
@@ -12,10 +12,10 @@ class node{
 	
 	public:
 		
-		int value;
+		T value;
 		vnode children;
 		
-		node(int key);
+		node(T key);
 		~node();
 		
 		static node* merge(node* a,node* b);

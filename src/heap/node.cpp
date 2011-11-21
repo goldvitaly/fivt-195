@@ -1,27 +1,27 @@
 #include "node.h"
 
-node::node(node* copyFrom){
+template <typename T> node<T>::node(node* copyFrom){
 	value = copyFrom -> value;
 	children = copyFrom -> children;
 }
 
-node::node(int key){
+template <typename T> node<T>::node(T key){
 	value = key;
 }
 
-node::~node(){
+template <typename T> node<T>::~node(){
 	children.clear();
 }
 
-node* node::merge(node* a,node* b){
+template <typename T> node<T>* node<T>::merge(node<T>* a,node<T>* b){
 	assert(a != NULL && b != NULL);
-	node* ret;
+	node<T>* ret;
 	if((a -> value) < (b -> value)){
-		ret = new node(b);
+		ret = new node<T>(b);
 		ret -> children.push_back(a);
 	}
 	else{
-		ret = new node(a);
+		ret = new node<T>(a);
 		ret -> children.push_back(b);
 	}
 	return ret;

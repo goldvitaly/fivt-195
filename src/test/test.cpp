@@ -12,7 +12,7 @@ using namespace std;
 int main(){
 	mtrace();
 	srand(35);
-	binheap h;
+	binheap<int> h;
 	int sz = 50;
 	for(int i = 0; i < sz; i++){
 		int n=rand()%100;
