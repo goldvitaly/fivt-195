@@ -25,7 +25,7 @@ int main(){
 		h.push(n);
 		//h.print();
 	}
-	cout<<endl;
+	cout<<endl<<endl;
 	for(int i = 0; i < sz; i++){
 		cout << h.top() << ' ';
 		h.pop();

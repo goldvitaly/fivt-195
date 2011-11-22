@@ -1,34 +1,11 @@
-srcdir := src
-objdir := obj
-bindir := bin
-logdir := logs
-srcsub := test
-relsrc := $(addprefix ../$(srcdir)/,$(srcsub))
-relinc := ../$(srcdir)
-relobj := ../$(objdir)
-relbin := ../$(bindir)
-cflags := -Wall -O3 -I$(relinc)
-lflags := -g
-objfls := $(relobj)/*.o
-srcfls := $(addsuffix /*.cpp,$(relsrc))
-
-all:$(objdir) $(bindir) $(logdir)
-	make --directory=./obj --makefile=../Makefile binary
-
-$(objdir):
-	mkdir $(objdir)
+bin:obj
+	g++ -o bin/binary obj/*.o
 	
-$(bindir):
-	mkdir $(bindir)
-
-$(logdir):
-	mkdir $(logdir)
-
-binary:objects
-	g++ $(lflags) -o $(relbin)/binary $(objfls)
-
-objects:
-	g++ $(cflags) -c $(srcfls)
+obj:src/*/*.cpp
+	g++ -c src/*/*.cpp -Isrc -Isrc/*
+	mv *.o obj
 
 clean:
-	rm -r $(objdir) $(bindir) $(logdir)
+	rm -r -f obj/*
+	rm -r -f bin/*
+	
