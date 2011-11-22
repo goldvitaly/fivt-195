@@ -28,7 +28,7 @@ int main(){
 	cout<<endl<<endl;
 	for(int i = 0; i < sz; i++){
 		cout << h.top() << ' ';
-		h.pop();
+		h.extractMax();
 		//h.print();
 	}
 	cout<<endl;

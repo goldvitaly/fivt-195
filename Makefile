@@ -1,7 +1,7 @@
-bin:obj
+binary:objects
 	g++ -o bin/binary obj/*.o
 	
-obj:src/*/*.cpp
+objects:src/*/*.cpp
 	g++ -c src/*/*.cpp -Isrc -Isrc/*
 	mv *.o obj
 
