@@ -31,9 +31,9 @@ public:
         return tree1;
     }
     int num_children()const{return children.size();}
-    int size(){return num_children();}
+    int size() const {return num_children();}
     vector<BinTree<T>*>& get_children() {return children;} //возврат списка детей
-    void children_NULL()
+    void clear_children()
     {
         children.clear();
     }
@@ -43,19 +43,19 @@ template<class T>
 class BinHeap{
 private:
     vector<BinTree<T>*> link;   // хранит деревья
-    int min_id()
+    int min_id() const
     {
         int id = 0;
-        bool mark = true;
+        bool found = false;
         for(size_t it = 0; it < link.size(); it++)
         {
-            if((link[it] != NULL) && (mark || link[it]->min() < link[id]->min()))
+            if((link[it] != NULL) && ( !found || link[it]->min() < link[id]->min()))
             {
                 id = it;
-                mark = false;
+                found = true;
             }
         }
-        if(mark)
+        if(!found)
         {
             cout << "Empty heap" <<endl;
             exit(1);
@@ -64,7 +64,7 @@ private:
     }
 public:
     BinHeap(){link.resize(0);};
-    BinHeap(T key){
+    BinHeap(const T& key){
         link.push_back(new BinTree<T>(key));
     }
     BinHeap(BinTree<T>* tree){
@@ -77,7 +77,7 @@ public:
             delete link[i];
         }
     }
-    T min()               //возвращает минимальное значение
+    T min() const               //возвращает минимальное значение
     {
         return link[min_id()]->min();
     }
@@ -85,18 +85,18 @@ public:
     {
         int id = min_id();
         BinTree<T>* ans_tree = link[id];
-        vector<BinTree<T>*> children_temp = ans_tree->get_children();
-        ans_tree -> children_NULL(); //подготовка к  удалению мин вершины
+        vector<BinTree<T>*> children_remove_link = ans_tree->get_children();
+        ans_tree ->clear_children(); //подготовка к  удалению мин вершины
         delete ans_tree;
         link[id] = NULL;
-        BinHeap<T>* rez = new BinHeap<T>;
-        for(size_t i = 0; i < children_temp.size(); i++) // слияние с детьми удаляемой вершины
+        BinHeap<T>* res = new BinHeap<T>;
+        for(size_t i = 0; i < children_remove_link.size(); i++) // слияние с детьми удаляемой вершины
         {
-            BinHeap<T>* temp = new BinHeap<T>(children_temp[i]);
-            rez = merge(rez, new BinHeap<T>(children_temp[i]));
+            BinHeap<T>* temp = new BinHeap<T>(children_remove_link[i]);
+            res = merge(res, new BinHeap<T>(children_remove_link[i]));
         }
-        rez = merge(rez, this); //слияние с тек кучей без элемента
-        return rez;
+        res = merge(res, this); //слияние с тек кучей без элемента
+        return res;
     }
     static BinHeap<T>* merge(BinHeap<T>* heap1, BinHeap<T>* heap2){
 
@@ -144,8 +144,8 @@ public:
         BinHeap<T>* ans = merge(this, first);
         return ans;
     }
-    bool empty(){return(link.size() == 0);}         //O(1)
-    int size()                                      // O(link)
+    bool empty() const{return(link.size() == 0);}         //O(1)
+    int size() const                                      // O(link)
     {
         int ans = 0;
         for(size_t i = 0; i < link.size(); i++)
