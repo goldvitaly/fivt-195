@@ -1,3 +1,6 @@
+#ifndef OUT_SORT_H_INCLUDED
+#define OUT_SORT_H_INCLUDED
+
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
@@ -7,8 +10,6 @@
 #include <algorithm>
 #include <queue>
 #include <utility>
-#include <set>
-#include <sstream>
 
 using namespace std;
 
@@ -22,7 +23,6 @@ public:
         return Cmp()(b, a);
     }
 };
-
 
 template<class Cmp>
 class CmpPairFirst
@@ -41,22 +41,24 @@ void out_sort(ifstream& from, ofstream& rez, int size_blok, Cmp cmp)
     int num_bloks = 0;
     char name_file[20];
     vector <T> A(size_blok);
-    while(!from.eof())
+    while(from.good())
     {
         sprintf(name_file,"%d.txt", num_bloks);
         ofstream to(name_file);
         int size_file;
-        for(size_file = 0; !from.eof() && size_file < size_blok; size_file++)
+        for(size_file = 0; from.good() && size_file < size_blok; )
         {
             T num_now;
-            from >> num_now;
-            A[size_file] = num_now;
+            if(from >> num_now)
+            {
+                A[size_file++] = num_now;
+            }
         }
         sort(A.begin(), A.begin() + size_file, Cmp());
-
         for(int j  = 0; j < size_file; j++)
             to << A[j] << endl;
-        num_bloks++;
+        if(size_file > 0)
+            num_bloks++;
     }
 
     priority_queue<pair<T, ifstream*>, vector<pair<T, ifstream*> >,CmpPairFirst<ReverseCmp<Cmp> > > Queue;
@@ -74,10 +76,9 @@ void out_sort(ifstream& from, ofstream& rez, int size_blok, Cmp cmp)
         pair<T, ifstream*> Pair = Queue.top();
         Queue.pop();
         rez << Pair.first << endl;
-        if(!Pair.second->eof())
+        T num_now;
+        if(*(Pair.second) >> num_now)
         {
-            T num_now;
-            *(Pair.second) >> num_now;
             Pair.first = num_now;
             Queue.push(Pair);
         }
@@ -89,11 +90,4 @@ void out_sort(ifstream& from, ofstream& rez, int size_blok, Cmp cmp)
     return;
 }
 
-int main()
-{
-    ifstream from("num.txt");
-    ofstream out("rez.txt");
-    out_sort<int>(from, out, 1000, std::less<int>());
-    return 0;
-}
-
+#endif // OUT_SORT_H_INCLUDED
