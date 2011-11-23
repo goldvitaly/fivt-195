@@ -1,7 +1,7 @@
-#include <string>
+#ifndef BINOMIALHEAP_H_INCLUDED
+#define BINOMIALHEAP_H_INCLUDED
+
 #include <vector>
-#include <iostream>
-#include <fstream>
 
 using namespace std;
 
@@ -11,7 +11,7 @@ private:
     T key_;
     vector<BinTree<T>*> children;
 public:
-    BinTree(T key){
+    explicit BinTree(T key){
         children.resize(0);
         key_ = key;
     }
@@ -23,6 +23,7 @@ public:
     }
     T min() const{return key_;}     //минимум в поддереве - корень
     static BinTree<T>* merge(BinTree<T>* tree1, BinTree<T>* tree2){
+        assert(tree1->num_children() == tree2->num_children());
         if(tree1->min() > tree2->min())   // выбирает что из деревьев корень
         {
             swap(tree1, tree2);
@@ -33,10 +34,7 @@ public:
     int num_children()const{return children.size();}
     int size() const {return num_children();}
     vector<BinTree<T>*>& get_children() {return children;} //возврат списка детей
-    void clear_children()
-    {
-        children.clear();
-    }
+    void clear_children() {children.clear(); }
 };
 
 template<class T>
@@ -62,12 +60,28 @@ private:
         }
         return id;
     }
+    void del_last_zero()
+    {
+        int now_size = link.size();
+        while(now_size > 0 && link[now_size-1] == NULL)
+        {
+            now_size--;
+        }
+        link.resize(now_size);
+    }
+    bool exist_tree(const int& i) const
+    {
+        if(i < link.size() && link[i] != NULL)
+            return true;
+        else
+            return false;
+    }
 public:
-    BinHeap(){link.resize(0);};
-    BinHeap(const T& key){
+    BinHeap(){};
+    explicit BinHeap(const T& key){
         link.push_back(new BinTree<T>(key));
     }
-    BinHeap(BinTree<T>* tree){
+    explicit BinHeap(BinTree<T>* tree){
         link.resize(tree->num_children());
         link.push_back(tree);
     }
@@ -86,7 +100,7 @@ public:
         int id = min_id();
         BinTree<T>* ans_tree = link[id];
         vector<BinTree<T>*> children_remove_link = ans_tree->get_children();
-        ans_tree ->clear_children(); //подготовка к  удалению мин вершины
+        ans_tree->clear_children(); //подготовка к  удалению мин вершины
         delete ans_tree;
         link[id] = NULL;
         BinHeap<T>* res = new BinHeap<T>;
@@ -110,12 +124,16 @@ public:
             }
             vector<BinTree<T>*> trees;
             trees.reserve(3);
-            if(i < heap1->link.size() && heap1->link[i] != NULL)  //выбор ненулевых деревьев
+            if(heap1->exist_tree(i))
                 trees.push_back(heap1->link[i]);
-            if(i < heap2->link.size() && heap2->link[i] != NULL)
+            if(heap2->exist_tree(i))
                 trees.push_back(heap2->link[i]);
             if(flag != NULL)
                 trees.push_back(flag);
+
+            for(int j = 0; j < trees.size(); j++)
+                assert(trees[j]->size() == i);
+
             if(trees.size() == 1)                 //разбор случаев кол-ва деревьев для суммы
             {
                 ans->link[i] = trees[0];
@@ -130,12 +148,8 @@ public:
                 }
             }
         }
-        int now_size = ans->link.size();
-        while(now_size > 0 && ans->link[now_size-1] == NULL)
-        {
-            now_size--;
-        }
-        ans->link.resize(now_size);
+        ans->del_last_zero();
+        assert(ans->size() == heap1->size() + heap2->size());
         return ans;
     }
     BinHeap<T>* push(T key)     //возв кучу с доб ключом
@@ -157,8 +171,4 @@ public:
     }
 };
 
-
-int main()
-{
-    return 0;
-}
+#endif // BINOMIALHEAP_H_INCLUDED
