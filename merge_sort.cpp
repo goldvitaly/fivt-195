@@ -3,50 +3,74 @@
 #include <utility>
 #include <algorithm>
 #include <vector>
+#include <time.h>
 
 using namespace std;
 
-struct type{
+template<class T, class It>
+void merge_sort(It l, It r)
+{
+    if(r - l <= 1)
+        return;
+    It m = l + (r - l) / 2;
+    merge_sort<T>(l, m);
+    merge_sort<T>(m, r);
+    vector<T> Temp(r - l);
+    merge(l, m, m, r, Temp.begin());
+    copy(Temp.begin(), Temp.end(), l);
+}
+
+class data{
     int key;
     int val;
-    bool operator <(type x) const{
+public:
+    explicit data(const int key_ = 0, const int val_ = 0){
+        key = key_;
+        val = val_;
+    }
+    bool operator<(const data& x) const{
         if(key < x.key)
+            return true;
+        else
+            return false;
+    }
+    bool operator!=(const data& x) const{
+        if(key != x.key || val != x.val)
             return true;
         else
             return false;
     }
 };
 
-vector <type> A;
-
-void merge_sort(vector<type> :: iterator l, vector<type> :: iterator r)
+void test(const int& n)
 {
-    if(r - l <= 1)
-        return;
-    vector<type> :: iterator m = l + (r - l) / 2;
-    merge_sort(l, m);
-    merge_sort(m, r);
-    vector<type> T(r - l);
-    merge(l, m, m, r, T.begin());
-    for(int i = 0; i < (r - l); i++)
-        *(l + i) = *(T.begin() + i);
+    srand(time(NULL));
+    vector<data> A;
+    for(int i = 0; i < n; i++)
+    {
+        int key = rand()%(n/3);
+        int val = rand();
+        A.push_back(data(key, val));
+    }
+    vector<data> B = A;
+    stable_sort(A.begin(), A.end());
+    merge_sort<data>(B.begin(), B.end());
+    for(int i = 0; i < n; i++)
+    {
+        if(A[i] != B[i])
+        {
+            cout << "Error" << endl;
+            return;
+        }
+    }
+    cout << "Ok" << endl;
 }
 
 int main()
 {
-    int n;
-    scanf("%d", &n);
-    for(int i = 0; i < n; i++)
-    {
-        type temp;
-        cin >> temp.key >> temp.val;
-        A.push_back(temp);
-    }
-    merge_sort(A.begin(), A.end());
-
-    cout << endl;
-    for(int i = 0; i < n; i++)
-        cout << A[i].key << " " << A[i].val << endl;
+    for(int n = 10; n <= 10000; n *= 10)
+        for(int trial = 0; trial < 5; trial++)
+            test(n);
     return 0;
 }
 
