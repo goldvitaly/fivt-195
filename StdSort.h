@@ -7,12 +7,13 @@
 
 #ifndef STDSORT_H
 #define	STDSORT_H
+#include <algorithm>
 template<typename T>
 class StdSort {
 public:
 
 	std::greater<T> greater() const {
-		return std::greater<T > ();
+		return std::greater<T> ();
 	}
 
 	template<typename Iterator>

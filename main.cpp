@@ -1,11 +1,7 @@
-#include <fstream> 
-#include <sstream>
 #include "external_sort.h"
-#include "ByteFileSorter.h"
-int main() {
-	default_external_sort<int> (5, "test");
-	
-	ByteFileIO input("second", ByteFileIO::permanence::PERMANENT);
-	external_sort<unsigned> (100, input, ByteFileSorter (), StdSort<int> ());
+int main(int argc, char** argv) {
+
+	default_external_sort<int>(10,"test");
 	return 0;
 }
+

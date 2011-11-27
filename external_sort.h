@@ -8,34 +8,44 @@
 #ifndef EXTERNAL_SORT_H
 #define	EXTERNAL_SORT_H
 
-#include "FileExtSorter.h"
-#include <iostream>
 #include <queue>
 #include <vector>
-#include <algorithm>
 #include "StdSort.h"
 
-template <typename T,  typename Source, typename ExtSorter,typename Sort = StdSort<T> >
-void external_sort(int blockSize,Source& file, ExtSorter Sorter, Sort SortClass=Sort()) {
-	std::vector<T> range;
-	typedef IO<T>* File;
-	typedef std::pair<T, File> FileValue;
 
-	//Function to compare Files by value
-	auto comparer = [SortClass](FileValue a, FileValue b){return SortClass.greater()(a.first, b.first);};
+#include <iostream>
+
+//типы Source и тип Storage не обязаны совпадать.
+//Manager::newStorage должен возвращать тип Storage
+template <typename T, typename Storage, typename Manager, typename Source, typename Sort = StdSort<T> >
+void external_sort(int blockSize, Source source, Manager manager=Manager(), Sort sortWay=Sort()) {
+
+	std::vector<T> range(blockSize);
+	struct StorageValue{
+		Storage storage;
+		T value;
+		StorageValue(Storage& storage, const T& val):storage(storage),value(val){
+			storage.toStart();
+			storage.read(value);
+		}
+	};
+	//Function to compare Storages by value
+	auto comparer = [sortWay](const StorageValue& a,const StorageValue& b){
+		return sortWay.greater()(a.value, b.value);
+	};
 	std::priority_queue <
-					FileValue,
-					std::vector<FileValue>,
-					__typeof__(comparer)
-					>
-					heap(comparer);
+		StorageValue,
+		std::vector<StorageValue>,
+		__typeof__(comparer)
+		>
+	heap(comparer);
 	while (true) {
-		File out = Sorter.getNextFile();
+		Storage out = manager.newStorage();
 		bool finish = false;
 		int curPos;
 		for (curPos = 0; curPos < blockSize; ++curPos) {
-			file.read(range[curPos]);
-			if (!file.ok()) {
+			source.read(range[curPos]);
+			if (!source.ok()) {
 				finish = true;
 				break;
 			}
@@ -43,35 +53,41 @@ void external_sort(int blockSize,Source& file, ExtSorter Sorter, Sort SortClass=
 		if (!curPos)
 			break;
 
-		SortClass.sort(range.begin(), range.end() + curPos);
+		sortWay.sort(range.begin(), range.begin() + curPos);
 		for (int j = 0; j < curPos; ++j) {
-			out->write(range[j]);
+			out.write(range[j]);
 		}
-		heap.push(std::make_pair(range[0], out));
-		out->toStart();
-		out->read(range[0]);
+		heap.push(StorageValue(out, range[0]));
+		out.toStart();
+		out.read(range[0]);
 		if (finish)
 			break;
 
 	}
 
+	source.clear();
 
-	file.clear();
 
 	while (!heap.empty()) {
-		FileValue curTop = heap.top();
+		StorageValue curTop = heap.top();
 		heap.pop();
-		file.write(curTop.first);
-		curTop.second->read(curTop.first);
-		if (curTop.second->ok()) {
+		source.write(curTop.value);
+		curTop.storage.read(curTop.value);
+		if (curTop.storage.ok()) {
 			heap.push(curTop);
 		}
 	}
+	
 }
-
+#include "SimpleFileSource.h"
+#include "FileStorageManager.h"
 template <typename T>
-void default_external_sort(int blockSize, std::string file) {
-	FileIO<T > input(file, FileIO<T>::permanence::PERMANENT);
-	external_sort<T> (blockSize, input, FileExtSorter<T> (), StdSort<T> ());
+void default_external_sort(int blockSize, const std::string& file) {
+	SimpleFileSource<T> input(file);
+	
+	external_sort<T, SimpleFileSource<T>, FileStorageManager<T,SimpleFileSource<T>> > (
+		blockSize,
+		input
+	);
 }
 #endif	/* EXTERNAL_SORT_H */
