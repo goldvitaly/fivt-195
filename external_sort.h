@@ -18,14 +18,19 @@ namespace ExternalSort {
 	template <typename T,  typename Source, typename ExtSorter,typename Sort = StdSort<T> >
 	void external_sort(int blockSize,Source& file, ExtSorter Sorter, Sort SortClass=Sort()) {
 		T* tmp_range = new T[blockSize];
-		auto comparer = [SortClass](std::pair<T, IO<T>* > a, std::pair<T, IO<T>* >b){return SortClass.greater()(a.first, b.first);};
+		typedef IO<T>* File;
+		typedef std::pair<T, File > FileValue;
+
+		//Function to compare Files by value
+		auto comparer = [SortClass](FileValue a, FileValue b){return SortClass.greater()(a.first, b.first);};
 		std::priority_queue <
-						std::pair<T, IO<T>* >,
-						std::vector<std::pair<T, IO<T>* > >,
+						FileValue,
+						std::vector<FileValue>,
 						__typeof__(comparer)
-						> heap(comparer);
+						>
+						heap(comparer);
 		while (true) {
-			IO<T>* out = Sorter.getNew();
+			File out = Sorter.getNew();
 			bool finish = false;
 			int i;
 			for (i = 0; i < blockSize; ++i) {
@@ -68,7 +73,7 @@ namespace ExternalSort {
 	template <typename T>
 	void default_external_sort(int blockSize, std::string file) {
 		FileIO<T > input(file, FileIO<T>::type::STABLE);
-		external_sort<T> (blockSize, input, FileExtSorter<T > (), StdSort<T > ());
+		external_sort<T> (blockSize, input, FileExtSorter<T> (), StdSort<T> ());
 	}
 
 };
