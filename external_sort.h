@@ -11,15 +11,16 @@
 #include "FileExtSorter.h"
 #include <iostream>
 #include <queue>
+#include <vector>
 #include <algorithm>
 #include "StdSort.h"
 namespace ExternalSort {
 
 	template <typename T,  typename Source, typename ExtSorter,typename Sort = StdSort<T> >
 	void external_sort(int blockSize,Source& file, ExtSorter Sorter, Sort SortClass=Sort()) {
-		vector<T> range;
+		std::vector<T> range;
 		typedef IO<T>* File;
-		typedef std::pair<T, File > FileValue;
+		typedef std::pair<T, File> FileValue;
 
 		//Function to compare Files by value
 		auto comparer = [SortClass](FileValue a, FileValue b){return SortClass.greater()(a.first, b.first);};
@@ -30,11 +31,11 @@ namespace ExternalSort {
 						>
 						heap(comparer);
 		while (true) {
-			File out = Sorter.getNew();
+			File out = Sorter.getNextFile();
 			bool finish = false;
 			int curPos;
 			for (curPos = 0; curPos < blockSize; ++curPos) {
-				file.read(range[i]);
+				file.read(range[curPos]);
 				if (!file.ok()) {
 					finish = true;
 					break;
@@ -43,7 +44,7 @@ namespace ExternalSort {
 			if (!curPos)
 				break;
 
-			SortClass.sort(range, range + curPos);
+			SortClass.sort(range.begin(), range.end() + curPos);
 			for (int j = 0; j < curPos; ++j) {
 				out->write(range[j]);
 			}
@@ -71,7 +72,7 @@ namespace ExternalSort {
 
 	template <typename T>
 	void default_external_sort(int blockSize, std::string file) {
-		FileIO<T > input(file, FileIO<T>::type::STABLE);
+		FileIO<T > input(file, FileIO<T>::permanence::PERMANENT);
 		external_sort<T> (blockSize, input, FileExtSorter<T> (), StdSort<T> ());
 	}
 

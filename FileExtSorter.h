@@ -17,21 +17,18 @@ namespace ExternalSort {
 	template <typename T>
 	class FileIO : public IO<T> {
 	public:
-		enum class type{
+		enum class permanence{
 			TEMPORARY,
-			STABLE
+			PERMANENT
 		};
 	private:
 		std::fstream stream;
 		std::string name;
-		type temporary;
-		
+		permanence perm;
 	public:
 
-		
-
-		FileIO(std::string s, type temp) : name(s), temporary(temp) {
-			if (temp==type::TEMPORARY)
+		FileIO(std::string s, permanence perm) : name(s), perm(perm) {
+			if (perm==permanence::TEMPORARY)
 				stream.open(s, std::ios_base::in | std::ios_base::out | std::ios_base::app);
 			else
 				stream.open(s, std::ios_base::in | std::ios_base::out);
@@ -39,7 +36,7 @@ namespace ExternalSort {
 
 		~FileIO() {
 			stream.close();
-			if (temporary==type::TEMPORARY)
+			if (perm==permanence::TEMPORARY)
 				std::remove(name.c_str());
 		}
 
@@ -69,7 +66,7 @@ namespace ExternalSort {
 	class FileExtSorter : public ExtSorter<T> {
 		std::string s;
 
-		void next() {
+		void nextName() {
 			for (int i = 0; i < s.length(); ++i) {
 				if (s[i] != 'z') {
 					++s[i];
@@ -80,9 +77,9 @@ namespace ExternalSort {
 			s += 'a';
 		}
 
-		IO<T>* generate() {
-			next();
-			return new FileIO<T > (s, FileIO<T>::type::TEMPORARY);
+		IO<T>* generateFile() {
+			nextName();
+			return new FileIO<T>(s, FileIO<T>::permanence::TEMPORARY);
 		}
 
 	};

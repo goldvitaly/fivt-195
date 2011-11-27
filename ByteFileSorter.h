@@ -16,19 +16,18 @@ namespace ExternalSort {
 
 	class ByteFileIO : public IO<unsigned> {
 	public:
-		enum class type{
+		enum class permanence{
 			TEMPORARY,
-			STABLE
+			PERMANENT
 		};
 	private:
 		std::fstream stream;
 		std::string name;
-		type temporary;
-		
+		permanence perm;
 	public:
 
-		ByteFileIO(std::string s, type temp) : name(s), temporary(temp) {
-			if (temp==type::TEMPORARY)
+		ByteFileIO(std::string s, permanence perm) : name(s), perm(perm) {
+			if (perm==permanence::TEMPORARY)
 				stream.open(s, std::ios_base::in | std::ios_base::out | std::ios_base::app);
 			else
 				stream.open(s, std::ios_base::in | std::ios_base::out);
@@ -36,7 +35,7 @@ namespace ExternalSort {
 
 		~ByteFileIO() {
 			stream.close();
-			if (temporary==type::TEMPORARY)
+			if (perm==permanence::TEMPORARY)
 				std::remove(name.c_str());
 		}
 
@@ -68,7 +67,7 @@ namespace ExternalSort {
 	class ByteFileSorter: public ExtSorter<unsigned> {
 		std::string s;
 
-		void next() {
+		void nextName() {
 			for (int i = 0; i < s.length(); ++i) {
 				if (s[i] != 'z') {
 					++s[i];
@@ -79,9 +78,9 @@ namespace ExternalSort {
 			s += 'a';
 		}
 
-		IO<unsigned>* generate() {
-			next();
-			return new ByteFileIO(s, ByteFileIO::type::TEMPORARY);
+		IO<unsigned>* generateFile() {
+			nextName();
+			return new ByteFileIO(s, ByteFileIO::permanence::TEMPORARY);
 		}
 
 	};
