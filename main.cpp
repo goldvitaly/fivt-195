@@ -2,7 +2,6 @@
 #include <sstream>
 #include "external_sort.h"
 #include "ByteFileSorter.h"
-using namespace ExternalSort;
 int main() {
 	default_external_sort<int> (5, "test");
 	

@@ -22,9 +22,10 @@ public:
 
 template <typename T>
 class ExtSorter {
-	virtual IO<T>* generate() = 0;
+	typedef IO<T>* FilePointer;
+	virtual FilePointer generateFile() = 0;
 
-	std::vector<IO<T>*> pts;
+	std::vector<FilePointer> pts;
 public:
 
 	virtual ~ExtSorter() {
@@ -32,8 +33,8 @@ public:
 			delete *it;
 	}
 
-	IO<T>* getNew() {
-		pts.push_back(this->generate());
+	FilePointer getNextFile() {
+		pts.push_back(this->generateFile());
 		return pts.back();
 	}
 };

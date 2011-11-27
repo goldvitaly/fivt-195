@@ -7,21 +7,18 @@
 
 #ifndef STDSORT_H
 #define	STDSORT_H
-namespace ExternalSort {
+template<typename T>
+class StdSort {
+public:
 
-	template<typename T>
-	class StdSort {
-	public:
+	std::greater<T> greater() const {
+		return std::greater<T > ();
+	}
 
-		std::greater<T> greater() const {
-			return std::greater<T > ();
-		}
-
-		template<typename Iterator>
-		void sort(Iterator a, Iterator b) {
-			std::sort(a, b);
-		}
-	};
+	template<typename Iterator>
+	void sort(Iterator a, Iterator b) {
+		std::sort(a, b);
+	}
 };
 #endif	/* STDSORT_H */
 
