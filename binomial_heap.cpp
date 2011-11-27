@@ -149,14 +149,14 @@ class BinomialHeap
     this->merge(T);
   }
 
-  plist findMinIter()
+  const plist findMinIter()
   {
     return min_element(root_list_.begin(), root_list_.end(), [](ptree a, ptree b) {
                                                               return (a->key() < b->key()); 
     });
   }
 
-  ptree findMin()
+  const ptree findMin()
   {
     return *findMinIter();
   }
