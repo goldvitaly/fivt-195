@@ -17,7 +17,7 @@ namespace ExternalSort {
 
 	template <typename T,  typename Source, typename ExtSorter,typename Sort = StdSort<T> >
 	void external_sort(int blockSize,Source& file, ExtSorter Sorter, Sort SortClass=Sort()) {
-		T* tmp_range = new T[blockSize];
+		vector<T> range;
 		typedef IO<T>* File;
 		typedef std::pair<T, File > FileValue;
 
@@ -32,35 +32,34 @@ namespace ExternalSort {
 		while (true) {
 			File out = Sorter.getNew();
 			bool finish = false;
-			int i;
-			for (i = 0; i < blockSize; ++i) {
-				file.read(tmp_range[i]);
+			int curPos;
+			for (curPos = 0; curPos < blockSize; ++curPos) {
+				file.read(range[i]);
 				if (!file.ok()) {
 					finish = true;
 					break;
 				}
 			}
-			if (!i)
+			if (!curPos)
 				break;
-			//std::sort(tmp,tmp+i);
-			SortClass.sort(tmp_range, tmp_range + i);
-			for (int j = 0; j < i; ++j) {
-				out->write(tmp_range[j]);
+
+			SortClass.sort(range, range + curPos);
+			for (int j = 0; j < curPos; ++j) {
+				out->write(range[j]);
 			}
-			heap.push(std::make_pair(tmp_range[0], out));
+			heap.push(std::make_pair(range[0], out));
 			out->toStart();
-			out->read(tmp_range[0]);
+			out->read(range[0]);
 			if (finish)
 				break;
 
 		}
 
 
-		delete[] tmp_range;
 		file.clear();
 
 		while (!heap.empty()) {
-			std::pair<T, IO<T>*> curTop = heap.top();
+			FileValue curTop = heap.top();
 			heap.pop();
 			file.write(curTop.first);
 			curTop.second->read(curTop.first);
