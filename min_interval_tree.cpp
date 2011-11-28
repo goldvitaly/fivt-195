@@ -19,7 +19,7 @@ class MinIntervalTree
     return tree->GetValue(0, Range(0, tree->size()), Range(left_index, right_index));
   }
 
-  void UpdateRange(int left_index, int right_index, ElementType modify)
+  void UpdateRange(int left_index, int right_index, const ElementType& modify)
   {
     tree->UpdateRange(0, Range(0, tree->size()), Range(left_index, right_index), modify);
   }
@@ -30,7 +30,7 @@ class MinIntervalTree
   {
     public:
 
-    ElementType operator() (ElementType a, ElementType b)
+    ElementType operator() (const ElementType& a, const ElementType& b)
     {
       return std::min(a, b);
     }
@@ -39,7 +39,7 @@ class MinIntervalTree
   {
     public:
 
-    ElementType operator() (ElementType a, ElementType b)
+    ElementType operator() (const ElementType& a, const ElementType& b)
     {
       return a + b;
     }
@@ -48,7 +48,7 @@ class MinIntervalTree
   {
     public:
 
-    ElementType operator() (ElementType a, ElementType b)
+    ElementType operator() (const ElementType& a, const ElementType& b)
     {
       return a + b;
     }

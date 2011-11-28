@@ -102,7 +102,7 @@ class IntervalTree
     tree[index] = merge(modify(tree[l], modification[l]), modify(tree[r], modification[r]));
   }
 
-  void SetModification(int index, ModifyType modify)
+  void SetModification(int index, const ModifyType& modify)
   {
     modification[index] = update_modify(modification[index], modify);
     updated[index] = 1;
@@ -121,7 +121,7 @@ class IntervalTree
     }
   }
 
-  void UpdateRange(int root, Range root_range, Range update_range, ModifyType modify)
+  void UpdateRange(int root, Range root_range, Range update_range, const ModifyType& modify)
   {
     if (update_range.OutOfRange(root_range))
       return;
