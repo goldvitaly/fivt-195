@@ -10,9 +10,6 @@
 #include <fstream>
 #include <memory>
 
-#include <iostream>
-#include <cstdlib>
-
 class FileSource{
 public:
 	std::string name;

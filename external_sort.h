@@ -12,9 +12,6 @@
 #include <vector>
 #include "StdSort.h"
 
-
-#include <iostream>
-
 //типы Source и тип Storage не обязаны совпадать.
 //Manager::newStorage должен возвращать тип Storage
 template <typename T, typename Storage, typename Manager, typename Source, typename Sort = StdSort<T> >
@@ -30,15 +27,15 @@ void external_sort(int blockSize, Source source, Manager manager=Manager(), Sort
 		}
 	};
 	//Function to compare Storages by value
-	auto comparer = [sortWay](const StorageValue& a,const StorageValue& b){
-		return sortWay.greater()(a.value, b.value);
+	auto greater = [sortWay](const StorageValue& a,const StorageValue& b){
+		return sortWay.less()(b.value, a.value);
 	};
 	std::priority_queue <
 		StorageValue,
 		std::vector<StorageValue>,
-		__typeof__(comparer)
+		__typeof__(greater)
 		>
-	heap(comparer);
+	heap(greater);
 	while (true) {
 		Storage out = manager.newStorage();
 		bool finish = false;
@@ -85,9 +82,10 @@ template <typename T>
 void default_external_sort(int blockSize, const std::string& file) {
 	SimpleFileSource<T> input(file);
 	
-	external_sort<T, SimpleFileSource<T>, FileStorageManager<T,SimpleFileSource<T>> > (
+	external_sort<T, SimpleFileSource<T>> (
 		blockSize,
-		input
+		input,
+		FileStorageManager<T,SimpleFileSource<T>>()
 	);
 }
 #endif	/* EXTERNAL_SORT_H */

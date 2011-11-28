@@ -8,17 +8,17 @@
 #ifndef STDSORT_H
 #define	STDSORT_H
 #include <algorithm>
-template<typename T>
+template<typename T, typename cmp=std::less<T> >
 class StdSort {
 public:
 
-	std::greater<T> greater() const {
-		return std::greater<T> ();
+	std::greater<T> less() const {
+		return cmp;
 	}
 
 	template<typename Iterator>
 	void sort(Iterator a, Iterator b) {
-		std::sort(a, b);
+		std::sort(a, b, cmp);
 	}
 };
 #endif	/* STDSORT_H */
