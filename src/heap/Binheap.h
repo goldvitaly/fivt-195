@@ -1,47 +1,46 @@
 #include "general.h"
-#include "node.h"
+#include "Node.h"
 #include <cstdio>
 #include <vector>
 
 using namespace std;
 
-template <typename T> class binheap{
+template <typename T> class Binheap{
 	
 	private:
 		
-		vector<node<T>* > nodes;
+		vector<Node<T>* > nodes;
 		
-		explicit binheap(const T& single);
-		explicit binheap(node<T>* parent);
+		explicit Binheap(const T& single);
+		explicit Binheap(Node<T>* parent);
 		
 		size_t bestIndex();
 		void cutUnused();
 	
 	public:
 		
-		binheap();
+		Binheap();
 		
 		void push(const T& value);
 		T extractMax();
 		const T& top();
-		void merge(binheap* b);
+		void merge(Binheap* b);
 		const void print(); 
-		//void tree();
 };
 
-template <typename T> binheap<T>::binheap(const T& single){
-	node<T>* n = new node<T>(single);
+template <typename T> Binheap<T>::Binheap(const T& single){
+	Node<T>* n = new Node<T>(single);
 	nodes.push_back(n);
 }
 
-template <typename T> binheap<T>::binheap(node<T> * parent){
+template <typename T> Binheap<T>::Binheap(Node<T> * parent){
 	int sz = parent->children.size();
 	for(int i = 0; i < sz; i++){
 		nodes.push_back(parent->children[i]);
 	}
 }
 
-template <typename T> size_t binheap<T>::bestIndex(){
+template <typename T> size_t Binheap<T>::bestIndex(){
 	int sz = nodes.size();
 	int ind = -1;
 	for(int i = 0; i < sz; i++){
@@ -52,53 +51,53 @@ template <typename T> size_t binheap<T>::bestIndex(){
 	return ind;
 }
 
-template <typename T> void binheap<T>::cutUnused(){
+template <typename T> void Binheap<T>::cutUnused(){
 	int sz = nodes.size() - 1;
 	while(sz >= 0 && nodes[sz] == NULL)
 		sz--;
 	nodes.resize(sz + 1, NULL);
 }
 
-template <typename T> binheap<T>::binheap(){}
+template <typename T> Binheap<T>::Binheap(){}
 
-template <typename T> void binheap<T>::push(const T& value){
-	binheap<T>* tmp = new binheap<T>(value);
+template <typename T> void Binheap<T>::push(const T& value){
+	Binheap<T>* tmp = new Binheap<T>(value);
 	merge(tmp);
 }
 
-template <typename T> T binheap<T>::extractMax(){
+template <typename T> T Binheap<T>::extractMax(){
 	int ind = bestIndex();
 	assert(ind != -1);
 	T ret = nodes[ind]->value;
-	node<T>* tmp = nodes[ind];
+	Node<T>* tmp = nodes[ind];
 	nodes[ind] = NULL;
-	merge(new binheap<T>(tmp));
+	merge(new Binheap<T>(tmp));
 	cutUnused();
 	return ret;
 }
 
-template <typename T> const T& binheap<T>::top(){    
+template <typename T> const T& Binheap<T>::top(){    
 	int ind = bestIndex();
 	assert(ind != -1);
 	return nodes[ind]->value;
 }
 
-template <typename T> void binheap<T>::merge(binheap<T>* b){
+template <typename T> void Binheap<T>::merge(Binheap<T>* b){
 	int sz = max(nodes.size(), b->nodes.size()) + 1;
 	nodes.resize(sz, NULL);
 	b->nodes.resize(sz, NULL);
-	node<T>* carry = NULL;
+	Node<T>* carry = NULL;
 	for(int i = 0 ; i < sz; i++){
 		if(carry && b->nodes[i])
-			carry = node<T>::merge(carry, b->nodes[i]);
+			carry = Node<T>::merge(carry, b->nodes[i]);
 		else{
 			if(!carry)
 				carry = b->nodes[i];
 			bool needToCarry = carry && nodes[i];
-			nodes[i] = node<T>::merge(carry, nodes[i]);
+			nodes[i] = Node<T>::merge(carry, nodes[i]);
 			carry = NULL;
 			if(needToCarry){
-				carry = new node<T>(nodes[i]);
+				carry = new Node<T>(nodes[i]);
 				nodes[i] = NULL;
 			}
 		}
@@ -106,7 +105,7 @@ template <typename T> void binheap<T>::merge(binheap<T>* b){
 	cutUnused();
 }
 
-template <typename T> const void binheap<T>::print(){
+template <typename T> const void Binheap<T>::print(){
 	for(int i=0;i<nodes.size();i++){
 		if(nodes[i])
 			printf("%d ", nodes[i]->value);
@@ -115,7 +114,3 @@ template <typename T> const void binheap<T>::print(){
 	}
 	printf("\n");
 }
-
-/*void binheap::tree(){
-	
-}*/

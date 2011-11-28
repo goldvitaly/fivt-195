@@ -2,9 +2,10 @@
 
 #define MEMCHK
 
-#include "heap/binheap.h"
+#include "heap/Binheap.h"
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 
 #ifdef MEMCHK
 	#include <mcheck.h>
@@ -16,22 +17,41 @@ int main(){
 	#ifdef MEMCHK
 		mtrace();
 	#endif
+	
 	srand(35);
-	binheap<double> h;
-	int sz = 50;
+	
+	Binheap<double> h1;
+	Binheap<double> h2;
+	int sz = 200000;
+	int maxval = 1000000;
+	
+	double* testarray = new double[sz];
+	
 	for(int i = 0; i < sz; i++){
-		double n=rand()%100/50.0;
-		cout << n << ' ';
-		h.push(n);
-		//h.print();
+		double n=(double)rand()/RAND_MAX;
+		if(i % 2)
+			h1.push(n);
+		else
+			h2.push(n);
+		testarray[i] = n;
 	}
-	cout<<endl<<endl;
+	
+	sort(testarray,testarray + sz);
+	reverse(testarray,testarray + sz);
+	
+	h1.merge(&h2);
+	
 	for(int i = 0; i < sz; i++){
-		cout << h.top() << ' ';
-		h.extractMax();
-		//h.print();
+		double heaptop = h1.top();
+		if(heaptop != testarray[i]){
+			cerr << "Wrong value in heap (index " << i << "): " << heaptop << "(need " << testarray[i] << ")" << endl;
+			return -1;
+		}
+		h1.extractMax();
 	}
-	cout<<endl;
+	
+	cerr << "Test successfull" << endl;
+	
 	#ifdef MEMCHK
 		muntrace();
 	#endif
