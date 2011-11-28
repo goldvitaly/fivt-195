@@ -22,7 +22,7 @@ int main(){
 	
 	Binheap<double> h1;
 	Binheap<double> h2;
-	int sz = 200000;
+	int sz = 100000;
 	int maxval = 1000000;
 	
 	double* testarray = new double[sz];
@@ -41,8 +41,12 @@ int main(){
 	
 	h1.merge(&h2);
 	
-	for(int i = 0; i < sz; i++){
+	for(int i = 0; !h1.empty(); i++){
 		double heaptop = h1.top();
+		if(i >= sz){
+			cerr << "Wrong size manipulation" << endl;
+			return -1;
+		}
 		if(heaptop != testarray[i]){
 			cerr << "Wrong value in heap (index " << i << "): " << heaptop << "(need " << testarray[i] << ")" << endl;
 			return -1;
