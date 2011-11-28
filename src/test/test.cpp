@@ -13,7 +13,7 @@
 
 using namespace std;
 
-int main(){
+int main() {
 	#ifdef MEMCHK
 		mtrace();
 	#endif
@@ -27,8 +27,8 @@ int main(){
 	
 	double* testarray = new double[sz];
 	
-	for(int i = 0; i < sz; i++){
-		double n=(double)rand()/RAND_MAX;
+	for(int i = 0; i < sz; i++) {
+		double n=(double)rand() / RAND_MAX;
 		if(i % 2)
 			h1.push(n);
 		else
@@ -41,13 +41,13 @@ int main(){
 	
 	h1.merge(&h2);
 	
-	for(int i = 0; !h1.empty(); i++){
+	for(int i = 0; !h1.empty(); i++) {
 		double heaptop = h1.top();
-		if(i >= sz){
+		if(i >= sz) {
 			cerr << "Wrong size manipulation" << endl;
 			return -1;
 		}
-		if(heaptop != testarray[i]){
+		if(heaptop != testarray[i]) {
 			cerr << "Wrong value in heap (index " << i << "): " << heaptop << "(need " << testarray[i] << ")" << endl;
 			return -1;
 		}

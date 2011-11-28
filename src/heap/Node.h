@@ -4,7 +4,7 @@
 
 using namespace std;
 
-template<typename T> class Node{
+template<typename T> class Node {
 	
 	public:
 		
@@ -18,24 +18,26 @@ template<typename T> class Node{
 		
 };
 
-template <typename T> Node<T>::Node(Node* copyFrom){
+template <typename T> Node<T>::Node(Node* copyFrom) {
 	value = copyFrom->value;
 	children = copyFrom->children;
 }
 
-template <typename T> Node<T>::Node(const T& nodeValue){
+template <typename T> Node<T>::Node(const T& nodeValue) {
 	value = nodeValue;
 }
 
-template <typename T> Node<T>* Node<T>::merge(Node<T>* a, Node<T>* b){
+template <typename T> Node<T>* Node<T>::merge(Node<T>* a, Node<T>* b) {
 	if(a == NULL || b == NULL)
 		return a ? a : b;
+	
 	Node<T>* ret;
-	if(a->value < b->value){
+	
+	if(a->value < b->value) {
 		ret = new Node<T>(b);
 		ret->children.push_back(a);
 	}
-	else{
+	else {
 		ret = new Node<T>(a);
 		ret->children.push_back(b);
 	}
