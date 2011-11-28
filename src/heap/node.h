@@ -6,15 +6,12 @@ using namespace std;
 
 template<typename T> class node{
 	
-	private:
-		
-		explicit node(node* copyFrom);
-	
 	public:
 		
 		T value;
 		vector<node<T>* > children;
 		
+		explicit node(node* copyFrom);
 		explicit node(const T& nodeValue);
 		
 		static node* merge(node* a, node* b);
@@ -31,9 +28,10 @@ template <typename T> node<T>::node(const T& nodeValue){
 }
 
 template <typename T> node<T>* node<T>::merge(node<T>* a, node<T>* b){
-	assert(a != NULL && b != NULL);
+	if(a == NULL || b == NULL)
+		return a ? a : b;
 	node<T>* ret;
-	if((a->value) < (b->value)){
+	if(a->value < b->value){
 		ret = new node<T>(b);
 		ret->children.push_back(a);
 	}

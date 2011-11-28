@@ -25,7 +25,7 @@ template <typename T> class binheap{
 		T extractMax();
 		const T& top();
 		void merge(binheap* b);
-		const void print();
+		const void print(); 
 		//void tree();
 };
 
@@ -91,15 +91,14 @@ template <typename T> void binheap<T>::merge(binheap<T>* b){
 	for(int i = 0 ; i < sz; i++){
 		if(carry && b->nodes[i])
 			carry = node<T>::merge(carry, b->nodes[i]);
-		else if(carry || b->nodes[i]){
+		else{
 			if(!carry)
 				carry = b->nodes[i];
-			if(!nodes[i]){
-				nodes[i] = carry;
-				carry = NULL;
-			}
-			else{
-				carry = node<T>::merge(carry, nodes[i]);
+			bool needToCarry = carry && nodes[i];
+			nodes[i] = node<T>::merge(carry, nodes[i]);
+			carry = NULL;
+			if(needToCarry){
+				carry = new node<T>(nodes[i]);
 				nodes[i] = NULL;
 			}
 		}

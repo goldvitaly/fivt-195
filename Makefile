@@ -2,7 +2,7 @@ binary:objects
 	g++ -o bin/binary obj/*.o
 	
 objects:src/*/*.cpp
-	g++ -c src/*/*.cpp -Isrc -Isrc/*
+	g++ -c src/*/*.cpp -I. -Isrc
 	mv *.o obj
 
 clean:
