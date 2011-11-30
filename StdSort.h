@@ -12,13 +12,13 @@ template<typename T, typename cmp=std::less<T> >
 class StdSort {
 public:
 
-	std::greater<T> less() const {
-		return cmp;
+	cmp less() const {
+		return cmp();
 	}
 
 	template<typename Iterator>
 	void sort(Iterator a, Iterator b) {
-		std::sort(a, b, cmp);
+		std::sort(a, b, less());
 	}
 };
 #endif	/* STDSORT_H */

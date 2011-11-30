@@ -11,6 +11,10 @@
 
 class ByteFileSource : public FileSource{
 	public:
+
+		ByteFileSource(const std::string& name) :  FileSource(name){
+			
+		}
 	void read(unsigned& v) {
 		v = (stream->get() << 24)+(stream->get() << 16)+(stream->get() << 8) + stream->get();
 	}

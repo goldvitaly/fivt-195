@@ -64,7 +64,6 @@ void external_sort(int blockSize, Source source, Manager manager=Manager(), Sort
 
 	source.clear();
 
-
 	while (!heap.empty()) {
 		StorageValue curTop = heap.top();
 		heap.pop();

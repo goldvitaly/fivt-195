@@ -21,6 +21,7 @@ public:
 
 	void toStart() {
 		stream->seekg(0);
+		stream->seekp(0);
 	}
 
 	bool ok() {
