@@ -3,6 +3,8 @@
 #include <algorithm>
 #include "binomial_heap.h"
 #include <ctime>
+#include <cstdlib>
+#include <ctime>
 
 
 int main()

@@ -47,33 +47,38 @@ class binomial_heap
             }
         }
 
-        void merge(std::vector <node*> *heap2)
+        void merge(std::vector <node*> *adding_heap)
         {
-            std::vector <node*> new_heap;
-            size_t l = std::max(heap_.size(), heap2 -> size());
-            new_heap.resize(l + 1, 0);
-            heap2 -> resize(l, 0);
+            std::vector <node*> result_heap;
+            size_t l = std::max(heap_.size(), adding_heap -> size());
+            result_heap.resize(l + 1, 0);
+            adding_heap -> resize(l, 0);
             heap_.resize(l, 0);
             for(size_t  i = 0 ; i < l; i++)
             {
                 if(heap_[i] != 0)
-                    if(new_heap[i] == NULL)
-                        new_heap[i] = heap_[i];
+                    if(result_heap[i] == NULL)
+                        result_heap[i] = heap_[i];
                     else
                     {
-                        new_heap[i + 1] = merge(new_heap[i], heap_[i]);
-                        new_heap[i] = NULL;
+                        result_heap[i + 1] = merge(result_heap[i], heap_[i]);
+                        result_heap[i] = NULL;
                     }
-                if((*heap2)[i] != NULL)
-                    if(new_heap[i] == NULL)
-                        new_heap[i] = (*heap2)[i];
+                if((*adding_heap)[i] != NULL)
+                    if(result_heap[i] == NULL)
+                        result_heap[i] = (*adding_heap)[i];
                     else
                     {
-                        new_heap[i + 1] = merge(new_heap[i], (*heap2)[i]);
-                        new_heap[i] = NULL;
+                        result_heap[i + 1] = merge(result_heap[i], (*adding_heap)[i]);
+                        result_heap[i] = NULL;
                     }
             }
-            heap_.swap(new_heap);
+            heap_.swap(result_heap);
+            del_empty_back();
+        }
+
+        void del_empty_back()
+        {
             while(heap_[heap_.size() - 1] == 0)   heap_.resize(heap_.size() - 1);
         }
 
@@ -129,18 +134,18 @@ class binomial_heap
 
         void insert(T new_key)
         {
-            std::vector <node*> new_heap;
+            std::vector <node*> result_heap;
             size_++;
             node *now = new node(new_key);
-            new_heap.push_back(now);
-            merge(&new_heap);
+            result_heap.push_back(now);
+            merge(&result_heap);
         }
 
 
         T extract_min()
         {
-            std::vector <node*> new_heap;
-            new_heap.clear();
+            std::vector <node*> result_heap;
+            result_heap.clear();
             T ret;
             size_t del_node;
             bool found = false;
@@ -154,14 +159,14 @@ class binomial_heap
             node *i = heap_[del_node] -> child;
             while(i != 0)
             {
-                new_heap.push_back(i);
+                result_heap.push_back(i);
                 i = i -> sibling;
-                new_heap[new_heap.size() - 1] -> sibling = 0;
+                result_heap[result_heap.size() - 1] -> sibling = 0;
             }
             delete heap_[del_node];
             heap_[del_node] = 0;
-            std::reverse(new_heap.begin(), new_heap.end());
-            merge(&new_heap);
+            std::reverse(result_heap.begin(), result_heap.end());
+            merge(&result_heap);
             size_--;
             return ret;
         }
