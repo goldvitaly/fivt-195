@@ -13,7 +13,7 @@
 template <typename T>
 class SimpleFileStorage : public FileStorage{
 	public:
-		SimpleFileStorage(const std::string& s) : FileStorage(s){
+		explicit SimpleFileStorage(const std::string& s) : FileStorage(s){
 
 		}
 	void read(T& v) {

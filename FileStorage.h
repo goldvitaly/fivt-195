@@ -15,7 +15,7 @@ public:
 	std::string name;
 	std::shared_ptr<std::fstream> stream;
 public:
-	FileStorage(std::string name): name(name),stream(new std::fstream()){
+	explicit FileStorage(std::string name): name(name),stream(new std::fstream()){
 		stream->open(name, std::ios_base::in | std::ios_base::out | std::ios_base::app);
 	};
 

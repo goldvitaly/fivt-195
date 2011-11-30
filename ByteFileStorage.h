@@ -12,7 +12,7 @@
 class ByteFileStorage : public FileStorage{
 	public:
 
-		ByteFileStorage(const std::string& name) :  FileStorage(name){
+		explicit ByteFileStorage(const std::string& name) :  FileStorage(name){
 			
 		}
 	void read(unsigned& v) {
