@@ -75,16 +75,16 @@ void external_sort(int blockSize, Source source, Manager manager=Manager(), Sort
 	}
 	
 }
-#include "SimpleFileSource.h"
+#include "SimpleFileStorage.h"
 #include "FileStorageManager.h"
 template <typename T>
 void default_external_sort(int blockSize, const std::string& file) {
-	SimpleFileSource<T> input(file);
+	SimpleFileStorage<T> input(file);
 	
-	external_sort<T, SimpleFileSource<T>> (
+	external_sort<T, SimpleFileStorage<T>> (
 		blockSize,
 		input,
-		FileStorageManager<T,SimpleFileSource<T>>()
+		FileStorageManager<T,SimpleFileStorage<T>>()
 	);
 }
 #endif	/* EXTERNAL_SORT_H */

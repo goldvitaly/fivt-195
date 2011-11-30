@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
-#include "ByteFileSource.h"
+#include "ByteFileStorage.h"
 
 template <typename T, typename F>
 void test(int n, int blocksize, F generator, const std::string& testName){
@@ -47,7 +47,7 @@ std::string generate_string(){
 void test_binary_ints(int n,int blocksize){
 	std::vector<unsigned> v(n);
 	std::generate(v.begin(),v.end(),rand);
-	ByteFileSource file("testinput");
+	ByteFileStorage file("testinput");
 
 	for(auto i=v.begin();i!=v.end();++i){
 		file.read(*i);
@@ -55,10 +55,10 @@ void test_binary_ints(int n,int blocksize){
 	std::sort(v.begin(),v.end());
 
 	file.toStart();
-	external_sort<unsigned,ByteFileSource>(
+	external_sort<unsigned,ByteFileStorage>(
 		blocksize,
 		file,
-		FileStorageManager<unsigned, ByteFileSource>(),
+		FileStorageManager<unsigned, ByteFileStorage>(),
 		StdSort<unsigned>()
 	);
 

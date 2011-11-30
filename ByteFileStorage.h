@@ -5,14 +5,14 @@
  * Created on November 27, 2011, 11:20 PM
  */
 
-#ifndef BYTEFILESOURCE_H
-#define	BYTEFILESOURCE_H
-#include "FileSource.h"
+#ifndef BYTEFILESTORAGE_H
+#define	BYTEFILESTORAGE_H
+#include "FileStorage.h"
 
-class ByteFileSource : public FileSource{
+class ByteFileStorage : public FileStorage{
 	public:
 
-		ByteFileSource(const std::string& name) :  FileSource(name){
+		ByteFileStorage(const std::string& name) :  FileStorage(name){
 			
 		}
 	void read(unsigned& v) {
@@ -27,5 +27,5 @@ class ByteFileSource : public FileSource{
 	}
 };
 
-#endif	/* BYTEFILESOURCE_H */
+#endif	/* BYTEFILESTORAGE_H */
 

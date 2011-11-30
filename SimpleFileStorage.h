@@ -5,15 +5,15 @@
  * Created on November 27, 2011, 11:02 PM
  */
 
-#ifndef SIMPLEFILESOURCE_H
-#define	SIMPLEFILESOURCE_H
+#ifndef SIMPLEFILESTORAGE_H
+#define	SIMPLEFILESTORAGE_H
 
-#include "FileSource.h"
+#include "FileStorage.h"
 
 template <typename T>
-class SimpleFileSource : public FileSource{
+class SimpleFileStorage : public FileStorage{
 	public:
-		SimpleFileSource(const std::string& s) : FileSource(s){
+		SimpleFileStorage(const std::string& s) : FileStorage(s){
 
 		}
 	void read(T& v) {
@@ -25,5 +25,5 @@ class SimpleFileSource : public FileSource{
 	}
 };
 
-#endif	/* SIMPLEFILESOURCE_H */
+#endif	/* SIMPLEFILESTORAGE_H */
 
