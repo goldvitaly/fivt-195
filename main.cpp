@@ -58,7 +58,7 @@ void test_binary_ints(int n,int blocksize){
 	external_sort<unsigned,ByteFileStorage>(
 		blocksize,
 		file,
-		FileStorageManager<unsigned, ByteFileStorage>(),
+		FileStorageManager<ByteFileStorage>(),
 		StdSort<unsigned,std::greater<unsigned>>()
 	);
 

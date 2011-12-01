@@ -84,7 +84,7 @@ void default_external_sort(int blockSize, const std::string& file) {
 	external_sort<T, SimpleFileStorage<T>> (
 		blockSize,
 		input,
-		FileStorageManager<T,SimpleFileStorage<T>>()
+		FileStorageManager<SimpleFileStorage<T>>()
 	);
 }
 #endif	/* EXTERNAL_SORT_H */

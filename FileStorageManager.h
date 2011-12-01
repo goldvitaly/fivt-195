@@ -11,7 +11,7 @@
 #include <cstdio>
 
 
-template <typename T, typename Storage>
+template <typename Storage>
 class FileStorageManager {
 	std::string prevName;
 
