@@ -5,13 +5,13 @@
 class StringSort{
 public:
 
-	SortInt getMaxKey(size_t) {
+	unsigned getMaxKey(size_t) {
 		return 255;
 	}
 
-	SortInt getKey(const std::string& str, size_t pos) {
+	unsigned getKey(const std::string& str, size_t pos) {
 		if (pos < (str.size()))
-			return (SortInt) (unsigned char) (str[pos]);
+			return (int) (unsigned char) (str[pos]);
 		return 0;
 	}
 

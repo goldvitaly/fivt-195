@@ -12,11 +12,11 @@ public:
 	}
 
 	template <typename T>
-	SortInt getKey(T number, size_t pos) {
+	unsigned getKey(T number, size_t pos) {
 		return (number >> ((partCnt - 1 - pos)*(partSize)))&((1LL << partSize) - 1);
 	}
 
-	SortInt getMaxKey(size_t) {
+	unsigned getMaxKey(size_t) {
 		return (1LL << partSize) - 1;
 	}
 

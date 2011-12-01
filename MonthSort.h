@@ -4,11 +4,11 @@
 class MonthSort  {
 public:
 
-	SortInt getKey(std::pair<int,int> element, int pos) {
+	unsigned getKey(std::pair<int,int> element, int pos) {
 		return pos ? element.second : element.first;
 	}
 
-	SortInt getMaxKey(int position) {
+	unsigned getMaxKey(int position) {
 		if (position)
 			return 12; // Месяцы
 		else

@@ -8,11 +8,11 @@
 class BigPairSort{
 public:
 	typedef std::pair<unsigned long long, unsigned long long> BigPair;
-	SortInt getMaxKey(size_t) {
+	unsigned getMaxKey(size_t) {
 		return (1 << 16) - 1;
 	}
 
-	SortInt getKey(BigPair element, size_t pos) {
+	unsigned getKey(BigPair element, size_t pos) {
 		if (pos < 4) {
 			return (element.first >> ((3 - pos)*16))&0xFFFF;
 		}
