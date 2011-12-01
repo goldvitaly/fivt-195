@@ -1,16 +1,11 @@
-/* 
- * File:   external_sort.h
- * Author: riad
- *
- * Created on October 3, 2011, 10:42 AM
- */
-
 #ifndef EXTERNAL_SORT_H
 #define	EXTERNAL_SORT_H
 
 #include <queue>
 #include <vector>
 #include "StdSort.h"
+#include "SimpleFileStorage.h"
+#include "FileStorageManager.h"
 
 //типы Source и тип Storage не обязаны совпадать.
 //Manager::newStorage должен возвращать тип Storage
@@ -75,8 +70,6 @@ void external_sort(int blockSize, Source source, Manager manager=Manager(), Sort
 	}
 	
 }
-#include "SimpleFileStorage.h"
-#include "FileStorageManager.h"
 template <typename T>
 void default_external_sort(int blockSize, const std::string& file) {
 	SimpleFileStorage<T> input(file);
