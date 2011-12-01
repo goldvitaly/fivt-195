@@ -1,38 +1,30 @@
-/* 
- * File:   StringIterator.h
- * Author: riad
- *
- * Created on September 26, 2011, 11:31 AM
- */
-
-#ifndef STRINGITERATOR_H
-#define	STRINGITERATOR_H
+#ifndef STRINGSORT_H
+#define	STRINGSORT_H
 #include <string>
-namespace DigitSort {
 
-	class StringSort{
-	public:
+class StringSort{
+public:
 
-		SortInt getMax(int) {
-			return 255;
+	SortInt getMax(int) {
+		return 255;
+	}
+
+	template <typename Iterator>
+	SortInt getKey(Iterator iter, int pos) {
+		if (pos < (iter->size()))
+			return (SortInt) (unsigned char) ((*iter)[pos]);
+		return 0;
+	}
+
+	template <typename Iterator>
+	size_t getKeyCount(Iterator begin, Iterator end) {
+		size_t maxLen = 0;
+		for (Iterator it = begin; it != end; ++it) {
+			maxLen = std::max(maxLen, it->size());
 		}
-
-		template <typename Iterator>
-		SortInt getKey(Iterator iter, int pos) {
-			if (pos < (iter->size()))
-				return (SortInt) (unsigned char) ((*iter)[pos]);
-			return 0;
-		}
-
-		template <typename Iterator>
-		size_t getKeyCount(Iterator begin, Iterator end) {
-			size_t maxLen = 0;
-			for (Iterator it = begin; it != end; ++it) {
-				maxLen = std::max(maxLen, it->size());
-			}
-			return maxLen;
-		}
-	};
+		return maxLen;
+	}
 };
-#endif	/* STRINGITERATOR_H */
+
+#endif	/* STRINGSORT_H */
 

@@ -1,11 +1,8 @@
 #include <fstream> 
 #include <sstream>
-
-namespace DigitSort {
-	extern void testAll();
-};
+extern void testAll();
 int main() {
-	DigitSort::testAll();
+	testAll();
 
 	return 0;
 }
