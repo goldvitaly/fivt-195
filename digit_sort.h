@@ -4,7 +4,7 @@
 #include <vector>
 template <typename Iterator, typename Sorter>
 void digit_sort(Iterator begin, Iterator end, Sorter sorter) {
-	std::vector < __typeof__(*begin) > tmp(end - begin);
+	std::vector<typename std::iterator_traits<Iterator>::value_type> partialSorted(end - begin);
 	for (int pos = sorter.getKeyCount(begin, end) - 1; pos >= 0; --pos) {
 		int max = sorter.getMaxKey(pos);
 		std::vector<size_t> baskets(max + 2);
@@ -18,9 +18,9 @@ void digit_sort(Iterator begin, Iterator end, Sorter sorter) {
 			baskets[i] += baskets[i - 1];
 		}
 		for (Iterator it = begin; it != end; ++it) {
-			tmp[baskets[sorter.getKey(*it, pos)]++] = *it;
+			partialSorted[baskets[sorter.getKey(*it, pos)]++] = *it;
 		}
-		std::copy(tmp.begin(), tmp.end(), begin);
+		std::copy(partialSorted.begin(), partialSorted.end(), begin);
 	}
 }
 #endif
