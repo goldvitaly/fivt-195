@@ -19,12 +19,12 @@ public:
 		stream->open(name, std::ios_base::in | std::ios_base::out | std::ios_base::app);
 	};
 
-	void toStart() {
+	void toStart(){
 		stream->seekg(0);
 		stream->seekp(0);
 	}
 
-	bool ok() {
+	bool ok() const {
 		return *stream;
 	}
 

@@ -15,7 +15,7 @@ template <typename T, typename Storage>
 class FileStorageManager {
 	std::string prevName;
 
-	void nextName(std::string& name) {
+	void nextName(std::string& name) const {
 		for (int i = 0; i < name.length(); ++i) {
 			if (name[i] != 'z') {
 				++name[i];

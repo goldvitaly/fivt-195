@@ -17,7 +17,7 @@ public:
 	}
 
 	template<typename Iterator>
-	void sort(Iterator a, Iterator b) {
+	void sort(Iterator a, Iterator b) const{
 		std::sort(a, b, less());
 	}
 };
