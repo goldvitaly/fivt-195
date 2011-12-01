@@ -6,13 +6,13 @@ private:
 	int partCnt;
 	int partSize;
 public:
-	NumberSort(int partCount, int bitsPerPart) const {
+	NumberSort(int partCount, int bitsPerPart){
 		partCnt = partCount;
 		partSize = bitsPerPart;
 	}
 
 	template <typename T>
-	unsigned getKey(T number, size_t pos) const{
+	unsigned getKey(T number, size_t pos) const {
 		return (number >> ((partCnt - 1 - pos)*(partSize)))&((1LL << partSize) - 1);
 	}
 
