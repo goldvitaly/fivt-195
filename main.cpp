@@ -52,14 +52,14 @@ void test_binary_ints(int n,int blocksize){
 	for(auto i=v.begin();i!=v.end();++i){
 		file.read(*i);
 	}
-	std::sort(v.begin(),v.end());
+	std::sort(v.begin(),v.end(),std::greater<unsigned>());
 
 	file.toStart();
 	external_sort<unsigned,ByteFileStorage>(
 		blocksize,
 		file,
 		FileStorageManager<unsigned, ByteFileStorage>(),
-		StdSort<unsigned>()
+		StdSort<unsigned,std::greater<unsigned>>()
 	);
 
 	file.toStart();
