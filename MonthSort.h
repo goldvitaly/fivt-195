@@ -4,11 +4,11 @@
 class MonthSort  {
 public:
 
-	unsigned getKey(std::pair<int,int> element, int pos) {
+	unsigned getKey(std::pair<int,int> element, int pos) const {
 		return pos ? element.second : element.first;
 	}
 
-	unsigned getMaxKey(int position) {
+	unsigned getMaxKey(int position) const {
 		if (position)
 			return 12; // Месяцы
 		else
@@ -16,7 +16,7 @@ public:
 	}
 
 	template <typename Iterator>
-	size_t getKeyCount(Iterator begin, Iterator end) {
+	size_t getKeyCount(Iterator begin, Iterator end) const{
 		return 2;
 	}
 };
