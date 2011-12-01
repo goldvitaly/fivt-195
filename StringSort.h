@@ -5,14 +5,13 @@
 class StringSort{
 public:
 
-	SortInt getMax(int) {
+	SortInt getMaxKey(size_t) {
 		return 255;
 	}
 
-	template <typename Iterator>
-	SortInt getKey(Iterator iter, int pos) {
-		if (pos < (iter->size()))
-			return (SortInt) (unsigned char) ((*iter)[pos]);
+	SortInt getKey(const std::string& str, size_t pos) {
+		if (pos < (str.size()))
+			return (SortInt) (unsigned char) (str[pos]);
 		return 0;
 	}
 

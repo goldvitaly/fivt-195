@@ -3,23 +3,23 @@
 #include <algorithm>
 #include <vector>
 typedef unsigned SortInt;
-template <typename Iterator, typename SortClass>
-void digit_sort(Iterator begin, Iterator end, SortClass Sort) {
+template <typename Iterator, typename Sorter>
+void digit_sort(Iterator begin, Iterator end, Sorter sorter) {
 	std::vector < __typeof__(*begin) > tmp(end - begin);
-	for (int pos = Sort.getKeyCount(begin, end) - 1; pos >= 0; --pos) {
-		SortInt max = Sort.getMax(pos);
+	for (int pos = sorter.getKeyCount(begin, end) - 1; pos >= 0; --pos) {
+		SortInt max = sorter.getMaxKey(pos);
 		std::vector<size_t> baskets(max + 2);
 		//Может быть по хорошему нужно сохранять итераторы, чтобы был не нужен рандом
 		//аксес, но я плохо себе представляю стуктуру, кроме массива, где может быть
 		//полезен такой сорт
 		for (Iterator it = begin; it != end; ++it) {
-			++baskets[Sort.getKey(it, pos) + 1];
+			++baskets[sorter.getKey(*it, pos) + 1];
 		}
 		for (int i = 1; i <= max; ++i) {
 			baskets[i] += baskets[i - 1];
 		}
 		for (Iterator it = begin; it != end; ++it) {
-			SortInt keys = Sort.getKey(it, pos);
+			SortInt keys = sorter.getKey(*it, pos);
 			tmp[baskets[keys]++] = *it;
 		}
 		std::copy(tmp.begin(), tmp.end(), begin);

@@ -3,32 +3,26 @@
 
 class NumberSort{
 private:
-	int cnt;
-	int size; // bites
+	int partCnt;
+	int partSize;
 public:
+	NumberSort(int partCount, int bitsPerPart) {
+		partCnt = partCount;
+		partSize = bitsPerPart;
+	}
 
-	/**
-	 *
-	 * @param C part counts
-	 * @param S Size of every part(in bites)
-	 */
-	NumberSort(int C, int S) {
-		cnt = C;
-		size = S;
+	template <typename T>
+	SortInt getKey(T number, size_t pos) {
+		return (number >> ((partCnt - 1 - pos)*(partSize)))&((1LL << partSize) - 1);
+	}
+
+	SortInt getMaxKey(size_t) {
+		return (1LL << partSize) - 1;
 	}
 
 	template <typename Iterator>
-	SortInt getKey(Iterator iter, int pos) {
-		return ((*iter) >> ((cnt - 1 - pos)*(size)))&((1LL << size) - 1);
-	}
-
-	SortInt getMax(int) {
-		return (1LL << size) - 1;
-	}
-
-	template <typename Iterator>
-	size_t getKeyCount(Iterator begin, Iterator end) {
-		return cnt;
+	size_t getKeyCount(Iterator, Iterator) {
+		return partCnt;
 	}
 
 };
