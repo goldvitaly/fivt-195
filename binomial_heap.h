@@ -17,7 +17,7 @@ class binomial_heap
                 node *sibling, *parent, *child;
                 T key;
 
-                node(T key_)
+                explicit node(T key_)
                 {
                     key = key_;
                     sibling = 0;
@@ -132,7 +132,7 @@ class binomial_heap
         }
 
 
-        void insert(T new_key)
+        void insert(const T &new_key)
         {
             std::vector <node*> result_heap;
             size_++;
