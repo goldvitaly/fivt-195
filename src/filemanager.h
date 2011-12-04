@@ -1,0 +1,6 @@
+#include <fstream>
+
+class filemanager
+{
+	
+};
