@@ -31,6 +31,43 @@ public:
     }
 };
 
+struct segment{
+    int l, r;
+    segment(int l_, int r_)
+    {
+        l = l_;
+        r = r_;
+    }
+    bool operator==(segment s) const
+    {
+        return (s.l == l && s.r == r);
+    }
+    int middle() const
+    {
+        return (l + r)/2;
+    }
+    segment left_part(int section) const
+    {
+        return segment(l, section);
+    }
+    segment left_part() const
+    {
+        return segment(l, middle());
+    }
+    segment right_part(int section) const
+    {
+        return segment(section + 1, r);
+    }
+    segment right_part() const
+    {
+        return segment(middle() + 1, r);
+    }
+    size_t size() const{
+        return r - l + 1;
+    }
+
+};
+
 template<class Element, class Modif, class Use, class Conslid, class ComposAdd>
 class IntervalTree{
     vector<vertex<Element, Modif> > Tree;
@@ -48,67 +85,69 @@ class IntervalTree{
         composAdd = composAdd_;
         conslid = conslid_;
     }
-    void make_tree(const int i, const int l, const int r, const vector<Element>& Data)
+    void make_tree(const int v, const segment& viewInterval, const vector<Element>& Data)
     {
-        if(l == r)
+        if(viewInterval.size() == 1)
         {
-            Tree[i].change_val(Data[l-1]);
+            Tree[v].change_val(Data[viewInterval.l-1]);
         }
         else
         {
-            const int m = (l + r) / 2;
-            make_tree(2*i, l, m, Data);
-            make_tree(2*i+1, m+1, r, Data);
-            Tree[i].change_val(conslid(Tree[2*i].get_val(), Tree[2*i+1].get_val()));
+            make_tree(2*v, viewInterval.left_part(), Data);
+            make_tree(2*v+1, viewInterval.right_part(), Data);
+            Tree[v].change_val(conslid(Tree[2*v].get_val(), Tree[2*v+1].get_val()));
         }
     }
-    void update(const Modif& addIntroduce, const int l, const int r, int i, const int l_now, const int r_now)
+    void update(const Modif& addIntroduce, const segment& modInterval, const int v, const segment& viewInterval)
     {
-        if(l == l_now &&  r == r_now)
+        if(modInterval == viewInterval)
         {
-            Tree[i].change_add(composAdd(Tree[i].get_add(), addIntroduce));
+            Tree[v].change_add(composAdd(Tree[v].get_add(), addIntroduce));
         }
         else
         {
-            const int m_now = (l_now + r_now) / 2;
-            if(r <= m_now)
+            if(modInterval.r <= viewInterval.middle())
             {
-                update(addIntroduce, l, r, 2*i, l_now, m_now);
+                update(addIntroduce, modInterval, 2*v, viewInterval.left_part());
             }
-            else if(m_now < l)
+            else if(modInterval.l > viewInterval.middle())
             {
-                update(addIntroduce, l, r, 2*i + 1, m_now + 1, r_now);
+                update(addIntroduce, modInterval, 2*v+1, viewInterval.right_part());
             }
             else
             {
-                update(addIntroduce, l, m_now, 2*i, l_now, m_now);
-                update(addIntroduce, m_now+1, r, 2*i + 1, m_now + 1, r_now);
+                update(addIntroduce, modInterval.left_part(viewInterval.middle()), 2*v,
+                        viewInterval.left_part());
+                update(addIntroduce, modInterval.right_part(viewInterval.middle()), 2*v+1,
+                        viewInterval.right_part());
             }
         }
     }
-    Element query(const int l, const int r, const int i, const int l_now, const int r_now, Modif addRes)
+    Element query(const segment& modInterval, const int v, const segment& viewInterval, Modif addRes)
     {
-        if(l == l_now && r == r_now)
+        if(modInterval == viewInterval)
         {
-            addRes = composAdd(addRes, Tree[i].get_add());
-            return use(Tree[i].get_val(), addRes);
+            addRes = composAdd(addRes, Tree[v].get_add());
+            return use(Tree[v].get_val(), addRes);
         }
         else
         {
-            const int m_now = (l_now + r_now) / 2;
-            addRes = composAdd(addRes, Tree[i].get_add());
-            if(r <= m_now)
+            addRes = composAdd(addRes, Tree[v].get_add());
+            if(modInterval.r <= viewInterval.middle())
             {
-                return query(l, r, 2*i, l_now, m_now, addRes);
+                return query(modInterval, 2*v, viewInterval.left_part(), addRes);
             }
-            else if(l > m_now)
+            else if(modInterval.l > viewInterval.middle())
             {
-                return query(l, r, 2*i+1, m_now+1, r_now, addRes);
+                return query(modInterval, 2*v+1, viewInterval.right_part(), addRes);
             }
             else
             {
-                return conslid(query(l, m_now, 2*i, l_now, m_now, addRes),
-                                query(m_now+1, r, 2*i+1, m_now+1, r_now, addRes));
+                Element left_child = query(modInterval.left_part(viewInterval.middle()), 2*v,
+                                            viewInterval.left_part(), addRes);
+                Element right_child = query(modInterval.right_part(viewInterval.middle()), 2*v+1,
+                                             viewInterval.right_part(), addRes);
+                return conslid(left_child, right_child);
             }
         }
     }
@@ -125,15 +164,15 @@ public:
     {
         Constructor(n, use_, conslid_, composAdd_, addZero_);
         Tree.resize(4*n, vertex<Element, Modif>(Element(), addZero));
-        make_tree(1, 1, treeSize, Data);
+        make_tree(1, segment(1, treeSize), Data);
     }
     void update(const Modif& addIntroduce, const int l, const int r)
     {
-        update(addIntroduce, l, r, 1, 1, treeSize);
+        update(addIntroduce, segment(l, r), 1, segment(1, treeSize));
     }
     Element query(const int l, const int r)
     {
-        return query(l, r, 1, 1, treeSize, addZero);
+        return query(segment(l, r), 1, segment(1, treeSize), addZero);
     }
     size_t size() const {return treeSize;}
 };
