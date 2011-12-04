@@ -2,8 +2,8 @@ sources=$(wildcard src/*.cpp)
 headers=$(wildcard src/*.h)
 objects=$(sources:src/%.cpp=obj/%.o )
 
-all: bin/binary
-	cp tests/*.txt bin/
+bin/testinput.txt: bin/binary
+	cp tests/testinput.txt bin/
 
 bin/binary: $(objects) bin
 	g++ -o bin/binary $(objects)
