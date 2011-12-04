@@ -3,7 +3,6 @@
 
 #include <vector>
 
-using namespace std;
 
 template<class Element, class Modif>
 class vertex{
@@ -70,7 +69,7 @@ struct segment{
 
 template<class Element, class Modif, class Use, class Conslid, class ComposAdd>
 class IntervalTree{
-    vector<vertex<Element, Modif> > Tree;
+    std::vector<vertex<Element, Modif> > Tree;
     ComposAdd composAdd;
     Conslid conslid;
     Use use;
@@ -85,7 +84,7 @@ class IntervalTree{
         composAdd = composAdd_;
         conslid = conslid_;
     }
-    void make_tree(const int v, const segment& viewInterval, const vector<Element>& Data)
+    void make_tree(const int v, const segment& viewInterval, const std::vector<Element>& Data)
     {
         if(viewInterval.size() == 1)
         {
@@ -160,7 +159,7 @@ public:
     }
 
     IntervalTree(const int n, const Use& use_, const Conslid& conslid_, const ComposAdd& composAdd_,
-                           const Modif& addZero_, const vector<Element>& Data)
+                           const Modif& addZero_, const std::vector<Element>& Data)
     {
         Constructor(n, use_, conslid_, composAdd_, addZero_);
         Tree.resize(4*n, vertex<Element, Modif>(Element(), addZero));
