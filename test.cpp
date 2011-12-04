@@ -47,7 +47,7 @@ public:
 
 int main()
 {
-    IntervalTree<int, int, Plus, Min, Plus> intervalTree(100, Plus(), Min(), Plus(), 0, 0);
+    IntervalTree<int, int, Plus, Min, Plus> intervalTree(100, 0, 0);
     SlowlyTree  slowlyTree(100);
     for(int i = 0; i < 100; i++)
     {

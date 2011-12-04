@@ -2,7 +2,8 @@
 #define INTERVALTREE_H_INCLUDED
 
 #include <vector>
-
+#include <iostream>
+#include <cstdlib>
 
 template<class Element, class Modif>
 class vertex{
@@ -73,17 +74,8 @@ class IntervalTree{
     ComposAdd composAdd;
     Conslid conslid;
     Use use;
-    int treeSize;
     Modif addZero;
-    void Constructor(const int n, const Use& use_, const Conslid& conslid_, const ComposAdd& composAdd_,
-                           const Modif& addZero_)
-    {
-        treeSize = n;
-        addZero = addZero_;
-        use = use_;
-        composAdd = composAdd_;
-        conslid = conslid_;
-    }
+    int treeSize;
     void make_tree(const int v, const segment& viewInterval, const std::vector<Element>& Data)
     {
         if(viewInterval.size() == 1)
@@ -120,6 +112,9 @@ class IntervalTree{
                 update(addIntroduce, modInterval.right_part(viewInterval.middle()), 2*v+1,
                         viewInterval.right_part());
             }
+            Element leftChild = use(Tree[2*v].get_val(), Tree[2*v].get_add());
+            Element rightChild = use(Tree[2*v + 1].get_val(), Tree[2*v + 1].get_add());
+            Tree[v].change_val(conslid(leftChild, rightChild));
         }
     }
     Element query(const segment& modInterval, const int v, const segment& viewInterval, Modif addRes)
@@ -142,35 +137,45 @@ class IntervalTree{
             }
             else
             {
-                Element left_child = query(modInterval.left_part(viewInterval.middle()), 2*v,
+                Element leftChild = query(modInterval.left_part(viewInterval.middle()), 2*v,
                                             viewInterval.left_part(), addRes);
-                Element right_child = query(modInterval.right_part(viewInterval.middle()), 2*v+1,
+                Element rightChild = query(modInterval.right_part(viewInterval.middle()), 2*v+1,
                                              viewInterval.right_part(), addRes);
-                return conslid(left_child, right_child);
+                return conslid(leftChild, rightChild);
             }
         }
     }
 public:
-    IntervalTree(const int n, const Use& use_, const Conslid& conslid_, const ComposAdd& composAdd_,
-                           const Modif& addZero_, const Element& valZero_)
+    IntervalTree(const int n, const Modif& addZero_, const Element& valZero_)
     {
-        Constructor(n, use_, conslid_, composAdd_, addZero_);
+        treeSize = n;
+        addZero = addZero_;
         Tree.resize(4*n, vertex<Element, Modif>(valZero_, addZero));
     }
 
-    IntervalTree(const int n, const Use& use_, const Conslid& conslid_, const ComposAdd& composAdd_,
-                           const Modif& addZero_, const std::vector<Element>& Data)
+    IntervalTree(const int n, const Modif& addZero_, const std::vector<Element>& Data)
     {
-        Constructor(n, use_, conslid_, composAdd_, addZero_);
+        treeSize = n;
+        addZero = addZero_;
         Tree.resize(4*n, vertex<Element, Modif>(Element(), addZero));
         make_tree(1, segment(1, treeSize), Data);
     }
     void update(const Modif& addIntroduce, const int l, const int r)
     {
+        if(l > r)
+        {
+            std::cout << "Error l > r" << std::endl;
+            exit(1);
+        }
         update(addIntroduce, segment(l, r), 1, segment(1, treeSize));
     }
     Element query(const int l, const int r)
     {
+        if(l > r)
+        {
+            std::cout << "Error l > r" << std::endl;
+            exit(1);
+        }
         return query(segment(l, r), 1, segment(1, treeSize), addZero);
     }
     size_t size() const {return treeSize;}
