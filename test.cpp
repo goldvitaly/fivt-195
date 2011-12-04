@@ -32,11 +32,11 @@ int main()
     IntervalTree<int, int, use, consl, comp_add> MinInt(100, use(), consl(), comp_add(), 0, 0);
     cout << MinInt.size() << endl;
     MinInt.update(2, 1, 99);
-    cout << MinInt.learn(1, 100) << endl;
-    cout << MinInt.learn(1, 10)  << endl;
+    cout << MinInt.query(1, 100) << endl;
+    cout << MinInt.query(1, 10)  << endl;
     MinInt.update(3, 1, 5);
-    cout << MinInt.learn(1, 7) << endl;
-    cout << MinInt.learn(2, 3) << endl;
+    cout << MinInt.query(1, 7) << endl;
+    cout << MinInt.query(2, 3) << endl;
 
     vector<int> Data(100);
     for(int i = 0; i < 100; i++)
@@ -44,7 +44,7 @@ int main()
         Data[i] = i;
     }
     IntervalTree<int, int, use, consl, comp_add> MinInt2(100, use(), consl(), comp_add(), 0, Data);
-    cout << MinInt2.learn(33, 77) << endl;
+    cout << MinInt2.query(33, 77) << endl;
 
     return 0;
 }
