@@ -13,7 +13,6 @@ class STDSorter
 		
 		void operator()(Type* begin, Type* end)
 		{
-			//std::cerr << "Sorting..." << std::endl;
 			std::sort(begin, end, Comparator());
 		}
 };
@@ -24,7 +23,7 @@ int main()
 	input.open("testinput.txt",std::fstream::in);
 	std::fstream output;
 	output.open("testoutput.txt",std::fstream::out);
-	externalSort(input, output, STDSorter<int, std::less<int> >());
+	externalSort(input, output, STDSorter<int, std::less<int> >(), 10);
 	input.close();
 	output.close();
 	return 0;

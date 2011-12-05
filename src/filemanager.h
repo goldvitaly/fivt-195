@@ -35,7 +35,6 @@ int filemanager<Type>::open_next()
 	std::fstream* newstream = new std::fstream(makename.str().c_str(), std::fstream::out);
 	newstream->close();
 	newstream->open(makename.str().c_str(), std::fstream::out | std::fstream::in);
-	//std::cerr << "Opened new file: " << makename.str() << std::endl;
 	files.push_back(newstream);
 	return count++;
 }
@@ -59,13 +58,11 @@ template <typename Type>
 void filemanager<Type>::reset(int fileid)
 {
 	files[fileid]->seekg(std::fstream::beg);
-	//read_success = true;
 }
 
 template <typename Type>
 void filemanager<Type>::close(int fileid)
 {
-	//std::cerr << "Closing file, id " << fileid << std::endl;
 	files[fileid]->close();
 }
 

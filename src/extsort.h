@@ -6,8 +6,17 @@
 #include <cassert>
 #include <queue>
 
+template<typename T1, typename T2, class Comparator>
+struct custom_pair_comparator
+{
+	bool operator()(std::pair<T1,T2> p1, std::pair<T1,T2> p2)
+	{
+		return Comparator()(p2.first, p1.first);
+	}
+};
+
 template <class Sorter>
-void externalSort(std::fstream& input, std::fstream& output, Sorter sorter, int blocksize = 10000)
+void externalSort(std::istream& input, std::ostream& output, Sorter sorter, int blocksize)
 {
 	typedef typename Sorter::type type;
 	typedef typename Sorter::comp comp;
@@ -21,7 +30,6 @@ void externalSort(std::fstream& input, std::fstream& output, Sorter sorter, int 
 		while(buffer.size() < blocksize && input >> next)
 		{
 			buffer.push_back(next);
-			//std::cerr << next << std::endl;
 		}
 		if(buffer.size() == 0)
 			break;
@@ -30,19 +38,16 @@ void externalSort(std::fstream& input, std::fstream& output, Sorter sorter, int 
 		for(int i = 0; i < buffer.size(); i++)
 		{
 			mng.write(id, buffer[i]);
-			//std::cerr << buffer[i] << std::endl;
 		}
 	}
 	for(int i = 0; i <= id; i++)
 	{
 		mng.reset(i);
-		//std::cerr << mng.read(0) << "!!!!!!!" << mng.read_success << std::endl;
 	}
-	//std::cerr << mng.read(0) << "!!!!!!!" << mng.read_success << std::endl;
 	assert(id >= 0);
 	size_t chunk = blocksize / (id+1);
 	assert(chunk > 0);
-	std::priority_queue<std::pair<type, int> > merge; 
+	std::priority_queue<std::pair<type, int>, std::vector<std::pair<type, int> >, custom_pair_comparator<type, int, comp> > merge; //TODO:Insert comparator here
 	for(int i = 0; i <= id; i++)
 	{
 		for(int c = 0; c < chunk; c++)
@@ -50,8 +55,8 @@ void externalSort(std::fstream& input, std::fstream& output, Sorter sorter, int 
 			next = mng.read(i);
 			if(mng.read_success)
 				merge.push(std::make_pair(next,i));
-			//else
-			//	break;
+			else
+				break;
 		}
 	}
 	std::pair<type, int> best;
