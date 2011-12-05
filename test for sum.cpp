@@ -80,7 +80,6 @@ int main()
         int mod = rand() % 100 - 50;
         if(limit1 != limit2)
         {
-            cout << mod << " " << min(limit1, limit2) << " " << max(limit1,limit2) << endl;
             intervalTree.update(mod, min(limit1, limit2), max(limit1,limit2));
             slowlyTree.update(mod, min(limit1, limit2), max(limit1,limit2));
         }
@@ -89,7 +88,6 @@ int main()
     }
     for(int i = 0; i < 100; i++)
     {
-        srand(time(NULL));
         int limit1 = rand() % 100 + 1;
         int limit2 = rand() % 100 + 1;
         if(limit1 != limit2)
