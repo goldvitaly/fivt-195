@@ -14,7 +14,7 @@ class STDSorter
 		void operator()(Type* begin, Type* end)
 		{
 			//std::cerr << "Sorting..." << std::endl;
-			std::sort(begin, end);//, Comparator());
+			std::sort(begin, end, Comparator());
 		}
 };
 
