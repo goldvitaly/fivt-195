@@ -8,12 +8,12 @@
 #ifndef INTERVALTREE_H
 #define INTERVALTREE_H
 #include <cassert>
-#include <iostream>
 #include <vector>
 #include <stdexcept>
 #include <algorithm>
-template <typename ElementType, typename ModType, typename MergeFunctorType,
-	typename ModFuncType, typename CalcModType>
+#include <boost/optional.hpp>
+template <typename Element, typename Modification, typename MergeFunctor,
+	typename ModFunc, typename CalcMod>
 class IntervalTree{
 	struct Interval{
 		int l,r;
@@ -43,14 +43,13 @@ class IntervalTree{
 			return Interval(std::max(l, b.l),std::min(r, b.r));
 		}
 	};
-	std::vector<ElementType> tree;
-	std::vector<ModType> mod;
+	std::vector<Element> tree;
+	std::vector<boost::optional<Modification> > mod;
 	size_t shift;
-	MergeFunctorType functor;
-	ModFuncType modify;
-	CalcModType calc_mod;
-	ElementType Zero;
-	ModType ModZero;
+	MergeFunctor functor;
+	ModFunc modify;
+	CalcMod calcMod;
+	Element Zero;
 	size_t size;
 	void allocate(size_t n){
 		assert(n>0);
@@ -62,39 +61,63 @@ class IntervalTree{
 		shift = 1<<height;
 
 		tree.assign(1<<(height+1),Zero);
-		mod.assign(1<<(height+1),ModZero);
-		
+		mod.assign(1<<(height+1),boost::optional<Modification>());
 	}
 
-	void recalc(size_t pos,int len){
+	Element apply_modification(const Element& element, const boost::optional<Modification>& modification, size_t len) const{
+		if(modification)
+			return modify(element, *modification, len);
+		else
+			return element;
+	}
+	void add_modification(size_t v,const Modification& modification){
+		if(mod[v])
+			mod[v] = calcMod(*mod[v], modification);
+		else
+			mod[v] = modification;
+	}
+
+	void recalc(size_t pos,size_t len){
 		assert(pos<shift);
-		tree[pos]=functor(modify(tree[2*pos],mod[2*pos],len>>1),modify(tree[2*pos+1],mod[2*pos+1],len>>1));
+		tree[pos]=functor(apply_modification(tree[2*pos],mod[2*pos],len>>1),
+		                  apply_modification(tree[2*pos+1],mod[2*pos+1],len>>1));
 	}
 
-	ElementType _get(size_t v,Interval query,Interval vertex) const{
+	void mod_down(size_t v, size_t len){
+		if(!mod[v])
+			return;
+		if(v>=shift){
+			tree[v] = modify(tree[v], *mod[v], len);
+		}
+		else{
+			add_modification(2*v, *mod[v]);
+			add_modification(2*v+1, *mod[v]);
+			recalc(v, len);
+		}
+		mod[v].reset();
+	}
+	
+	Element _get(size_t v,Interval query,Interval vertex){
 		if(!query.intersect(vertex))
 			return Zero;
+		mod_down(v, vertex.length());
 		if(vertex.partOf(query))
-			return modify(tree[v], mod[v], vertex.length());
-		query = query.intersection(vertex);
+			return tree[v];
 		assert(v<shift);
-		return modify(
-			functor(
-				_get(2*v, query, vertex.leftPart()),
-				_get(2*v+1, query, vertex.rightPart())
-			),
-			mod[v],
-			query.length()
+		return functor(
+			_get(2*v, query, vertex.leftPart()),
+			_get(2*v+1, query, vertex.rightPart())
 		);
 	}
 
-	void _set(size_t v, Interval query, Interval vertex,ModType arg){
-		if(vertex.partOf(query)){
-			mod[v] = calc_mod(mod[v], arg);
-			return;
-		}
+	void _set(size_t v, Interval query, Interval vertex,Modification arg){
 		if(!vertex.intersect(query))
 			return;
+		if(vertex.partOf(query)){
+			add_modification(v, arg);
+			return;
+		}
+		mod_down(v, vertex.length());
 		assert(v<shift);
 		_set(2*v  , query, vertex.leftPart() , arg);
 		_set(2*v+1, query, vertex.rightPart(), arg);
@@ -102,21 +125,21 @@ class IntervalTree{
 	}
 
 	public:
-	explicit IntervalTree(size_t n, 
-			ElementType Zero = ElementType(), ModType ModZero = ModType(),
-			MergeFunctorType functor = MergeFunctorType(),
-			ModFuncType modify=ModFuncType(), CalcModType calc_mod=CalcModType()):
-			functor(functor), modify(modify), calc_mod(calc_mod),Zero(Zero),ModZero(ModZero)
+	explicit IntervalTree(size_t n, Element Zero = Element(),
+			MergeFunctor functor = MergeFunctor(),
+			ModFunc modify=ModFunc(), CalcMod calcMod=CalcMod()):
+			functor(functor), modify(modify), calcMod(calcMod),Zero(Zero)
 	{
 		allocate(n);
+		
 	}
 
 	template <typename Iterator>
 	IntervalTree(Iterator begin,Iterator end,
-			ElementType Zero = ElementType(), ModType ModZero = ModType(),
-			MergeFunctorType functor = MergeFunctorType(),
-			ModFuncType modify=ModFuncType(), CalcModType calc_mod=CalcModType()):
-			functor(functor), modify(modify), calc_mod(calc_mod),Zero(Zero),ModZero(ModZero)
+			Element Zero = Element(),
+			MergeFunctor functor = MergeFunctor(),
+			ModFunc modify=ModFunc(), CalcMod calcMod=CalcMod()):
+			functor(functor), modify(modify), calcMod(calcMod),Zero(Zero)
 	{
 		allocate(end-begin);
 		std::copy(begin, end, tree.begin()+shift);
@@ -133,13 +156,13 @@ class IntervalTree{
 		}
 	}
 
-	ElementType get(size_t left, size_t right) const{
+	Element get(size_t left, size_t right){
 		if(left>right || right>=size)
 			throw std::logic_error("Invalid range");
 		return _get(1, Interval(left, right),Interval(0,shift -1));
 	}
 
-	void set(size_t left, size_t right, ModType arg){
+	void set(size_t left, size_t right, Modification arg){
 		if(left>right || right>=size)
 			throw std::logic_error("Invalid range");
 		_set(1, Interval(left, right), Interval(0, shift - 1), arg);

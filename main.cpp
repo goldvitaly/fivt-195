@@ -87,7 +87,7 @@ void test_gcd(int n,int times){
 	for(int i=0;i<n;++i){
 		v[i]=rand()%100;
 	}
-	IntervalTree<LL,LL,gcd,multiplyIgnore,std::multiplies<LL> > tree(v.begin(),v.end(),0,1);
+	IntervalTree<LL,LL,gcd,multiplyIgnore,std::multiplies<LL> > tree(v.begin(),v.end());
 	for(int i=0;i<times;++i){
 		int l=rand()%n;
 		int r=rand()%n;
@@ -205,7 +205,6 @@ void test_segment_count(int n,int times){
 
 }*/
 int main() {
-	//cout<<"x";
 	test_sum(10000,10000);
 	test_prefilling(10,10000);
 	test_gcd(1000,100);
