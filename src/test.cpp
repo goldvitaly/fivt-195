@@ -8,19 +8,23 @@ template<typename Type, class Comparator>
 class STDSorter
 {
 	public:
+		typedef Type type;
+		typedef Comparator comp;
+		
 		void operator()(Type* begin, Type* end)
 		{
-			std::sort(begin, end, Comparator());
+			//std::cerr << "Sorting..." << std::endl;
+			std::sort(begin, end);//, Comparator());
 		}
 };
 
 int main()
 {
-	std::ifstream input;
-	input.open("testinput.txt",std::ifstream::in);
-	std::ofstream output;
-	output.open("testoutput.txt",std::ofstream::out);
-	externalSort<int> (input, output, STDSorter<int, std::less<int> >());
+	std::fstream input;
+	input.open("testinput.txt",std::fstream::in);
+	std::fstream output;
+	output.open("testoutput.txt",std::fstream::out);
+	externalSort(input, output, STDSorter<int, std::less<int> >());
 	input.close();
 	output.close();
 	return 0;

@@ -1,6 +1,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 template <typename Type>
 class filemanager
@@ -27,8 +28,9 @@ template <typename Type>
 int filemanager<Type>::open_next()
 {
 	std::stringstream makename;
-	makename << ".tempfile" << count;
-	std::fstream* newstream = new std::fstream(makename.str().c_str());
+	makename << "tempfile" << count << ".tmp";
+	std::fstream* newstream = new std::fstream(makename.str().c_str(), std::fstream::out);
+	//std::cerr << "Opened new file: " << makename.str() << std::endl;
 	files.push_back(newstream);
 	return count++;
 }
@@ -36,7 +38,7 @@ int filemanager<Type>::open_next()
 template <typename Type>
 void filemanager<Type>::write(int fileid, Type& value)
 {
-	*files[fileid] << value;//Primitive types only ;(
+	*files[fileid] << value << " ";//Primitive types only ;(
 }
 
 template <typename Type>
@@ -56,6 +58,7 @@ void filemanager<Type>::reset(int fileid)
 template <typename Type>
 void filemanager<Type>::close(int fileid)
 {
+	//std::cerr << "Closing file, id " << fileid << std::endl;
 	files[fileid]->close();
 }
 
