@@ -15,6 +15,29 @@
 template <typename ElementType, typename ModType, typename MergeFunctorType,
 	typename ModFuncType, typename CalcModType>
 class IntervalTree{
+	struct Interval{
+		int l,r;
+		IntervalTree(int l,int r):l(l),r(r){}
+		Interval leftPart() const {
+			return IntervalTree(l, (l+r)>>1);
+		}
+
+		Interval rightPart() const {
+			return IntervalTree(((l+r)>>1)+1,r);
+		}
+
+		bool partOf(const Interval& b) const {
+			return l>=b.l && r<=b.r;
+		}
+
+		bool intersect(const Interval& b) const{
+			return r>=b.l && l<=b.r;
+		}
+
+		size_t length() const{
+			return r - l + 1;
+		}
+	};
 	std::vector<ElementType> tree;
 	std::vector<ModType> mod;
 	size_t shift;
@@ -61,17 +84,17 @@ class IntervalTree{
 		);
 	}
 
-	void _set(size_t v, size_t l,size_t r, size_t v_l,size_t v_r,ModType arg){
-		if(l<=v_l && r>=v_r){
+	void _set(size_t v, Interval query, Interval vertex,ModType arg){
+		if(vertex.partOf(query)){
 			mod[v] = calc_mod(mod[v], arg);
 			return;
 		}
-		if(l>v_r || r<v_l)
+		if(!vertex.intersect(query))
 			return;
 		assert(v<shift);
-		_set(2*v  , l, r, v_l, (v_l+v_r)>>1  , arg);
-		_set(2*v+1, l, r, ((v_l+v_r)>>1)+1, v_r, arg);
-		recalc(v, v_r - v_l+1);
+		_set(2*v  , query, vertex.leftPart() , arg);
+		_set(2*v+1, query, vertex.rightPart(), arg);
+		recalc(v, vertex.length);
 	}
 
 	public:
@@ -107,15 +130,15 @@ class IntervalTree{
 	}
 
 	ElementType get(size_t left, size_t right) const{
-		if(left>right || right>=size || left<0)
+		if(left>right || right>=size)
 			throw std::logic_error("Invalid range");
 		return _get(1, left, right, 0, shift-1);
 	}
 
 	void set(size_t left, size_t right, ModType arg){
-		if(left>right || right>=size || left<0)
+		if(left>right || right>=size)
 			throw std::logic_error("Invalid range");
-		_set(1, left, right, 0, shift - 1, arg);
+		_set(1, Interval(left, right), Interval(0, shift - 1), arg);
 	}
 	
 };
