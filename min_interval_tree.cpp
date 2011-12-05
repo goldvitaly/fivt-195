@@ -1,7 +1,6 @@
 #include "interval_tree.cpp"
 
-template <typename ElementType>//, typename ModifyType, 
-          //typename MergeFunc, typename ModifyFunc, typename ModifyUpdateFunc>
+template <typename ElementType>
 class MinIntervalTree
 {
 
@@ -11,7 +10,9 @@ class MinIntervalTree
   explicit MinIntervalTree(size_t size, const ElementType& element_zero, const ElementType& modify_zero, const ElementType& init_element)
   {
     assert(size > 0);
-    tree = new IntervalTree<ElementType, ElementType, MinMerge, AddModify, AddModifyUpdate>(size, element_zero, modify_zero, init_element);
+    tree = new IntervalTree
+          <ElementType, ElementType, MinMerge, std::plus<ElementType>, std::plus<ElementType>>
+          (size, element_zero, modify_zero, init_element);
   }
 
   ElementType GetValue(int left_index, int right_index)
@@ -35,26 +36,8 @@ class MinIntervalTree
       return std::min(a, b);
     }
   };
-  class AddModify
-  {
-    public:
 
-    ElementType operator() (const ElementType& a, const ElementType& b)
-    {
-      return a + b;
-    }
-  };
-  class AddModifyUpdate
-  {
-    public:
-
-    ElementType operator() (const ElementType& a, const ElementType& b)
-    {
-      return a + b;
-    }
-  };
-
-  IntervalTree<ElementType, ElementType, MinMerge, AddModify, AddModifyUpdate> * tree;
+  IntervalTree<ElementType, ElementType, MinMerge, std::plus<ElementType>, std::plus<ElementType>> * tree;
 
 };
 
