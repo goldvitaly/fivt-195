@@ -19,7 +19,10 @@ class MinimizeTreeSetModification{
 	IntervalTree<T,T,Min,SecondArgument,SecondArgument> tree;
 	
 	public:
-	MinimizeTreeSetModification(size_t n,T Zero = T()):tree(n,Zero){}
+	MinimizeTreeSetModification(size_t n,T zero = T()):tree(n,zero){}
+
+	template<typename Iterator>
+	MinimizeTreeSetModification(Iterator begin, Iterator end):tree(begin,end){}
 
 	int getMin(size_t l, size_t r){
 		return tree.get(l, r);

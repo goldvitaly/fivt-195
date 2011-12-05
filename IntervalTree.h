@@ -146,13 +146,13 @@ class IntervalTree{
 	}
 
 	public:
-	explicit IntervalTree(size_t n, Element Zero = Element(),
+	explicit IntervalTree(size_t n, Element zero = Element(),
 			Merge merge = Merge(),
 			ModFunc modify=ModFunc(), CalcMod calcMod=CalcMod()):
 			merge(merge), modify(modify), calcMod(calcMod)
 	{
 		allocate(n);
-		std::fill(tree.begin()+shift,tree.begin()+n+shift, Zero);
+		std::fill(tree.begin()+shift,tree.begin()+n+shift, zero);
 		recalc_all();
 	}
 	

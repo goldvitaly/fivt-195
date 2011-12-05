@@ -1,20 +1,19 @@
 #include "IntervalTree.h"
 #include "MinimizeTreeSetModification.h"
+#include "RSQAddModification.h"
 #include <cstdlib>
 #include <iostream>
 #include <limits>
 using namespace std;
 typedef long long LL;
 struct addSegment{
-	LL operator()(LL old, LL mod, size_t len) const{
+	LL operator()(LL old, LL mod, size_t len) const {
 		return old+mod*len;
 	}
 };
-//Сумма на отрезке.
-//Увеличение/уменьшение каждого чиал на отрезке.
 void test_sum(int n,int times){
 	srand(1);
-	IntervalTree<LL,LL,plus<LL>,addSegment,plus<LL> > tree(n);
+	RSQAddModification<LL> tree(n);
 	vector<LL> v(n);
 	for(int i=0;i<times;++i){
 		int l=rand()%n;
@@ -25,22 +24,18 @@ void test_sum(int n,int times){
 		for(int i=l;i<=r;++i){
 			v[i] += value;
 		}
-		tree.set(l, r, value);
-		//cout<<"setted "<<l<<" "<<r<<" to "<<value<<endl;
+		tree.increase(l, r, value);
+
 		l=rand()%n;
 		r=rand()%n;
 		if(l>r)
 			swap(l, r);
 
 		LL ans = 0;
-
 		for(int i=l;i<=r;++i){
 			ans+=v[i];
 		}
-
-		//cout<<"count " <<l<<" "<<r<<" ans= "<<ans<<" & found "<<tree.get(l,  r)<<endl;
-		assert(ans == tree.get(l,  r));
-
+		assert(ans == tree.getSum(l,  r));
 	}
 }
 void test_prefilling(int n, int times){
@@ -49,23 +44,17 @@ void test_prefilling(int n, int times){
 	for(int i=0;i<n;++i){
 		v[i]=rand();
 	}
-	IntervalTree<LL,LL,plus<LL>,addSegment,plus<LL> > tree(v.begin(),v.end());
-
+	RSQAddModification<LL> tree(v.begin(),v.end());
 	for(int i=0;i<times;++i){
 		int l=rand()%n;
 		int r=rand()%n;
 		if(l>r)
 			swap(l, r);
-
 		LL ans = 0;
-
 		for(int i=l;i<=r;++i){
 			ans+=v[i];
 		}
-
-		//cout<<"count " <<l<<" "<<r<<" ans= "<<ans<<" & found "<<tree.get(l,  r)<<endl;
-		assert(ans == tree.get(l,  r));
-
+		assert(ans == tree.getSum(l,  r));
 	}
 
 }
@@ -76,13 +65,14 @@ struct gcd{
 		return (*this)(b,a%b);
 	}
 };
-//Не рекомендуется большое times, т.к возможно переполнение
-// НОД на отрезке, умножение каждого числа на отрезке
 struct multiplyIgnore{
 	LL operator()(LL a, LL b, size_t)  const{
 		return a*b;
 	}
 };
+
+//Не рекомендуется большое times, т.к возможно переполнение
+// НОД на отрезке, умножение каждого числа на отрезке
 void test_gcd(int n,int times){
 	srand(2);
 	
@@ -101,7 +91,7 @@ void test_gcd(int n,int times){
 			v[i] *= value;
 		}
 		tree.set(l, r, value);
-		//cout<<"setted "<<l<<" "<<r<<" to "<<value<<endl;
+
 		l=rand()%n;
 		r=rand()%n;
 		if(l>r)
@@ -112,14 +102,11 @@ void test_gcd(int n,int times){
 		for(int i=l;i<=r;++i){
 			ans=gcd()(ans,v[i]);
 		}
-
-		//cout<<"count " <<l<<" "<<r<<" ans= "<<ans<<" & found "<<tree.get(l,  r)<<endl;
 		assert(ans == tree.get(l,  r));
-
 	}
 }
 template <typename T>
-void test_min(int n,int times){
+void test_min(size_t n,int times){
 	srand(4);
 	MinimizeTreeSetModification<T> tree(n,17);
 	vector<int> v(n,17);
