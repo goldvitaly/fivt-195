@@ -1,5 +1,8 @@
 #include "IntervalTree.h"
+#include "MinimizeTreeSetModification.h"
 #include <cstdlib>
+#include <iostream>
+#include <limits>
 using namespace std;
 typedef long long LL;
 struct addSegment{
@@ -11,7 +14,7 @@ struct addSegment{
 //Увеличение/уменьшение каждого чиал на отрезке.
 void test_sum(int n,int times){
 	srand(1);
-	IntervalTree<LL,LL,std::plus<LL>,addSegment,std::plus<LL> > tree(n);
+	IntervalTree<LL,LL,plus<LL>,addSegment,plus<LL> > tree(n);
 	vector<LL> v(n);
 	for(int i=0;i<times;++i){
 		int l=rand()%n;
@@ -41,12 +44,12 @@ void test_sum(int n,int times){
 	}
 }
 void test_prefilling(int n, int times){
-	
+	srand(3);
 	vector<LL> v(n);
 	for(int i=0;i<n;++i){
 		v[i]=rand();
 	}
-	IntervalTree<LL,LL,std::plus<LL>,addSegment,std::plus<LL> > tree(v.begin(),v.end());
+	IntervalTree<LL,LL,plus<LL>,addSegment,plus<LL> > tree(v.begin(),v.end());
 
 	for(int i=0;i<times;++i){
 		int l=rand()%n;
@@ -87,7 +90,7 @@ void test_gcd(int n,int times){
 	for(int i=0;i<n;++i){
 		v[i]=rand()%100;
 	}
-	IntervalTree<LL,LL,gcd,multiplyIgnore,std::multiplies<LL> > tree(v.begin(),v.end());
+	IntervalTree<LL,LL,gcd,multiplyIgnore,multiplies<LL> > tree(v.begin(),v.end());
 	for(int i=0;i<times;++i){
 		int l=rand()%n;
 		int r=rand()%n;
@@ -115,100 +118,41 @@ void test_gcd(int n,int times){
 
 	}
 }
-/*
-class SegmentsCount{
-	struct resType{
-		int l,r;
-		size_t cnt;
-		int time;
-		resType():l(0),r(0),cnt(1),time(0){}
-		resType(int l,int r,size_t cnt, int time=0):l(l),r(r),cnt(cnt),time(time){}
-	};
-	struct mergeRes{
-		resType operator()(const resType& a,const resType &b) const{
-			return resType(a.l, b.r, a.cnt+b.cnt - (a.r==b.l ? 1 : 0),max(a.time,b.time));
-		}
-	};
-	struct edit{
-		int value;
-		int time;
-		edit():value(0),time(-1){}
-		edit(int value,int time):value(value), time(time){}
-	};
-	struct modRes{
-		resType operator()(const resType& res, const edit& edit, size_t) const{
-			if(res.time >= edit.time)
-				return res;
-			else
-				return resType(edit.value, edit.value, 1, edit.time);
-		}
-	};
-	struct secondEdit{
-		edit operator()(const edit& a,const edit& b) const{
-			return b;
-		}
-	};
-	
-	IntervalTree<resType,edit,mergeRes,modRes,secondEdit> tree;
-	unsigned time;
-public:
-	explicit SegmentsCount(int n): tree(n),time(1){
-		
-	}
-
-	void set(size_t l,size_t r,int color){
-		tree.set(l,r,edit(color,time++));
-	}
-	int get(size_t l,size_t r) const{
-		return tree.get(l,r).cnt;
-	}
-};
-/*
-void test_segment_count(int n,int times){
-	SegmentsCount tree(n);
-	srand(3);
-	vector<LL> v(n);
+template <typename T>
+void test_min(int n,int times){
+	srand(4);
+	MinimizeTreeSetModification<T> tree(n,17);
+	vector<int> v(n,17);
 	for(int i=0;i<times;++i){
 		int l=rand()%n;
 		int r=rand()%n;
-		LL value=rand();
+		int value=rand()%10;
 		if(l>r)
 			swap(l, r);
 		for(int i=l;i<=r;++i){
 			v[i] = value;
 		}
-		tree.set(l, r, value);
-		cout<<"setted "<<l<<" "<<r<<" to "<<value<<endl;
-
-		for(int i=0;i<n;++i){
-			for(int j=i;j<n;++j){
-				cout<<i<<j<<' '<<(tree.get(i,j))<<endl;
-			}
-		}
-
+		tree.setValue(l, r, value);
+		//cout<<"setted "<<l<<" "<<r<<" to "<<value<<endl;
 		l=rand()%n;
 		r=rand()%n;
 		if(l>r)
 			swap(l, r);
 
-		int ans = 1;
+		int ans = numeric_limits<int>::max();
 
-		for(int i=l+1;i<=r;++i){
-			if(v[i]!=v[i-1])
-				++ans;
+		for(int i=l;i<=r;++i){
+			ans=min(ans,v[i]);
 		}
-
-		cout<<"count " <<l<<" "<<r<<" ans= "<<ans<<" & found "<<tree.get(l,  r)<<endl;
-		assert(ans == tree.get(l,  r));
+		assert(ans == tree.getMin(l,  r));
 
 	}
-
-}*/
+}
 int main() {
 	test_sum(10000,10000);
-	test_prefilling(10,10000);
+	test_prefilling(1000,10000);
 	test_gcd(1000,100);
-	//test_segment_count(10,10000);
+	test_min<int>(10000,10000);
 	return 0;
 }
 
