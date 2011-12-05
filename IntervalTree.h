@@ -6,7 +6,7 @@
  */
 
 #ifndef INTERVALTREE_H
-#define	INTERVALTREE_H
+#define INTERVALTREE_H
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -30,12 +30,17 @@ class IntervalTree{
 			return l>=b.l && r<=b.r;
 		}
 
-		bool intersect(const Interval& b) const{
+		bool intersect(const Interval& b) const {
 			return r>=b.l && l<=b.r;
 		}
 
-		size_t length() const{
+		size_t length() const {
 			return r - l + 1;
+		}
+
+		Interval intersection(const Interval& b) const {
+			assert(intersect(b));
+			return Interval(std::max(l, b.l),std::max(r, b.r));
 		}
 	};
 	std::vector<ElementType> tree;
@@ -66,21 +71,20 @@ class IntervalTree{
 		tree[pos]=functor(modify(tree[2*pos],mod[2*pos],len>>1),modify(tree[2*pos+1],mod[2*pos+1],len>>1));
 	}
 
-	ElementType _get(size_t v,size_t l,size_t r,size_t v_l,size_t v_r) const{
-		l=std::max(l,v_l);
-		r=std::min(r,v_r);
-		if(l==v_l && r==v_r)
-			return modify(tree[v], mod[v], v_r-v_l+1);
-		if(l>r)
+	ElementType _get(size_t v,Interval query,Interval vertex) const{
+		if(!query.intersect(vertex))
 			return Zero;
+		if(vertex.partOf(query))
+			return modify(tree[v], mod[v], v_r-v_l+1);
+		query = query.intersection(vertex);
 		assert(v<shift);
 		return modify(
 			functor(
-				_get(2*v, l, r, v_l, (v_l+v_r)>>1),
-				_get(2*v+1, l, r, ((v_l+v_r)>>1)+1,v_r)
+				_get(2*v, query, vertex.leftPart()),
+				_get(2*v+1, query, vertex.rightPart())
 			),
 			mod[v],
-			r - l + 1
+			query.length()
 		);
 	}
 
@@ -132,7 +136,7 @@ class IntervalTree{
 	ElementType get(size_t left, size_t right) const{
 		if(left>right || right>=size)
 			throw std::logic_error("Invalid range");
-		return _get(1, left, right, 0, shift-1);
+		return _get(1, Interval(left, right),Interval(0,shift -1));
 	}
 
 	void set(size_t left, size_t right, ModType arg){
