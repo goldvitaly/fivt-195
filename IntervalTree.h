@@ -17,13 +17,13 @@ template <typename ElementType, typename ModType, typename MergeFunctorType,
 class IntervalTree{
 	struct Interval{
 		int l,r;
-		IntervalTree(int l,int r):l(l),r(r){}
+		Interval(int l,int r):l(l),r(r){}
 		Interval leftPart() const {
-			return IntervalTree(l, (l+r)>>1);
+			return Interval(l, (l+r)>>1);
 		}
 
 		Interval rightPart() const {
-			return IntervalTree(((l+r)>>1)+1,r);
+			return Interval(((l+r)>>1)+1,r);
 		}
 
 		bool partOf(const Interval& b) const {
@@ -40,7 +40,7 @@ class IntervalTree{
 
 		Interval intersection(const Interval& b) const {
 			assert(intersect(b));
-			return Interval(std::max(l, b.l),std::max(r, b.r));
+			return Interval(std::max(l, b.l),std::min(r, b.r));
 		}
 	};
 	std::vector<ElementType> tree;
@@ -75,7 +75,7 @@ class IntervalTree{
 		if(!query.intersect(vertex))
 			return Zero;
 		if(vertex.partOf(query))
-			return modify(tree[v], mod[v], v_r-v_l+1);
+			return modify(tree[v], mod[v], vertex.length());
 		query = query.intersection(vertex);
 		assert(v<shift);
 		return modify(
@@ -98,7 +98,7 @@ class IntervalTree{
 		assert(v<shift);
 		_set(2*v  , query, vertex.leftPart() , arg);
 		_set(2*v+1, query, vertex.rightPart(), arg);
-		recalc(v, vertex.length);
+		recalc(v, vertex.length());
 	}
 
 	public:

@@ -115,7 +115,7 @@ void test_gcd(int n,int times){
 
 	}
 }
-
+/*
 class SegmentsCount{
 	struct resType{
 		int l,r;
@@ -205,6 +205,7 @@ void test_segment_count(int n,int times){
 
 }*/
 int main() {
+	//cout<<"x";
 	test_sum(10000,10000);
 	test_prefilling(10,10000);
 	test_gcd(1000,100);
