@@ -15,7 +15,7 @@ void make_test(int n, const string& in, vector<int>& Num)
     ofstream fout(in.c_str());
     for(int i = 0; i < n; i++)
         fout << Num[i] << endl;
-    std::sort(Num.begin(), Num.end());
+    sort(Num.begin(), Num.end());
 }
 
 bool check(const int& n, const vector<int>& Num, const string& file)
@@ -38,9 +38,9 @@ bool check(const int& n, const vector<int>& Num, const string& file)
 int main()
 {
     const string in = "num.txt";
-    const string out = "rez.txt";
+    const string out = "res.txt";
     vector<int> Num;
-    const int quantity_num = 10;
+    const int quantity_num = 100;
     make_test(quantity_num, in, Num);
     ifstream fin(in.c_str());
     ofstream fout(out.c_str());
@@ -50,6 +50,6 @@ int main()
     if(check(quantity_num, Num, out))
         cout << "Ok" << endl;
     else
-        cout << "Wrong" << endl;
+        exit(1);
     return 0;
 }

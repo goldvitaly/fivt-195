@@ -11,8 +11,6 @@
 #include <queue>
 #include <utility>
 
-using namespace std;
-
 template <class Cmp>
 class ReverseCmp
 {
@@ -29,53 +27,54 @@ class CmpPairFirst
 {
 public:
     template<class T1, class T2>
-    bool operator () (const pair<T1, T2>& a, const pair<T1, T2>& b)
+    bool operator () (const std::pair<T1, T2>& a, const std::pair<T1, T2>& b)
     {
         return Cmp()(a.first, b.first);
     }
 };
 
 template<class T, class Cmp>
-void out_sort(ifstream& from, ofstream& rez, int size_blok, Cmp cmp)
+void out_sort(std::ifstream& from, std::ofstream& res, int size_blok, Cmp cmp)
 {
     int num_bloks = 0;
     char name_file[20];
-    vector <T> A(size_blok);
+    std::vector<T> Data(size_blok);
     while(from.good())
     {
         sprintf(name_file,"%d.txt", num_bloks);
-        ofstream to(name_file);
+        std::ofstream to(name_file);
         int size_file;
         for(size_file = 0; from.good() && size_file < size_blok; )
         {
             T num_now;
             if(from >> num_now)
             {
-                A[size_file++] = num_now;
+                Data[size_file++] = num_now;
             }
         }
-        sort(A.begin(), A.begin() + size_file, Cmp());
+        std::sort(Data.begin(), Data.begin() + size_file, Cmp());
         for(int j  = 0; j < size_file; j++)
-            to << A[j] << endl;
+            to << Data[j] << std::endl;
         if(size_file > 0)
             num_bloks++;
     }
 
-    priority_queue<pair<T, ifstream*>, vector<pair<T, ifstream*> >,CmpPairFirst<ReverseCmp<Cmp> > > Queue;
+    typedef CmpPairFirst<ReverseCmp<Cmp> > CmpQueue;
+    std::priority_queue<std::pair<T, std::ifstream*>, std::vector<std::pair<T, std::ifstream*> >, CmpQueue> Queue;
 
     for(int i = 0; i < num_bloks; i++)
     {
         sprintf(name_file,"%d.txt", i);
-        ifstream* in = new ifstream(name_file);
+        std::ifstream* in = new std::ifstream(name_file);
         T num_now;
         (*in) >> num_now;
         Queue.push(make_pair(num_now, in));
     }
     while(!Queue.empty())
     {
-        pair<T, ifstream*> Pair = Queue.top();
+        std::pair<T, std::ifstream*> Pair = Queue.top();
         Queue.pop();
-        rez << Pair.first << endl;
+        res << Pair.first << std::endl;
         T num_now;
         if(*(Pair.second) >> num_now)
         {
