@@ -3,71 +3,80 @@
 #include <sstream>
 #include <iostream>
 
-template <typename Type>
-class filemanager
+template <typename ValueType>
+class Filemanager
 {
 	private:
 		std::vector<std::fstream*> files;
 		int count;
+		bool read_success_flag;
 	public:
-		bool read_success;
+		bool read_success();
 		
-		filemanager();
+		Filemanager();
 		int open_next();
-		void write(int fileid, Type& value);
-		Type read(int fileid);
+		void write(int fileid, ValueType& value);
+		ValueType read(int fileid);
 		void reset(int fileid);
 		void close(int fileid);
-		bool alive();
+		bool alive() const;
 };
 
-template <typename Type>
-filemanager<Type>::filemanager()
+template <typename ValueType>
+bool Filemanager<ValueType>::read_success()
+{
+	return read_success_flag;
+}
+
+template <typename ValueType>
+Filemanager<ValueType>::Filemanager()
 {
 	count = 0;
 }
 
-template <typename Type>
-int filemanager<Type>::open_next()
+template <typename ValueType>
+int Filemanager<ValueType>::open_next()
 {
 	std::stringstream makename;
 	makename << "tempfile" << count << "";
+	
 	std::fstream* newstream = new std::fstream(makename.str().c_str(), std::fstream::out);
-	newstream->close();
+	newstream->close();//Dirty hack to create file
 	newstream->open(makename.str().c_str(), std::fstream::out | std::fstream::in);
 	files.push_back(newstream);
+	
 	return count++;
 }
 
-template <typename Type>
-void filemanager<Type>::write(int fileid, Type& value)
+template <typename ValueType>
+void Filemanager<ValueType>::write(int fileid, ValueType& value)
 {
 	*files[fileid] << value << " ";//Primitive types only ;(
 }
 
-template <typename Type>
-Type filemanager<Type>::read(int fileid)
+template <typename ValueType>
+ValueType Filemanager<ValueType>::read(int fileid)
 {
-	Type ret;//If no default constructor?
+	ValueType ret;//If no default constructor?
 	*files[fileid] >> ret;
-	read_success = !files[fileid]->fail();
+	read_success_flag = !files[fileid]->fail();
 	return ret;
 }
 
-template <typename Type>
-void filemanager<Type>::reset(int fileid)
+template <typename ValueType>
+void Filemanager<ValueType>::reset(int fileid)
 {
 	files[fileid]->seekg(std::fstream::beg);
 }
 
-template <typename Type>
-void filemanager<Type>::close(int fileid)
+template <typename ValueType>
+void Filemanager<ValueType>::close(int fileid)
 {
 	files[fileid]->close();
 }
 
-template <typename Type>
-bool filemanager<Type>::alive()
+template <typename ValueType>
+bool Filemanager<ValueType>::alive() const
 {
 	for(int i = 0; i < count; i++)
 	{
