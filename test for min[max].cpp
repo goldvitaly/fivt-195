@@ -71,7 +71,9 @@ int main()
         {
             if(intervalTree.query(min(limit1, limit2), max(limit1,limit2))
                 != slowlyTree.query(min(limit1, limit2), max(limit1,limit2)))
+            {
                 exit(1);
+            }
         }
         else
             i--;

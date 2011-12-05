@@ -9,11 +9,13 @@ template<class Element, class Modif>
 class vertex{
     Element val;
     Modif add;
+    bool flagMod;
 public:
     explicit vertex(const Element& val_, const Modif& add_)
     {
         val = val_;
         add = add_;
+        flagMod = false;
     }
     void change_add(const Modif& new_add_)
     {
@@ -23,11 +25,18 @@ public:
     {
         val = new_val_;
     }
+    void change_flag(const bool flagMod_)
+    {
+        flagMod = flagMod_;
+    }
     Modif get_add() const{
         return add;
     }
     Element get_val() const{
         return val;
+    }
+    bool get_flag() const{
+        return flagMod;
     }
 };
 
@@ -76,6 +85,22 @@ class IntervalTree{
     Use use;
     Modif addZero;
     int treeSize;
+    void push_modif(const int v)
+    {
+        Tree[v].change_val(use(Tree[v].get_val(), Tree[v].get_add()));
+        if(2*v < Tree.size())
+        {
+            Tree[2*v].change_add(composAdd(Tree[2*v].get_add(), Tree[v].get_add()));
+            Tree[2*v].change_flag(true);
+        }
+        if(2*v + 1 < Tree.size())
+        {
+            Tree[2*v+1].change_add(composAdd(Tree[2*v+1].get_add(), Tree[v].get_add()));
+            Tree[2*v+1].change_flag(true);
+        }
+        Tree[v].change_add(addZero);
+        Tree[v].change_flag(false);
+    }
     void make_tree(const int v, const segment& viewInterval, const std::vector<Element>& Data)
     {
         if(viewInterval.size() == 1)
@@ -91,9 +116,14 @@ class IntervalTree{
     }
     void update(const Modif& addIntroduce, const segment& modInterval, const int v, const segment& viewInterval)
     {
+        if(Tree[v].get_flag())
+        {
+            push_modif(v);
+        }
         if(modInterval == viewInterval)
         {
             Tree[v].change_add(composAdd(Tree[v].get_add(), addIntroduce));
+            Tree[v].change_flag(true);
         }
         else
         {
@@ -119,9 +149,12 @@ class IntervalTree{
     }
     Element query(const segment& modInterval, const int v, const segment& viewInterval, Modif addRes)
     {
+        if(Tree[v].get_flag())
+        {
+            push_modif(v);
+        }
         if(modInterval == viewInterval)
         {
-            addRes = composAdd(addRes, Tree[v].get_add());
             return use(Tree[v].get_val(), addRes);
         }
         else
