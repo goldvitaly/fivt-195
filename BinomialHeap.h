@@ -2,17 +2,15 @@
 #define BINOMIALHEAP_H_INCLUDED
 
 #include <vector>
-
-using namespace std;
+#include <cstdlib>
 
 template<class T>
 class BinTree{
 private:
     T key_;
-    vector<BinTree<T>*> children;
+    std::vector<BinTree<T>*> children;
 public:
     explicit BinTree(T key){
-        children.resize(0);
         key_ = key;
     }
     ~BinTree(){
@@ -21,10 +19,10 @@ public:
             delete children[i];
         }
     }
-    T min() const{return key_;}     //минимум в поддереве - корень
+    T min() const{return key_;}
     static BinTree<T>* merge(BinTree<T>* tree1, BinTree<T>* tree2){
         assert(tree1->num_children() == tree2->num_children());
-        if(tree1->min() > tree2->min())   // выбирает что из деревьев корень
+        if(tree1->min() > tree2->min())
         {
             swap(tree1, tree2);
         }
@@ -32,15 +30,15 @@ public:
         return tree1;
     }
     int num_children()const{return children.size();}
-    int size() const {return num_children();}
-    vector<BinTree<T>*>& get_children() {return children;} //возврат списка детей
+    size_t size() const {return num_children();}
+    std::vector<BinTree<T>*>& get_children() {return children;}
     void clear_children() {children.clear(); }
 };
 
 template<class T>
 class BinHeap{
 private:
-    vector<BinTree<T>*> link;   // хранит деревья
+    std::vector<BinTree<T>*> link;
     int min_id() const
     {
         int id = 0;
@@ -55,7 +53,7 @@ private:
         }
         if(!found)
         {
-            cout << "Empty heap" <<endl;
+            std::cout << "Empty heap" << std::endl;
             exit(1);
         }
         return id;
@@ -91,25 +89,25 @@ public:
             delete link[i];
         }
     }
-    T min() const               //возвращает минимальное значение
+    T min() const
     {
         return link[min_id()]->min();
     }
-    BinHeap<T>* pop()          // возвращает кучу без минимального значения
+    BinHeap<T>* pop()
     {
         int id = min_id();
         BinTree<T>* ans_tree = link[id];
-        vector<BinTree<T>*> children_remove_link = ans_tree->get_children();
-        ans_tree->clear_children(); //подготовка к  удалению мин вершины
+        std::vector<BinTree<T>*> children_remove_link = ans_tree->get_children();
+        ans_tree->clear_children();
         delete ans_tree;
         link[id] = NULL;
         BinHeap<T>* res = new BinHeap<T>;
-        for(size_t i = 0; i < children_remove_link.size(); i++) // слияние с детьми удаляемой вершины
+        for(size_t i = 0; i < children_remove_link.size(); i++)
         {
             BinHeap<T>* temp = new BinHeap<T>(children_remove_link[i]);
             res = merge(res, new BinHeap<T>(children_remove_link[i]));
         }
-        res = merge(res, this); //слияние с тек кучей без элемента
+        res = merge(res, this);
         return res;
     }
     static BinHeap<T>* merge(BinHeap<T>* heap1, BinHeap<T>* heap2){
@@ -122,7 +120,7 @@ public:
             {
                 ans->link.resize(i + 1);
             }
-            vector<BinTree<T>*> trees;
+            std::vector<BinTree<T>*> trees;
             trees.reserve(3);
             if(heap1->exist_tree(i))
                 trees.push_back(heap1->link[i]);
@@ -134,7 +132,7 @@ public:
             for(int j = 0; j < trees.size(); j++)
                 assert(trees[j]->size() == i);
 
-            if(trees.size() == 1)                 //разбор случаев кол-ва деревьев для суммы
+            if(trees.size() == 1)
             {
                 ans->link[i] = trees[0];
                 flag = NULL;
@@ -152,16 +150,16 @@ public:
         assert(ans->size() == heap1->size() + heap2->size());
         return ans;
     }
-    BinHeap<T>* push(T key)     //возв кучу с доб ключом
+    BinHeap<T>* push(T key)
     {
         BinHeap<T>* first = new BinHeap<T>(key);
         BinHeap<T>* ans = merge(this, first);
         return ans;
     }
-    bool empty() const{return(link.size() == 0);}         //O(1)
-    int size() const                                      // O(link)
+    bool empty() const{return link.size() == 0;}         //O(1)
+    size_t size() const                                      // O(link)
     {
-        int ans = 0;
+        size_t ans = 0;
         for(size_t i = 0; i < link.size(); i++)
         {
             if(link[i] != NULL)

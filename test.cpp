@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include "BinomialHeap.h"
 
 using namespace std;
@@ -31,8 +33,7 @@ void test(const int& n)
     {
         if(V[i] != heap3->min())
         {
-            cout << "Not" << endl;
-            return;
+            exit(1);
         }
         heap3 = heap3->pop();
     }
@@ -45,5 +46,6 @@ int main()
     for(int n = 10; n <= 10000; n *= 10)
         for(int trial = 0; trial < 5; trial++)
             test(n);
+    cout << "Ok" << endl;
     return 0;
 }
