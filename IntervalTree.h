@@ -37,11 +37,6 @@ class IntervalTree{
 		size_t length() const {
 			return r - l + 1;
 		}
-
-		Interval intersection(const Interval& b) const {
-			assert(intersect(b));
-			return Interval(std::max(l, b.l),std::min(r, b.r));
-		}
 	};
 	std::vector<boost::optional<Element>> tree;
 	std::vector<boost::optional<Modification>> mod;
