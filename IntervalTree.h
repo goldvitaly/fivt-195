@@ -147,7 +147,7 @@ class IntervalTree{
             Tree[v].change_val(conslid(leftChild, rightChild));
         }
     }
-    Element query(const segment& modInterval, const int v, const segment& viewInterval, Modif addRes)
+    Element query(const segment& modInterval, const int v, const segment& viewInterval)
     {
         if(Tree[v].get_flag())
         {
@@ -155,25 +155,24 @@ class IntervalTree{
         }
         if(modInterval == viewInterval)
         {
-            return use(Tree[v].get_val(), addRes);
+            return Tree[v].get_val();
         }
         else
         {
-            addRes = composAdd(addRes, Tree[v].get_add());
             if(modInterval.r <= viewInterval.middle())
             {
-                return query(modInterval, 2*v, viewInterval.left_part(), addRes);
+                return query(modInterval, 2*v, viewInterval.left_part());
             }
             else if(modInterval.l > viewInterval.middle())
             {
-                return query(modInterval, 2*v+1, viewInterval.right_part(), addRes);
+                return query(modInterval, 2*v+1, viewInterval.right_part());
             }
             else
             {
                 Element leftChild = query(modInterval.left_part(viewInterval.middle()), 2*v,
-                                            viewInterval.left_part(), addRes);
+                                            viewInterval.left_part());
                 Element rightChild = query(modInterval.right_part(viewInterval.middle()), 2*v+1,
-                                             viewInterval.right_part(), addRes);
+                                             viewInterval.right_part());
                 return conslid(leftChild, rightChild);
             }
         }
@@ -209,7 +208,7 @@ public:
             std::cout << "Error l > r" << std::endl;
             exit(1);
         }
-        return query(segment(l, r), 1, segment(1, treeSize), addZero);
+        return query(segment(l, r), 1, segment(1, treeSize));
     }
     size_t size() const {return treeSize;}
 };
