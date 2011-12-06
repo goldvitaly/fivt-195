@@ -79,7 +79,7 @@ public:
         res.l = elem1.l;
         res.r = elem2.r;
         res.valSum = elem1.valSum + elem2.valSum;
-        res.valMin = std::min(elem1.valMin, elem2.valMin);
+        res.valMin = min(elem1.valMin, elem2.valMin);
         return res;
     }
 };
@@ -98,26 +98,28 @@ int main()
     {
         int limit1 = rand() % 100 + 1;
         int limit2 = rand() % 100 + 1;
+        if(limit2 < limit1)
+            swap(limit1, limit2);
         if(limit1 != limit2)
         {
             int mod = rand() % 100 - 50;
             int choose = rand() % 3;
             if(choose == 0)         // +=
             {
-                intervalTree.update(Modif(false, 0, mod), min(limit1, limit2), max(limit1,limit2));
-                slowlyTree.update_add(mod, min(limit1, limit2), max(limit1,limit2));
+                intervalTree.update(Modif(false, 0, mod), limit1, limit2);
+                slowlyTree.update_add(mod, limit1, limit2);
             }
             else if(choose == 1)    // :=
             {
-                intervalTree.update(Modif(true, mod, 0), min(limit1, limit2), max(limit1,limit2));
-                slowlyTree.update_assign(mod, min(limit1, limit2), max(limit1,limit2));
+                intervalTree.update(Modif(true, mod, 0), limit1, limit2);
+                slowlyTree.update_assign(mod, limit1, limit2);
             }
             else
             {
-                Element elemIntTree = intervalTree.query(min(limit1, limit2), max(limit1,limit2));
-                if(elemIntTree.valSum != slowlyTree.query_sum(min(limit1, limit2), max(limit1,limit2)))
+                Element elemIntTree = intervalTree.query(limit1, limit2);
+                if(elemIntTree.valSum != slowlyTree.query_sum(limit1, limit2))
                     exit(1);
-                if(elemIntTree.valMin != slowlyTree.query_min(min(limit1, limit2), max(limit1,limit2)))
+                if(elemIntTree.valMin != slowlyTree.query_min(limit1, limit2))
                     exit(1);
             }
         }
