@@ -6,19 +6,61 @@
 
 using namespace std;
 
+struct Modif{
+    bool assingExists;
+    int assign;
+    int add;
+    explicit Modif(const bool assignExists_ = false, const int assign_ = 0, const int add_ = 0)
+    {
+        assingExists = assignExists_;
+        assign = assign_;
+        add = add_;
+    }
+};
+
 class Min{
 public:
-    int operator()(int val1, int val2) const
+    int operator()(const int val1, const int val2) const
     {
         return min(val1, val2);
     }
 };
 
-class Plus{
+class ComposMod{
 public:
-    int operator()(int val, int add) const
+    Modif operator()(Modif early, const Modif& late) const
     {
-        return val + add;
+        if(late.assingExists)
+        {
+            early = Modif(true, late.assign, 0);
+        }
+        else
+        {
+            if(early.assingExists)
+            {
+                early.assign += late.add;
+            }
+            else
+            {
+                early.add += late.add;
+            }
+        }
+        return early;
+    }
+};
+
+class Use{
+public:
+    int operator()(const int val, const Modif& modif) const
+    {
+        if(modif.assingExists)
+        {
+            return modif.assign;
+        }
+        else
+        {
+            return val + modif.add;
+        }
     }
 };
 
@@ -26,17 +68,22 @@ class SlowlyTree{
     vector<int> Data;
     int sizeTree;
 public:
-    SlowlyTree(int sizeTree_)
+    SlowlyTree(const int sizeTree_)
     {
         sizeTree = sizeTree_;
         Data.resize(sizeTree);
     }
-    void update(int mod, int l, int r)
+    void update_add(const int mod, const int l, const int r)
     {
-        for(int i = l-1; i < r; i++)
+        for(int i = l - 1; i < r; i++)
             Data[i] += mod;
     }
-    int query(int l, int r)
+    void update_assign(const int mod, const int l, const int r)
+    {
+        for(int i = l - 1; i < r; i++)
+            Data[i] = mod;
+    }
+    int query(const int l, const int r)
     {
         int ans = Data[l-1];
         for(int i = l; i < r; i++)
@@ -48,31 +95,31 @@ public:
 int main()
 {
     srand(time(NULL));
-    IntervalTree<int, int, Plus, Min, Plus> intervalTree(100, 0, 0);
+    IntervalTree<int, Modif, Use, Min, ComposMod> intervalTree(100, Modif(), 0);
     SlowlyTree  slowlyTree(100);
-    for(int i = 0; i < 100; i++)
-    {
-        int limit1 = rand() % 100 + 1;
-        int limit2 = rand() % 100 + 1;
-        int mod = rand() % 100 - 50;
-        if(limit1 != limit2)
-        {
-            intervalTree.update(mod, min(limit1, limit2), max(limit1,limit2));
-            slowlyTree.update(mod, min(limit1, limit2), max(limit1,limit2));
-        }
-        else
-            i--;
-    }
-    for(int i = 0; i < 100; i++)
+    for(size_t i = 0; i < 500; i++)
     {
         int limit1 = rand() % 100 + 1;
         int limit2 = rand() % 100 + 1;
         if(limit1 != limit2)
         {
-            if(intervalTree.query(min(limit1, limit2), max(limit1,limit2))
-                != slowlyTree.query(min(limit1, limit2), max(limit1,limit2)))
+            int mod = rand() % 100 - 50;
+            int choose = rand() % 3;
+            if(choose == 0)         // +=
             {
-                exit(1);
+                intervalTree.update(Modif(false, 0, mod), min(limit1, limit2), max(limit1,limit2));
+                slowlyTree.update_add(mod, min(limit1, limit2), max(limit1,limit2));
+            }
+            else if(choose == 1)    // :=
+            {
+                intervalTree.update(Modif(true, mod, 0), min(limit1, limit2), max(limit1,limit2));
+                slowlyTree.update_assign(mod, min(limit1, limit2), max(limit1,limit2));
+            }
+            else
+            {
+                if(intervalTree.query(min(limit1, limit2), max(limit1,limit2))
+                    != slowlyTree.query(min(limit1, limit2), max(limit1,limit2)))
+                    exit(1);
             }
         }
         else
