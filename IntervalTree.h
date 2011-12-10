@@ -11,23 +11,20 @@ class vertex{
     Modif add;
     bool flagMod;
 public:
-    explicit vertex(const Element& val_, const Modif& add_)
+    vertex(const Element& val_, const Modif& add_)
     {
         val = val_;
         add = add_;
         flagMod = false;
     }
-    void change_add(const Modif& new_add_)
+    void change_add(const Modif& new_add_, const bool flagMod_)
     {
         add = new_add_;
+        flagMod = flagMod_;
     }
     void change_val(const Element& new_val_)
     {
         val = new_val_;
-    }
-    void change_flag(const bool flagMod_)
-    {
-        flagMod = flagMod_;
     }
     Modif get_add() const{
         return add;
@@ -47,7 +44,7 @@ struct segment{
         l = l_;
         r = r_;
     }
-    bool operator==(segment s) const
+    bool operator==(const segment& s) const
     {
         return (s.l == l && s.r == r);
     }
@@ -71,39 +68,36 @@ struct segment{
     {
         return segment(middle() + 1, r);
     }
-    size_t size() const{
+    size_t length() const{
         return r - l + 1;
     }
 
 };
 
-template<class Element, class Modif, class Use, class Conslid, class ComposAdd>
+template<class Element, class Modif, class UseModif, class Conslid, class ComposAdd>
 class IntervalTree{
     std::vector<vertex<Element, Modif> > Tree;
     ComposAdd composAdd;
     Conslid conslid;
-    Use use;
+    UseModif useModif;
     Modif addZero;
     int treeSize;
     void push_modif(const int v)
     {
-        Tree[v].change_val(use(Tree[v].get_val(), Tree[v].get_add()));
+        Tree[v].change_val(useModif(Tree[v].get_val(), Tree[v].get_add()));
         if(2*v < Tree.size())
         {
-            Tree[2*v].change_add(composAdd(Tree[2*v].get_add(), Tree[v].get_add()));
-            Tree[2*v].change_flag(true);
+            Tree[2*v].change_add(composAdd(Tree[2*v].get_add(), Tree[v].get_add()), true);
         }
         if(2*v + 1 < Tree.size())
         {
-            Tree[2*v+1].change_add(composAdd(Tree[2*v+1].get_add(), Tree[v].get_add()));
-            Tree[2*v+1].change_flag(true);
+            Tree[2*v+1].change_add(composAdd(Tree[2*v+1].get_add(), Tree[v].get_add()), true);
         }
-        Tree[v].change_add(addZero);
-        Tree[v].change_flag(false);
+        Tree[v].change_add(addZero, false);
     }
     void make_tree(const int v, const segment& viewInterval, const std::vector<Element>& Data)
     {
-        if(viewInterval.size() == 1)
+        if(viewInterval.length() == 1)
         {
             Tree[v].change_val(Data[viewInterval.l-1]);
         }
@@ -122,8 +116,7 @@ class IntervalTree{
         }
         if(modInterval == viewInterval)
         {
-            Tree[v].change_add(composAdd(Tree[v].get_add(), addIntroduce));
-            Tree[v].change_flag(true);
+            Tree[v].change_add(composAdd(Tree[v].get_add(), addIntroduce), true);
         }
         else
         {
@@ -142,8 +135,8 @@ class IntervalTree{
                 update(addIntroduce, modInterval.right_part(viewInterval.middle()), 2*v+1,
                         viewInterval.right_part());
             }
-            Element leftChild = use(Tree[2*v].get_val(), Tree[2*v].get_add());
-            Element rightChild = use(Tree[2*v + 1].get_val(), Tree[2*v + 1].get_add());
+            Element leftChild = useModif(Tree[2*v].get_val(), Tree[2*v].get_add());
+            Element rightChild = useModif(Tree[2*v + 1].get_val(), Tree[2*v + 1].get_add());
             Tree[v].change_val(conslid(leftChild, rightChild));
         }
     }
@@ -213,3 +206,4 @@ public:
     size_t size() const {return treeSize;}
 };
 #endif // INTERVALTREE_H_INCLUDED
+

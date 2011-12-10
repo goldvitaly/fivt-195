@@ -10,7 +10,11 @@ using namespace std;
 struct Element{
     int l, r;
     int valSum, valMin;
-    explicit Element(const int l_ = 0, const int r_ = 0, const int valSum_ = 0, const int valMin_ = 0)
+    Element()
+    {
+        l = r = valSum = valMin = 0;
+    }
+    Element(const int l_, const int r_, const int valSum_, const int valMin_)
     {
         l = l_;
         r = r_;
@@ -31,7 +35,7 @@ struct Modif{
     }
 };
 
-class Use{
+class UseModif{
 public:
     Element operator()(Element elem, const Modif& modif) const
     {
@@ -87,12 +91,12 @@ public:
 int main()
 {
     srand(time(NULL));
-    vector<Element> Data(100);
+    vector<Element> Data;
     for(int i = 0; i < 100; i++)
     {
-        Data[i] = Element(i, i, 0, 0);
+        Data.push_back(Element(i, i, 0, 0));
     }
-    IntervalTree<Element, Modif, Use, Conslol, ComposMod> intervalTree(100, Modif(), Data);
+    IntervalTree<Element, Modif, UseModif, Conslol, ComposMod> intervalTree(100, Modif(), Data);
     SlowlyTree  slowlyTree(100);
     for(size_t i = 0; i < 500; i++)
     {
