@@ -17,25 +17,29 @@ void test(const int& n)
     BinHeap<T>* heap1 = new BinHeap<T>;
     BinHeap<T>* heap2 = new BinHeap<T>;
 
-    const int medium = rand() % n;
-    for(int i = 0; i < medium; i++)
-        heap1 = heap1->push(V[i]);
-    for(int i = medium; i < n; i++)
-        heap2 = heap2->push(V[i]);
+    const int middle = rand() % n;
+    for(int i = 0; i < middle; i++)
+        BinHeap<T>::push(heap1, V[i]);
+    for(int i = middle; i < n; i++)
+        BinHeap<T>::push(heap2, V[i]);
 
-    assert(heap1->size() == medium);
-    assert(heap2->size() == n - medium);
+    assert(heap1->size() == middle);
+    assert(heap2->size() == n - middle);
 
     BinHeap<T>* heap3 = BinHeap<T> :: merge(heap1, heap2);
+
+    assert(heap1->empty());
+    assert(heap2->empty());
 
     sort(V.begin(), V.end());
     for(int i = 0; i < n; i++)
     {
         if(V[i] != heap3->min())
         {
+            cout << "Wrong work" << endl;
             exit(1);
         }
-        heap3 = heap3->pop();
+        BinHeap<T>::pop(heap3);
     }
     assert(heap3->empty());
     delete heap3;

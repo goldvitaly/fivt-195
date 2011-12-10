@@ -10,7 +10,7 @@ private:
     T key_;
     std::vector<BinTree<T>*> children;
 public:
-    explicit BinTree(T key){
+    explicit BinTree(const T& key){
         key_ = key;
     }
     ~BinTree(){
@@ -29,10 +29,22 @@ public:
         tree1->children.push_back(tree2);
         return tree1;
     }
-    int num_children()const{return children.size();}
-    size_t size() const {return num_children();}
-    std::vector<BinTree<T>*>& get_children() {return children;}
-    void clear_children() {children.clear(); }
+    size_t num_children()const
+    {
+        return children.size();
+    }
+    size_t size() const
+    {
+        return num_children();
+    }
+    const std::vector<BinTree<T>*>& get_children()
+    {
+        return children;
+    }
+    void clear_children()
+    {
+        children.clear();
+    }
 };
 
 template<class T>
@@ -67,12 +79,9 @@ private:
         }
         link.resize(now_size);
     }
-    bool exist_tree(const int& i) const
+    bool exist_tree(int ind) const
     {
-        if(i < link.size() && link[i] != NULL)
-            return true;
-        else
-            return false;
+        return (ind < link.size() && link[ind] != NULL);
     }
 public:
     BinHeap(){};
@@ -82,6 +91,9 @@ public:
     explicit BinHeap(BinTree<T>* tree){
         link.resize(tree->num_children());
         link.push_back(tree);
+    }
+    explicit BinHeap(const std::vector<BinTree<T>*>& link_){
+        link = link_;
     }
     ~BinHeap(){
         for(size_t i = 0; i < link.size(); i++)
@@ -93,24 +105,19 @@ public:
     {
         return link[min_id()]->min();
     }
-    BinHeap<T>* pop()
+    static void pop(BinHeap<T>*& heap)
     {
-        int id = min_id();
-        BinTree<T>* ans_tree = link[id];
+        int id = heap->min_id();
+        BinTree<T>* ans_tree = heap->link[id];
         std::vector<BinTree<T>*> children_remove_link = ans_tree->get_children();
         ans_tree->clear_children();
         delete ans_tree;
-        link[id] = NULL;
-        BinHeap<T>* res = new BinHeap<T>;
-        for(size_t i = 0; i < children_remove_link.size(); i++)
-        {
-            BinHeap<T>* temp = new BinHeap<T>(children_remove_link[i]);
-            res = merge(res, new BinHeap<T>(children_remove_link[i]));
-        }
-        res = merge(res, this);
-        return res;
+        heap->link[id] = NULL;
+        BinHeap<T>* res = new BinHeap<T>(children_remove_link);
+        res = merge(res, heap);
+        heap = res;
     }
-    static BinHeap<T>* merge(BinHeap<T>* heap1, BinHeap<T>* heap2){
+    static BinHeap<T>* merge(BinHeap<T>*& heap1, BinHeap<T>*& heap2){
 
         BinHeap<T>* ans = new BinHeap<T>;
         BinTree<T>* flag = NULL;
@@ -147,16 +154,16 @@ public:
             }
         }
         ans->del_last_zero();
-        assert(ans->size() == heap1->size() + heap2->size());
+        heap1 = new BinHeap<T>;
+        heap2 = new BinHeap<T>;
         return ans;
     }
-    BinHeap<T>* push(T key)
+    static void push(BinHeap<T>*& heap, const T& key)
     {
         BinHeap<T>* first = new BinHeap<T>(key);
-        BinHeap<T>* ans = merge(this, first);
-        return ans;
+        heap = merge(heap, first);
     }
-    bool empty() const{return link.size() == 0;}         //O(1)
+    bool empty() const{return link.empty();}                 //O(1)
     size_t size() const                                      // O(link)
     {
         size_t ans = 0;
