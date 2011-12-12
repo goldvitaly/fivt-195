@@ -171,6 +171,10 @@ class IntervalTree{
         }
     }
 public:
+    IntervalTree()
+    {
+
+    }
     IntervalTree(const int n, const Modif& addZero_, const Element& valZero_)
     {
         treeSize = n;
@@ -189,7 +193,7 @@ public:
     {
         if(l > r)
         {
-            std::cout << "Error l > r" << std::endl;
+            std::cerr << "Error l > r" << std::endl;
             exit(1);
         }
         update(addIntroduce, segment(l, r), 1, segment(1, treeSize));
@@ -198,7 +202,7 @@ public:
     {
         if(l > r)
         {
-            std::cout << "Error l > r" << std::endl;
+            std::cerr << "Error l > r" << std::endl;
             exit(1);
         }
         return query(segment(l, r), 1, segment(1, treeSize));

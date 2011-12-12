@@ -8,7 +8,7 @@ class SlowlyTree{
     std::vector<int> Data;
     int sizeTree;
 public:
-    SlowlyTree(const int sizeTree_)
+    explicit SlowlyTree(const int sizeTree_)
     {
         sizeTree = sizeTree_;
         Data.resize(sizeTree);
