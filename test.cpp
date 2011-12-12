@@ -14,7 +14,25 @@ struct test_op
 	T operator()(T a, T b)
 	{
 		return a+b;
-		//return min(a, b);
+	}
+};
+
+template <class T>
+struct test_mod_op
+{
+	T operator()(T value, T modify, int left, int right)
+	{
+		//cerr << value << " " << modify << endl;
+		return value + modify * (right - left + 1);
+	} 
+};
+
+template <class T>
+struct test_mod_upd
+{
+	T operator()(T old_mod, T new_mod)
+	{
+		return old_mod + new_mod;
 	}
 };
 
@@ -27,7 +45,7 @@ int main()
 	const int rand_range = 20;
 	const int test_count = 300;
 	
-	IntervalTree<test_type, test_op<test_type> >* itree = new IntervalTree<test_type, test_op<test_type> >(test_size);
+	IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >* itree = new IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >(test_size);
 	
 	test_type* array = new test_type[test_size];
 	
@@ -35,7 +53,6 @@ int main()
 	for(int i = 0; i < test_size; i++)
 	{
 		next = test_type(rand() % rand_range / (double)rand_range);
-		//cout << next << endl;
 		itree->assign(next, i);
 		array[i] = next;
 	}
@@ -44,6 +61,26 @@ int main()
 	
 	int left, right;
 	test_type tree_res, array_res;
+	
+	test_type modif;
+	for(int i = 0; i < test_count; i++)
+	{
+		right = rand() % (test_size - 1) + 1;
+		left = rand() % right;
+		modif = rand() % rand_range;
+		//for(int j = 0; j < test_size; j++)
+		//	cerr << array[j] << " ";
+		//cerr << endl;
+		for(int j = left; j <= right; j++)
+			array[j] = test_mod_op<test_type>()(array[j], modif, j, j);
+		//for(int j = 0; j < test_size; j++)
+		//	cerr << array[j] << " ";
+		//cerr << endl;
+		itree->modify(left, right, modif);
+	}
+	
+	itree->print(cout);
+	
 	for(int i = 0; i < test_count; i++)
 	{
 		right = rand() % (test_size - 1) + 1;
