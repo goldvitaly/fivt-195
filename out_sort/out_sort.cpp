@@ -46,7 +46,7 @@ class file_manager
 	static const int length = 10;
 	static const int alphabet_size = 26;
 	int current_file_number;
-	std::string get_file_name(int file_number) 
+	std::string get_file_name(int file_number) const
 	{
 		std::string result(length,'a');
 		for (int i = 0; i < length; i ++)
