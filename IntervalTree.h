@@ -12,6 +12,13 @@
 #include <stdexcept>
 #include <algorithm>
 #include <boost/optional.hpp>
+/*
+ * Element - тип элемена
+ * Modificarion - тип модификации
+ * Merge - функтор (Element, Element) - объединение двух отрезков
+ * ModFunc - функтор (Element, Modification, size_t l) - применить модификацию к отрезку длины l
+ * CalcMod - функтор (Modification old, Modification new) - объединить две модификации.
+ */
 template <typename Element, typename Modification, typename Merge,
 	typename ModFunc, typename CalcMod>
 class IntervalTree{
@@ -68,7 +75,7 @@ class IntervalTree{
 			return element;
 	}
 
-	boost::optional<Element> optional_merge(boost::optional<Element> x, boost::optional<Element> y){
+	boost::optional<Element> optional_merge(const boost::optional<Element>& x, const boost::optional<Element>& y) const {
 		if(!x)
 			return y;
 		if(!y)
@@ -130,7 +137,7 @@ class IntervalTree{
 		recalc(v, vertex.length());
 	}
 	void recalc_all(){
-			int nextLevel = shift;
+		int nextLevel = shift;
 		int len = 1;
 		for(int i=shift-1;i>0;--i){
 			if(i<nextLevel){
