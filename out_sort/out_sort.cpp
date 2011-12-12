@@ -17,10 +17,12 @@ class make_pair_comparator
 public:
 	bool operator () (const std::pair<T1,T2>& a, const std::pair<T1,T2>& b) const
 	{
-		if (!(Comp1()(a.first,b.first)) && !(Comp1()(b.first,a.first)))
+		bool first_direct_comparison = Comp1()(a.first, b.first);
+		bool first_inverse_comparison = Comp1()(b.first, a.first); 
+		if (!first_direct_comparison && !first_inverse_comparison)
 			return Comp2()(a.second,b.second);
 		else
-			return Comp1()(a.first,b.first);
+			return first_direct_comparison;
 	}
 };
 
