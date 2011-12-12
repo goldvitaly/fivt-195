@@ -29,7 +29,7 @@ class binomial_heap
 			while (used[pushed_tree])
 			{
 				t = binomial_tree<T,Comp>::merge(tree_of_order[pushed_tree], t);
-				used[j] = 0;
+				used[pushed_tree] = 0;
 				pushed_tree ++;
 			}
 			tree_of_order[pushed_tree] = t;
