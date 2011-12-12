@@ -18,7 +18,7 @@ class binomial_heap
 		int max_order = 0;
 		for (auto i = trees.begin(); i != trees.end(); ++ i)
 			max_order = std::max(max_order, i -> order);
-		max_order += 3;
+		max_order += 2;
 		std::vector <binomial_tree<T,Comp>> tree_of_order(max_order);
 		std::vector <bool> used(max_order, 0);
 		DEBUG_CODE(int oldsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, tree b){ return a + b.size(); }));
