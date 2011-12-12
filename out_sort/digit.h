@@ -82,7 +82,7 @@ class integral_digit_sorter
 	typedef Comparator comparator;
 	Comparator comp;
 	integral_extractor<T> extractor;
-	explicit integral_digit_sorter(integral_extractor<T> extr, Comparator c = Comparator()): extractor(extr), comp(c)
+	explicit integral_digit_sorter(integral_extractor<T> extr, Comparator c = Comparator()): comp(c), extractor(extr)
 	{
 	}
 	typedef T value_type;

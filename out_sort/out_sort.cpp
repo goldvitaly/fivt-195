@@ -67,8 +67,8 @@ class file_manager
 		};
 		~file_manager()
 		{
-			for (int i = 0; i < created_files.size(); i ++)
-				remove(created_files[i].c_str());
+			for (auto file: created_files)
+				remove(file.c_str());
 		}
 		std::string get_unused_file_name()
 		{
@@ -103,7 +103,7 @@ public:
 };
 
 template <class Sort>
-void out_sort(std::string path, Sort sort, int block_size = 1000000)
+void out_sort(std::string path, Sort sort, unsigned int block_size = 1000000)
 {
 	typedef typename Sort::value_type value_type;
 	typedef typename Sort::comparator comp;
@@ -125,7 +125,7 @@ void out_sort(std::string path, Sort sort, int block_size = 1000000)
 			std::string file_name = manager.get_unused_file_name();
 			std::cerr << "File " << file_name << " opened for writing" << std::endl;
 			std::ofstream fout(file_name.c_str(), std::ofstream::out);
-			for (int i = 0; i < v.size(); i ++)
+			for (unsigned int i = 0; i < v.size(); i ++)
 			{
 				fout << v[i];
 				if (i != v.size() - 1) 
@@ -143,14 +143,13 @@ void out_sort(std::string path, Sort sort, int block_size = 1000000)
 		std::vector < FileWithFirstValue >, 
 		reverse_comparator < make_pair_comparator<value_type,std::ifstream*, comp> > 
 	> file_queue; 
-	for (int i = 0; i < files.size(); i ++)
+	for (auto file: files)
 	{
 		value_type value;
-		(*files[i]) >> value;
-		file_queue.push(std::make_pair(value,files[i]));
+		(*file) >> value;
+		file_queue.push(std::make_pair(value,file));
 	}
 	std::ofstream fout(path.c_str(),std::ofstream::out);
-	size_t number_of_elements = 0;
 	while (!file_queue.empty())
 	{
 		FileWithFirstValue w = file_queue.top(); 
