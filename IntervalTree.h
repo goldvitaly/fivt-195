@@ -29,6 +29,7 @@ class IntervalTree {
 
 		Interval(int l, int r) : l(l), r(r) {
 			assert(l <= r);
+			assert(l>=0);
 		}
 
 		Interval leftPart() const {
