@@ -138,7 +138,6 @@ void measure_long_long(int bits = 8,int n = 50000000)
 	assert(is_sorted(b.begin(),b.end()));
 	assert(std::equal(a.begin(),a.end(), b.begin()));
 	fprintf(stderr, "%d long long integers. Extracting %d bits. std::sort works %.3lf seconds, my::digit_sort works %.3lf seconds. Factor is %.5lf\n", n, bits, std_sort_time, digit_sort_time, digit_sort_time/std_sort_time);
-	fprintf(stdout, "%d long long integers. Extracting %d bits. std::sort works %.3lf seconds, my::digit_sort works %.3lf seconds. Factor is %.5lf\n", n, bits, std_sort_time, digit_sort_time, digit_sort_time/std_sort_time);
 }
 
 std::string gen_string(int len)
