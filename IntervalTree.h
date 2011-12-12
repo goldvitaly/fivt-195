@@ -47,7 +47,7 @@ class IntervalTree{
 	ModFunc modify;
 	CalcMod calcMod;
 	size_t size;
-	void allocate(size_t n){
+	void allocate(size_t n, const Element& defaultElement){
 		assert(n>0);
 		size = n;
 		size_t height=0;
@@ -56,7 +56,7 @@ class IntervalTree{
 		}
 		shift = 1<<height;
 
-		tree.assign(1<<(height+1),boost::optional<Element>());
+		tree.assign(1<<(height+1),defaultElement);
 		mod.assign(1<<(height+1),boost::optional<Modification>());
 	}
 
@@ -85,7 +85,7 @@ class IntervalTree{
 
 	void recalc(size_t pos,size_t len){
 		assert(pos<shift);
-		tree[pos]=optional_merge(apply_modification(tree[2*pos],mod[2*pos],len>>1),
+		tree[pos]=merge(apply_modification(tree[2*pos],mod[2*pos],len>>1),
 		                  apply_modification(tree[2*pos+1],mod[2*pos+1],len>>1));
 	}
 
@@ -147,8 +147,7 @@ class IntervalTree{
 			ModFunc modify=ModFunc(), CalcMod calcMod=CalcMod()):
 			merge(merge), modify(modify), calcMod(calcMod)
 	{
-		allocate(n);
-		std::fill(tree.begin()+shift,tree.begin()+n+shift, zero);
+		allocate(n,zero);
 		recalc_all();
 	}
 	
@@ -158,7 +157,7 @@ class IntervalTree{
 			ModFunc modify=ModFunc(), CalcMod calcMod=CalcMod()):
 			merge(merge), modify(modify), calcMod(calcMod)
 	{
-		allocate(end-begin);
+		allocate(end-begin, Element());
 		std::copy(begin, end, tree.begin()+shift);
 		recalc_all();
 	}
