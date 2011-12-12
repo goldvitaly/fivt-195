@@ -1,6 +1,6 @@
 
-#ifndef MINIMIZETREESETMODIFICATION_H
-#define MINIMIZETREESETMODIFICATION_H
+#ifndef MINIMIZETREEASSIGNMODIFICATION_H
+#define MINIMIZETREEASSIGNMODIFICATION_H
 #include "IntervalTree.h"
 template <typename T>
 class MinimizeTreeAssignModification{
@@ -34,5 +34,5 @@ class MinimizeTreeAssignModification{
 
 };
 
-#endif	/* MINIMIZETREESETMODIFICATION_H */
+#endif	/* MINIMIZETREEASSIGNMODIFICATION_H */
 

@@ -40,7 +40,7 @@ class IntervalTree{
 			return r - l + 1;
 		}
 	};
-	std::vector<boost::optional<Element>> tree;
+	std::vector<Element> tree;
 	std::vector<boost::optional<Modification>> mod;
 	size_t shift;
 	Merge merge;
@@ -60,10 +60,9 @@ class IntervalTree{
 		mod.assign(1<<(height+1),boost::optional<Modification>());
 	}
 
-	boost::optional<Element> apply_modification(const boost::optional<Element>& element, const boost::optional<Modification>& modification, size_t len) const{
+	Element apply_modification(const Element& element, const boost::optional<Modification>& modification, size_t len) const{
 		if(modification){
-			assert(element);
-			return modify(*element, *modification, len);
+			return modify(element, *modification, len);
 		}
 		else
 			return element;
