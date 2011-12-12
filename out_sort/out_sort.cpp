@@ -96,9 +96,9 @@ public:
 	typedef T value_type;
 	typedef Comparator comparator;
 	template <class It>
-	void operator() (It l, It r) const
+	void operator() (It left, It right) const
 	{
-		sort(l,r,comp);
+		sort(left,right,comp);
 	}
 };
 
