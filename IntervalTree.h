@@ -155,11 +155,11 @@ class IntervalTree {
 
 public:
 
-	explicit IntervalTree(size_t n, Element zero = Element(),
+	explicit IntervalTree(size_t count, Element zero = Element(),
 			  Merge merge = Merge(),
 			  ModFunc modify = ModFunc(), CalcMod calcMod = CalcMod()) :
 	merge(merge), modify(modify), calcMod(calcMod) {
-		allocate(n, zero);
+		allocate(count, zero);
 		buildTree();
 	}
 
