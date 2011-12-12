@@ -1,6 +1,7 @@
 #include "IntervalTree.h"
 #include "MinimizeTreeAssignModification.h"
 #include "RSQAddModification.h"
+#include "RSQAssignModification.h"
 #include <cstdlib>
 #include <iostream>
 #include <limits>
@@ -13,6 +14,34 @@ struct addSegment {
 		return old + mod*len;
 	}
 };
+
+void test_sum_assign(int n, int times) {
+	srand(5);
+	RSQAssignModification<LL> tree(n);
+	vector<LL> v(n);
+	for(int i = 0; i < times; ++i) {
+		int l = rand() % n;
+		int r = rand() % n;
+		LL value = rand();
+		if(l > r)
+			swap(l, r);
+		for(int i = l; i <= r; ++i) {
+			v[i] = value;
+		}
+		tree.assign(l, r, value);
+
+		l = rand() % n;
+		r = rand() % n;
+		if(l > r)
+			swap(l, r);
+
+		LL ans = 0;
+		for(int i = l; i <= r; ++i) {
+			ans += v[i];
+		}
+		assert(ans == tree.getSum(l, r));
+	}
+}
 
 void test_sum(int n, int times) {
 	srand(1);
@@ -129,7 +158,7 @@ void test_min(size_t n, int times) {
 		for(int i = l; i <= r; ++i) {
 			v[i] = value;
 		}
-		tree.setValue(l, r, value);
+		tree.assign(l, r, value);
 		//cout<<"setted "<<l<<" "<<r<<" to "<<value<<endl;
 		l = rand() % n;
 		r = rand() % n;
@@ -151,6 +180,7 @@ int main() {
 	test_prefilling(1000, 10000);
 	test_gcd(1000, 100);
 	test_min<int>(10000, 10000);
+	test_sum_assign(10000, 10000);
 	return 0;
 }
 

@@ -11,7 +11,7 @@ class MinimizeTreeAssignModification{
 	};
 
 	struct SecondArgument{
-		const T& operator() (const T& old, const T& newMod,size_t=0) const {
+		const T& operator() (const T& old, const T& newMod, size_t=0) const {
 			return newMod;
 		}
 	};
@@ -28,7 +28,7 @@ class MinimizeTreeAssignModification{
 		return tree.get(l, r);
 	}
 
-	void setValue(size_t l, size_t r, const T& value){
+	void assign(size_t l, size_t r, const T& value){
 		tree.set(l,r,value);
 	}
 
