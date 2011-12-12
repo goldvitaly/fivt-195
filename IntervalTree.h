@@ -18,6 +18,7 @@ class IntervalTree{
 	struct Interval{
 		int l,r;
 		Interval(int l,int r):l(l),r(r){
+			assert(l<=r);
 		}
 		Interval leftPart() const {
 			return Interval(l, (l+r)>>1);
