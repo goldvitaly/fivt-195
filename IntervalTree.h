@@ -68,9 +68,9 @@ class IntervalTree {
 			++height;
 		}
 		shift = 1 << height;
-
-		tree.assign(1 << (height + 1), defaultElement);
-		mod.assign(1 << (height + 1), boost::optional<Modification > ());
+		size_t arraysSize = 1 << (height + 1);
+		tree.assign(arraysSize, defaultElement);
+		mod.assign(arraysSize, boost::optional<Modification >());
 	}
 
 	Element apply_modification(const Element& element, const boost::optional<Modification>& modification, size_t len) const {
