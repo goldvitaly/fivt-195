@@ -19,7 +19,7 @@ class MinimizeTreeAssignModification{
 	IntervalTree<T,T,Min,SecondArgument,SecondArgument> tree;
 	
 	public:
-	MinimizeTreeAssignModification(size_t n,T zero = T()):tree(n,zero){}
+	explicit MinimizeTreeAssignModification(size_t n,T zero = T()):tree(n,zero){}
 
 	template<typename Iterator>
 	MinimizeTreeAssignModification(Iterator begin, Iterator end):tree(begin,end){}

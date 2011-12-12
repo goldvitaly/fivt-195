@@ -13,7 +13,7 @@ class RSQAddModification{
 	};
 	IntervalTree<T,T,std::plus<T>,AddSegment, std::plus<T> > tree;
 	public:
-	RSQAddModification(size_t n,T zero = T()):tree(n,zero){}
+	explicit RSQAddModification(size_t n,T zero = T()):tree(n,zero){}
 
 	template<typename Iterator>
 	RSQAddModification(Iterator begin, Iterator end):tree(begin,end){}
