@@ -140,7 +140,7 @@ class IntervalTree {
 		recalc(v, vertex.length());
 	}
 
-	void recalc_all() {
+	void buildTree() {
 		int nextLevel = shift;
 		int len = 1;
 		for (int i = shift - 1; i > 0; --i) {
@@ -159,7 +159,7 @@ public:
 			  ModFunc modify = ModFunc(), CalcMod calcMod = CalcMod()) :
 	merge(merge), modify(modify), calcMod(calcMod) {
 		allocate(n, zero);
-		recalc_all();
+		buildTree();
 	}
 
 	template <typename Iterator>
@@ -169,7 +169,7 @@ public:
 	merge(merge), modify(modify), calcMod(calcMod) {
 		allocate(end - begin, Element());
 		std::copy(begin, end, tree.begin() + shift);
-		recalc_all();
+		buildTree();
 	}
 
 	Element get(size_t left, size_t right) /*mutable*/ {
