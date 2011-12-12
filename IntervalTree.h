@@ -168,7 +168,7 @@ public:
 			  Merge merge = Merge(),
 			  ModFunc modify = ModFunc(), CalcMod calcMod = CalcMod()) :
 	merge(merge), modify(modify), calcMod(calcMod) {
-		allocate(end - begin, Element());
+		allocate(std::distance(begin,end), Element());
 		std::copy(begin, end, tree.begin() + shift);
 		buildTree();
 	}
