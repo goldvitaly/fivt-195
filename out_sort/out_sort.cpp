@@ -89,14 +89,14 @@ class sorter
 {
 public:
 	Comparator comp;
-	explicit sorter(Comparator c = Comparator()): comp(c)
+	explicit sorter(const Comparator& c = Comparator()): comp(c)
 	{
 
 	}
 	typedef T value_type;
 	typedef Comparator comparator;
 	template <class It>
-	void operator() (It l, It r)
+	void operator() (It l, It r) const
 	{
 		sort(l,r,comp);
 	}
@@ -142,21 +142,22 @@ void out_sort(std::string path, Sort sort, int block_size = 1000000)
 		FileWithFirstValue,
 		std::vector < FileWithFirstValue >, 
 		reverse_comparator < make_pair_comparator<value_type,std::ifstream*, comp> > 
-	> s; 
+	> file_queue; 
 	for (int i = 0; i < files.size(); i ++)
 	{
 		value_type value;
 		(*files[i]) >> value;
-		s.push(std::make_pair(value,files[i]));
+		file_queue.push(std::make_pair(value,files[i]));
 	}
 	std::ofstream fout(path.c_str(),std::ofstream::out);
 	size_t number_of_elements = 0;
-	while (s.size() > 0)
+	while (file_queue.size() > 0)
 	{
-		FileWithFirstValue w = s.top(); s.pop();
+		FileWithFirstValue w = file_queue.top(); 
+		file_queue.pop();
 		fout << w.first << std::endl; 
 		if ((*(w.second)) >> w.first)
-			s.push(w);
+			file_queue.push(w);
 		else
 			delete w.second;
 	}
