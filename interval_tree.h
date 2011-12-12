@@ -4,10 +4,11 @@
 #include <cstdio>
 #include <vector>
 
-
-
-
-template <class element, class mod_type, class merge_func, class mod_func, class merge_mod_func>
+template <class element, //тип данных, который будет хранится в дереве
+class mod_type,   //тип данных, в котором передаётся изменение на отрезок
+class merge_func, //функтор подсчитываюший значения предка от значений сыновей
+class mod_func,   //функтор проводящмй модификацию вершины при помощи mod_type
+class merge_mod_func> //функтор сливающий модификации если мы в одну вершину получили несколько модификаций
 class interval_tree
 {
     private:
@@ -15,22 +16,33 @@ class interval_tree
         {
             public:
             size_t left, right;
-            interval(size_t l = 0, size_t r = 0)
+            explicit interval()
+            {
+                left = 0;
+                right = 0;
+            }
+            explicit interval(size_t l, size_t r)
             {
                 left = l;
                 right = r;
+                right = r;
             }
-            size_t length()
+            size_t length() const
             {
                 return (right - left  + 1);
             }
+
+            bool inside_of(const interval &a)
+            {
+                return(a.left <= left  &&  a.right >= right);
+            }
+
+
+            bool outside_of(const interval &a)
+            {
+                return(right < a.left  ||  left > a.right);
+            }
         };
-
-
-        interval intersection(const interval &a, const interval &b)
-        {
-            return(interval(std::max(a.left, b.left), std::min(a.right, b.right)));
-        }
 
         element neutral_;
         merge_func merger_;
@@ -43,7 +55,7 @@ class interval_tree
             interval range;
             mod_type delta;
             bool is_modified;
-            tree_element(element neutral)
+            explicit tree_element(const element &neutral)
             {
                 key = neutral;
                 is_modified = false;
@@ -52,82 +64,79 @@ class interval_tree
 
         std::vector <tree_element> tree_;
 
-        size_t base_;
+        size_t last_level_size_;
 
-        bool inside(const interval &inner, const interval &outer)
+        void mod_child(int parent_number, int child_number)
         {
-            return(inner.left >= outer.left  &&  inner.right <= outer.right);
-        }
-
-
-        bool outside(const interval &inner, const interval &outer)
-        {
-            return(inner.left > outer.right  ||  inner.right < outer.left);
-        }
-
-
-        void mod_childs(size_t now)
-        {
-            if(tree_[now].is_modified)
+            tree_[child_number].key = modifier_.modify(tree_[child_number].key, tree_[parent_number].delta, tree_[child_number].range.length());
+            if(tree_[child_number].is_modified)
+                tree_[child_number].delta = mod_merger_.merge(tree_[parent_number].delta, tree_[child_number].delta);
+            else
             {
-                tree_[now].is_modified = false;
-                if(now < base_)
-                    for(size_t i = now * 2; i <= now * 2 + 1; i++)
-                    {
-                        tree_[i].key = modifier_.modify(tree_[i].key, tree_[now].delta, tree_[i].range.length());
-                        if(tree_[i].is_modified)
-                            tree_[i].delta = mod_merger_.merge(tree_[now].delta, tree_[i].delta);
-                        else
-                        {
-                            tree_[i].delta = tree_[now].delta;
-                            tree_[i].is_modified = true;
-                        }
-                    }
+                tree_[child_number].delta = tree_[parent_number].delta;
+                tree_[child_number].is_modified = true;
             }
         }
-        const element get_from_range(size_t now, interval range)
+
+
+        void mod_childs(size_t node_number)
         {
-            mod_childs(now);
-            if(inside(tree_[now].range, range)) return tree_[now].key;
-            if(outside(tree_[now].range, range)) return neutral_;
-            return (merger_.merge(get_from_range(now * 2, range), get_from_range(now * 2 + 1, range)));
+            if(tree_[node_number].is_modified)
+            {
+                tree_[node_number].is_modified = false;
+                if(node_number < last_level_size_)
+                {
+                    mod_child(node_number, node_number * 2);
+                    mod_child(node_number, node_number * 2 + 1);
+                }
+            }
         }
 
 
-        void mod_range(size_t now, interval range, mod_type update)
+        element get_from_range(size_t node_number, const interval &range)
         {
-            if(inside(tree_[now].range, range))
+            mod_childs(node_number);
+            if(tree_[node_number].range.inside_of(range)) return tree_[node_number].key;
+            if(tree_[node_number].range.outside_of(range)) return neutral_;
+            return (merger_.merge(get_from_range(node_number * 2, range), get_from_range(node_number * 2 + 1, range)));
+        }
+
+
+        void mod_range(size_t node_number, interval range, mod_type update)
+        {
+            if(tree_[node_number].range.inside_of(range))
             {
-                tree_[now].key = modifier_.modify(tree_[now].key, update, tree_[now].range.length());
-                if(!tree_[now].is_modified)
+                tree_[node_number].key = modifier_.modify(tree_[node_number].key, update, tree_[node_number].range.length());
+                if(!tree_[node_number].is_modified)
                 {
-                    tree_[now].is_modified = true;
-                    tree_[now].delta = update;
+                    tree_[node_number].is_modified = true;
+                    tree_[node_number].delta = update;
                 }
-                else    tree_[now].delta = mod_merger_.merge(tree_[now].delta, update);
+                else    tree_[node_number].delta = mod_merger_.merge(tree_[node_number].delta, update);
                 return;
             }
-            if(outside(tree_[now].range, range)) return;
-            mod_childs(now);
-            mod_range(now * 2, range, update);
-            mod_range(now * 2 + 1, range, update);
-            tree_[now].key = merger_.merge(tree_[now * 2].key, tree_[now * 2 + 1].key);
+            if(tree_[node_number].range.outside_of(range)) return;
+            mod_childs(node_number);
+            mod_range(node_number * 2, range, update);
+            mod_range(node_number * 2 + 1, range, update);
+            tree_[node_number].key = merger_.merge(tree_[node_number * 2].key, tree_[node_number * 2 + 1].key);
         }
     public:
-        explicit interval_tree(const std::vector <element> &items, element neutral)
+
+        interval_tree(const std::vector <element> &items, const element &neutral)
         {
             neutral_ = neutral;
-            base_ = 1;
-            while(base_ < items.size()) base_ = base_ << 1;
-            tree_.resize(base_ * 2, tree_element(neutral_));
+            last_level_size_ = 1;
+            while(last_level_size_ < items.size()) last_level_size_ = last_level_size_ << 1;
+            tree_.resize(last_level_size_ * 2, tree_element(neutral_));
             for(size_t i = 0; i < items.size(); i++)
-                tree_[base_ + i].key = items[i];
-            for(size_t i = 0; i < base_; i++)
+                tree_[last_level_size_ + i].key = items[i];
+            for(size_t i = 0; i < last_level_size_; i++)
             {
-                tree_[base_ + i].range.left = i + 1;
-                tree_[base_ + i].range.right = i + 1;
+                tree_[last_level_size_ + i].range.left = i + 1;
+                tree_[last_level_size_ + i].range.right = i + 1;
             }
-            for(size_t i = base_ - 1; i > 0; i--)
+            for(size_t i = last_level_size_ - 1; i > 0; i--)
             {
                 tree_[i].key = merger_.merge(tree_[i * 2].key, tree_[i * 2 + 1].key);
                 tree_[i].range.left = tree_[i * 2].range.left;
@@ -135,7 +144,7 @@ class interval_tree
             }
         }
 
-        const element get_from_range(size_t l, size_t r)
+        element get_from_range(size_t l, size_t r)
         {
             return get_from_range(1, interval(l, r));
         }
@@ -148,8 +157,8 @@ class interval_tree
 
         void print_bottom() //for testing inly
         {
-            for(int i = 0; i < base_; i++)
-                std::cout << tree_[base_ + i].key << ' ';
+            for(int i = 0; i < last_level_size_; i++)
+                std::cout << tree_[last_level_size_ + i].key << ' ';
         }
 };
 
