@@ -92,22 +92,13 @@ void digit_sort(It begin, It end, const BlockExtractor& extr)
 	}
 };
 
-template <typename It>
-bool is_equal(It l, It r, int n)
+template <typename It, class Comp = std::less< typename std::iterator_traits<It>::value_type > >
+bool is_sorted(It begin, It end, Comp comparator)
 {
-	for (int i = 0; i < n; i ++) 
-		if (*(l + i) != *(r + i))
-			return false;
-	return true;
-};
-
-
-template <typename It>
-bool is_sorted(It l, It r)
-{
-	It next = l; next++;
-	for (It i = l; next != r; next++, i++)
-		if (*next < *i)
+	if (begin == end) return true;
+	It next = begin; next++;
+	for (It i = begin; next != end; next++, i++)
+		if (comparator(*next,*i))
 			return false;
 	return true;
 };
@@ -160,23 +151,21 @@ std::string gen_string(int len)
 
 void measure_string(int len = 6, int n = 50000000)
 {
-	std::string* a = new std::string[n];
-	std::string* b = new std::string[n];
+	std::vector<std::string> a(n);
+	std::vector<std::string> b(n);
 	for (int i = 0; i < n; i++)
 		a[i] = b[i] = gen_string(len);
 	timer t;
 	t.start();
-	digit_sort(b,b + n, string_extractor());
+	digit_sort(b.begin(),b.end(), string_extractor());
 	double digit_sort_time = t.get_time();
 	t.start();
-	std::sort(a,a + n);
+	std::sort(a.begin(),a.end());
 	double std_sort_time = t.get_time();
-	assert(is_sorted(b,b + n));
-	assert(std::equal(a,b,a+n));
+	assert(is_sorted(b.begin(),b.end()));
+	assert(std::equal(a.begin(),a.end(),b.begin()));
 	fprintf(stderr, "%d strings with length equal to %d. std::sort works %.3lf seconds, my::digit_sort works %.3lf seconds. Factor is %.5lf\n", n, len, std_sort_time, digit_sort_time, digit_sort_time / std_sort_time);
 	fprintf(stdout, "%d strings with length equal to %d. std::sort works %.3lf seconds, my::digit_sort works %.3lf seconds. Factor is %.5lf\n", n, len, std_sort_time, digit_sort_time, digit_sort_time / std_sort_time);
-	delete[] a;
-	delete[] b;
 }
 
 
