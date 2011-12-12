@@ -103,7 +103,7 @@ class IntervalTree{
 		mod[v].reset();
 	}
 	
-	boost::optional<Element> _get(size_t v,Interval query,Interval vertex){
+	boost::optional<Element> _get(size_t v,const Interval& query,const Interval& vertex){
 		if(!query.intersects(vertex))
 			return boost::optional<Element>();
 		mod_down(v, vertex.length());
@@ -116,7 +116,7 @@ class IntervalTree{
 		);
 	}
 
-	void _set(size_t v, Interval query, Interval vertex,Modification arg){
+	void _set(size_t v, const Interval& query, const Interval& vertex,Modification arg){
 		if(!vertex.intersects(query))
 			return;
 		if(vertex.partOf(query)){
