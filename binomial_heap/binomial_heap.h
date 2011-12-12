@@ -12,23 +12,23 @@ template <class T, class Comp = std::less<T> >
 class binomial_heap
 {
 	typedef binomial_tree<T,Comp> tree;
-	std::vector< binomial_tree<T,Comp> > trees;
+	std::vector< tree > trees;
 	void compress()
 	{
 		int max_order = 0;
 		for (auto i = trees.begin(); i != trees.end(); ++ i)
 			max_order = std::max(max_order, i -> order);
 		max_order += 2;
-		std::vector <binomial_tree<T,Comp>> tree_of_order(max_order);
+		std::vector <tree> tree_of_order(max_order);
 		std::vector <bool> used(max_order, 0);
 		DEBUG_CODE(int oldsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, const tree& b){ return a + b.size(); }));
 		for (auto added_tree = trees.begin(); added_tree != trees.end(); added_tree ++)
 		{
 			int pushed_tree = added_tree -> order;
-			binomial_tree<T,Comp> t = *added_tree;
+			tree t = *added_tree;
 			while (used[pushed_tree])
 			{
-				t = binomial_tree<T,Comp>::merge(tree_of_order[pushed_tree], t);
+				t = tree::merge(tree_of_order[pushed_tree], t);
 				used[pushed_tree] = 0;
 				pushed_tree ++;
 			}
@@ -69,7 +69,7 @@ class binomial_heap
 		void insert(const T& value) 
 		{
 			size_ += 1;
-			trees.push_back(binomial_tree<T,Comp>(value));
+			trees.push_back(tree(value));
 			compress();
 		}
 		T min() const
@@ -101,15 +101,14 @@ class binomial_heap
 			return min_value;
 		};
 
-		static binomial_heap<T,Comp> merge(binomial_heap<T,Comp> a, binomial_heap<T,Comp> b)
+		static binomial_heap<T,Comp> merge(const binomial_heap<T,Comp>& a, const binomial_heap<T,Comp>& b)
 		{
 			if (a.size() == 0) return b;
 			if (b.size() == 0) return a;
 			binomial_heap<T,Comp> res;
 			res.size_ = a.size_ + b.size_;
 			res.trees = a.trees;
-			for (auto i = b.trees.begin(); i != b.trees.end(); i ++)
-				res.trees.push_back(*i);
+			res.trees.insert(res.trees.begin(), b.trees.begin(), b.trees.end());
 			res.compress();
 			return res;
 		}

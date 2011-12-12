@@ -19,10 +19,8 @@ class binomial_tree
 		int order;
 		std::vector < std::shared_ptr<node> > descendants;
 		T key;
-		node(const T& k, int ord = 0)
+		explicit node(const T& key, int order = 0): key(key), order(order)
 		{
-			key = k;
-			order = ord;
 		}
 	};
 	typedef std::shared_ptr<node> pnode;
