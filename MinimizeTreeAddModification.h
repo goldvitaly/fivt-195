@@ -20,10 +20,10 @@ class MinimizeTreeAddModification{
 	IntervalTree<T,T,Min,SumIgnore,std::plus<T>> tree;
 
 	public:
-	explicit MinimizeTreeAddModification(size_t count,T zero = T()):tree(count,zero){}
+	explicit MinimizeTreeAddModification(size_t count,const T& zero = T()):tree(count, zero){}
 
 	template<typename Iterator>
-	MinimizeTreeAddModification(Iterator begin, Iterator end):tree(begin,end){}
+	MinimizeTreeAddModification(Iterator begin, Iterator end):tree(begin, end){}
 
 	int getMin(size_t l, size_t r){
 		return tree.get(l, r);

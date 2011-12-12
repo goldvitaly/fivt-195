@@ -19,7 +19,7 @@ class RSQAssignModification {
 	IntervalTree<T, T, std::plus<T>, AssignedInterval , SecondArgument > tree;
 public:
 
-	explicit RSQAssignModification(size_t count, T zero = T()) : tree(count, zero) {
+	explicit RSQAssignModification(size_t count, const T& zero = T()) : tree(count, zero) {
 	}
 
 	template<typename Iterator>
