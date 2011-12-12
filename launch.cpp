@@ -8,21 +8,21 @@
 using namespace std;
 
 template<class Type, class Iter, class Ext>
-void cmp_algo_sort(Iter L_radix, Iter R_radix, Iter L_std, Iter R_std, Ext ext)
+void cmp_algo_sort(Iter leftRadix, Iter rightRadix, Iter leftStd, Iter rightStd, Ext ext)
 {
     srand(time(NULL));
     double START, FINISH;
     START = clock();
-    radix_sort<Type>(L_radix, R_radix, ext);
+    radix_sort<Type>(leftRadix, rightRadix, ext);
     FINISH = clock();
     cerr.precision(10);
-    cerr << "n = " << R_radix - L_radix << endl;
+    cerr << "n = " << rightRadix - leftRadix << endl;
     cerr << "radix_sort = " << (FINISH - START) / CLOCKS_PER_SEC << endl;
     START = clock();
-    sort(L_std, R_std);
+    sort(leftStd, rightStd);
     FINISH = clock();
     cerr << "stl_sort =   " << (FINISH - START) / CLOCKS_PER_SEC << endl;
-    if(equal(L_radix, R_radix, L_std) == false)
+    if(equal(leftRadix, rightRadix, leftStd) == false)
         exit(1);
 }
 
@@ -38,7 +38,7 @@ void test_int(int n, int bit = 8)
         A[i] = (rand() << 16) + rand();
     }
     B = A;
-    cmp_algo_sort<UInt>(A.begin(), A.end(), B.begin(), B.end(), integer_BitExt<UInt>(bit));
+    cmp_algo_sort<UInt>(A.begin(), A.end(), B.begin(), B.end(), IntegerBitExt<UInt>(bit));
 }
 
 void test_long_long(int n, int bit = 8)
@@ -52,7 +52,7 @@ void test_long_long(int n, int bit = 8)
         A[i] = ((ULongLong)rand() << 48) + ((ULongLong)rand() << 32) + ((ULongLong)rand() << 16) + rand();
     }
     B = A;
-    cmp_algo_sort<ULongLong>(A.begin(), A.end(), B.begin(), B.end(), integer_BitExt<ULongLong>(bit));
+    cmp_algo_sort<ULongLong>(A.begin(), A.end(), B.begin(), B.end(), IntegerBitExt<ULongLong>(bit));
 }
 
 void test_pair(int n, int bit = 8)
@@ -67,7 +67,7 @@ void test_pair(int n, int bit = 8)
         A[i].second = ((UInt)rand() << 16) + rand();
     }
     B = A;
-    cmp_algo_sort<pair<UInt, UInt> >(A.begin(), A.end(), B.begin(), B.end(), pair_BitExt(bit));
+    cmp_algo_sort<pair<UInt, UInt> >(A.begin(), A.end(), B.begin(), B.end(), PairBitExt(bit));
 }
 
 void test_string(int n, int len = 5, int bits = 1)
@@ -83,7 +83,7 @@ void test_string(int n, int len = 5, int bits = 1)
             A[i][j] = sim[rand()%26];
     }
     B = A;
-    cmp_algo_sort<string>(A.begin(), A.end(), B.begin(), B.end(), SubstrExt(len, bits));
+    cmp_algo_sort<string>(A.begin(), A.end(), B.begin(), B.end(), SubStrExt(len, bits));
 }
 
 int main()
