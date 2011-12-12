@@ -151,7 +151,7 @@ void out_sort(std::string path, Sort sort, int block_size = 1000000)
 	}
 	std::ofstream fout(path.c_str(),std::ofstream::out);
 	size_t number_of_elements = 0;
-	while (file_queue.size() > 0)
+	while (!file_queue.empty())
 	{
 		FileWithFirstValue w = file_queue.top(); 
 		file_queue.pop();
