@@ -21,7 +21,7 @@ class sum_int
 class modify_int
 {
     public:
-    int modify(int &el, int &mod, const size_t &range_size)
+    int modify(int el, int mod, const size_t &range_size)
     {
         return (el + (mod * range_size));
     }
@@ -44,7 +44,7 @@ int main()
     A.resize(number_of_elements, 0);
     S.resize(number_of_elements, 0);
     int left, right, delta;
-    interval_tree<int, int, sum_int, modify_int, sum_int> tree1 = interval_tree<int, int, sum_int, modify_int, sum_int>(A, 0);
+    interval_tree<int, int, sum_int, modify_int, sum_int> tree1 = interval_tree<int, int, sum_int, modify_int, sum_int>(A.begin(), A.end(), 0);
     bool fail = false;
     for(int i = 0; i < number_of_tests; i++)
     {
