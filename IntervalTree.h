@@ -123,7 +123,7 @@ class IntervalTree{
 		);
 	}
 
-	void _set(size_t v, const Interval& query, const Interval& vertex,Modification arg){
+	void _set(size_t v, const Interval& query, const Interval& vertex,const Modification& arg){
 		if(!vertex.intersects(query))
 			return;
 		if(vertex.partOf(query)){
@@ -175,7 +175,7 @@ class IntervalTree{
 		return *_get(1, Interval(left, right),Interval(0,shift -1));
 	}
 
-	void set(size_t left, size_t right, Modification arg){
+	void set(size_t left, size_t right, const Modification& arg){
 		if(left>right || right>=size)
 			throw std::logic_error("Invalid range");
 		_set(1, Interval(left, right), Interval(0, shift - 1), arg);
@@ -183,5 +183,5 @@ class IntervalTree{
 	
 };
 
-#endif	/* INTERVALTREE_H */
+#endif /* INTERVALTREE_H */
 
