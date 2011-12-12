@@ -11,44 +11,7 @@
 template <class T, class Comp = std::less<T> >
 class binomial_heap
 {
-	typedef binomial_tree<T,Comp> tree;
-	std::vector< tree > trees;
-	void compress()
-	{
-		int max_order = 0;
-		for (auto i = trees.begin(); i != trees.end(); ++ i)
-			max_order = std::max(max_order, i -> order);
-		max_order += 2;
-		std::vector <tree> tree_of_order(max_order);
-		std::vector <bool> used(max_order, 0);
-		DEBUG_CODE(int oldsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, const tree& b){ return a + b.size(); }));
-		for (auto added_tree = trees.begin(); added_tree != trees.end(); added_tree ++)
-		{
-			int pushed_tree = added_tree -> order;
-			tree t = *added_tree;
-			while (used[pushed_tree])
-			{
-				t = tree::merge(tree_of_order[pushed_tree], t);
-				used[pushed_tree] = 0;
-				pushed_tree ++;
-			}
-			tree_of_order[pushed_tree] = t;
-			used[pushed_tree] = 1;
-		}
-		trees.resize(0);
-		for (int i = 0; i < max_order; i ++)
-			if (used[i])
-				trees.push_back(tree_of_order[i]);
-		DEBUG_CODE(int newsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, tree b){ return a + b.size(); }));
-		assert(newsize_ == oldsize_, "Summary size changed. I think that loss of some elements isn't a good idea. Or you created some new ones?");
-		DEBUG_CODE(
-				for (auto i = trees.begin(); i != trees.end(); i ++)
-					for (auto j = trees.begin(); j != i; j ++)
-						assert(i->size() != j->size(), "There are some equal trees after compress. Should you run it one more time?");
-		);
-	};
-	int size_;
-	public:
+  public:
 		Comp comparator;
 		void debug_write() const
 		{
@@ -69,36 +32,24 @@ class binomial_heap
 		void insert(const T& value) 
 		{
 			size_ += 1;
-			trees.push_back(tree(value));
+			trees.push_back(tree(value, comparator));
 			compress();
 		}
-		T min() const
+		T min() const 
 		{
 			if (size_ == 0) throw std::logic_error("It's absolutely impossible to find minimal element in empty heap. But, if you want, I can try one more time");
-			T min_value = trees.begin()->root->key;
-			for (auto i = trees.begin(); i != trees.end(); i ++)
-				if (comparator(i->root->key,min_value))
-					min_value = i->root->key;
-			return min_value;
+			return trees[find_min_root_position()].min();
 		};
 		T extract_min()
 		{
 			if (size_ == 0) throw std::logic_error("It's absolutely impossible to remove element from empty heap. But, if you want, I can try one more time");
 			size_ -= 1;
-			T min_value = trees.begin()->root->key;
-			auto it = trees.begin();
-			for (auto i = trees.begin(); i != trees.end(); i ++)
-				if (comparator(i->root->key,min_value))
-				{
-					min_value = i->root->key;
-					it = i;
-				}
-			int pos = it - trees.begin();
-			for (auto i : it->root->descendants)
-				trees.push_back(binomial_tree<T,Comp>(i));
-			trees.erase(pos + trees.begin());
+			auto min_root_iterator = trees.begin() + find_min_root_position();
+			for (auto i : min_root_iterator->root->descendants)
+				trees.push_back(tree(i, comparator));
+			trees.erase(min_root_iterator);
 			compress();
-			return min_value;
+			return min_root_iterator->min();
 		};
 
 		static binomial_heap<T,Comp> merge(const binomial_heap<T,Comp>& a, const binomial_heap<T,Comp>& b)
@@ -112,7 +63,58 @@ class binomial_heap
 			res.compress();
 			return res;
 		}
-
+  private:
+	typedef binomial_tree<T,Comp> tree;
+	std::vector < tree > trees;
+	int find_min_root_position() const
+	{
+		if (trees.size() == 0) throw std::logic_error("Heap is empty: finding is impossible");
+		typename std::vector<tree>::const_iterator min_root_iterator = trees.begin();
+		T min_value = trees.begin()->root->key;
+		for (auto i = trees.begin(); i != trees.end(); i ++)
+			if (comparator(i->root->key,min_value))
+			{
+				min_value = i->root->key;
+				min_root_iterator = i;
+			}
+		return min_root_iterator - trees.begin();
+	}
+	void compress()
+	{
+		int max_order = 0;
+		for (auto i = trees.begin(); i != trees.end(); ++ i)
+			max_order = std::max(max_order, i -> order);
+		max_order += 2;
+		std::vector <tree> tree_of_order(max_order, tree(comparator));
+		std::vector <bool> used(max_order, 0);
+		DEBUG_CODE(int oldsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, const tree& b){ return a + b.size(); }));
+		for (auto added_tree = trees.begin(); added_tree != trees.end(); added_tree ++)
+		{
+			int pushed_tree = added_tree -> order;
+			tree t = *added_tree;
+			while (used[pushed_tree])
+			{
+				t = tree::merge(tree_of_order[pushed_tree], t);
+				used[pushed_tree] = 0;
+				pushed_tree ++;
+			}
+			tree_of_order[pushed_tree] = t;
+			used[pushed_tree] = 1;
+		}
+		trees.clear();
+		for (int i = 0; i < max_order; i ++)
+			if (used[i])
+				trees.push_back(tree_of_order[i]);
+		DEBUG_CODE(int newsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, tree b){ return a + b.size(); }));
+		assert(newsize_ == oldsize_, "Summary size changed. I think that loss of some elements isn't a good idea. Or you created some new ones?");
+		DEBUG_CODE(
+				for (auto i = trees.begin(); i != trees.end(); i ++)
+					for (auto j = trees.begin(); j != i; j ++)
+						assert(i->size() != j->size(), "There are some equal trees after compress. Should you run it one more time?");
+		);
+	};
+	int size_;
+		
 };
 
 
