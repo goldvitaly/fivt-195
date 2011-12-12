@@ -17,7 +17,8 @@ template <typename Element, typename Modification, typename Merge,
 class IntervalTree{
 	struct Interval{
 		int l,r;
-		Interval(int l,int r):l(l),r(r){}
+		Interval(int l,int r):l(l),r(r){
+		}
 		Interval leftPart() const {
 			return Interval(l, (l+r)>>1);
 		}
@@ -103,7 +104,7 @@ class IntervalTree{
 	}
 	
 	boost::optional<Element> _get(size_t v,Interval query,Interval vertex){
-		if(!query.intersect(vertex))
+		if(!query.intersects(vertex))
 			return boost::optional<Element>();
 		mod_down(v, vertex.length());
 		if(vertex.partOf(query))
@@ -116,7 +117,7 @@ class IntervalTree{
 	}
 
 	void _set(size_t v, Interval query, Interval vertex,Modification arg){
-		if(!vertex.intersect(query))
+		if(!vertex.intersects(query))
 			return;
 		if(vertex.partOf(query)){
 			add_modification(v, arg);
