@@ -15,7 +15,7 @@ template <class T1, class T2, class Comp1 = std::less<T1>, class Comp2 = std::le
 class make_pair_comparator
 {
 public:
-	bool operator () (const std::pair<T1,T2>& a, const std::pair<T1,T2>& b)
+	bool operator () (const std::pair<T1,T2>& a, const std::pair<T1,T2>& b) const
 	{
 		if (!(Comp1()(a.first,b.first)) && !(Comp1()(b.first,a.first)))
 			return Comp2()(a.second,b.second);
@@ -29,7 +29,7 @@ class reverse_comparator
 {
 public:
 	template <class T>
-	bool operator ()(const T& a, const T& b)
+	bool operator ()(const T& a, const T& b) const
 	{
 		return Comp()(b,a);
 	}
