@@ -86,9 +86,9 @@ class integral_digit_sorter
 	{
 	}
 	typedef T value_type;
-	template <typename It> void operator() (It l, It r)
+	template <typename It> void operator() (It left, It right) const
 	{
-		digit_sort(l, r, extractor);
+		digit_sort(left, right, extractor);
 	}
 };
 
