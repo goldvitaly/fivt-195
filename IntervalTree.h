@@ -30,7 +30,7 @@ class IntervalTree{
 			return l>=b.l && r<=b.r;
 		}
 
-		bool intersect(const Interval& b) const {
+		bool intersects(const Interval& b) const {
 			return r>=b.l && l<=b.r;
 		}
 
