@@ -38,7 +38,7 @@ int main()
 {
     srand(42);
     size_t number_of_elements, number_of_tests;
-    std::vector <int> A, S; //в S будут храниться частичные суммы, с ними мы будем сверять ответы от нашего дерева отрезков
+    std::vector <int> A, S; //S - vector of partitial sums
     std::cout << "Welcome to interval_tree test program!\nTest works in O(N*K) time where\nN - number of elements\nK - number of tests\nPlease, insert N and K:\n";
     std::cin >> number_of_elements >> number_of_tests;
     A.resize(number_of_elements, 0);
@@ -49,7 +49,7 @@ int main()
     for(int i = 0; i < number_of_tests; i++)
     {
         generate_interval(&left, &right, A.size());
-        delta = rand() % 1000000;    // генерирование изменения на отрезуке
+        delta = rand() % 1000000;
         if((rand() & 1))    delta = -delta;
         tree1.mod_range(left, right, delta);
         for(int j = left - 1; j < right; j++)
@@ -64,9 +64,9 @@ int main()
         for(int j = right; j < S.size(); j++)
             S[j] = S[j - 1] + A[j];
         generate_interval(&left, &right, A.size());
-        delta = S[right - 1];              //в дельту записывается ответ подсчитанный
-        if(left - 1) delta -= S[left - 2]; //при помощи массива частичных сумм
-        if(tree1.get_from_range(left, right) != delta)      //сравнение дельты с функцией interval_tree
+        delta = S[right - 1];              //we calculate partitial sum and push it in delta
+        if(left - 1) delta -= S[left - 2];
+        if(tree1.get_from_range(left, right) != delta)      //compare delta with interval_tree function
             fail = true;
     }
     if(!fail)   std::cout << "Passed system test\n";

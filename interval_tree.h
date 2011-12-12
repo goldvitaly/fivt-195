@@ -4,11 +4,11 @@
 #include <cstdio>
 #include <vector>
 
-template <class element, //тип данных, который будет хранится в дереве
-class mod_type,   //тип данных, в котором передаётся изменение на отрезок
-class merge_func, //функтор подсчитываюший значения предка от значений сыновей
-class mod_func,   //функтор проводящмй модификацию вершины при помощи mod_type
-class merge_mod_func> //функтор сливающий модификации если мы в одну вершину получили несколько модификаций
+template <class element, //key type for tree nodes
+class mod_type,   //type which contains only modification parameters
+class merge_func, //functor calculates parent from childs
+class mod_func,   //functor which modificates node by mod_type
+class merge_mod_func> //functor merges 2 modifications for one node in one mod_type
 class interval_tree
 {
     private:
@@ -153,12 +153,6 @@ class interval_tree
         void mod_range(size_t l, size_t r, mod_type update)
         {
             mod_range(1, interval(l, r), update);
-        }
-
-        void print_bottom() //for testing inly
-        {
-            for(int i = 0; i < last_level_size_; i++)
-                std::cout << tree_[last_level_size_ + i].key << ' ';
         }
 };
 
