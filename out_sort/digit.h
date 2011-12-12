@@ -23,7 +23,7 @@ class integral_extractor
 	const int block_size;
 	const int max_blocks;
 public:
-	integral_extractor(int block_size_ = 8): block_size(block_size_), max_blocks(math::divide_and_round_up(bits, block_size_)) { };
+	explicit integral_extractor(int block_size_ = 8): block_size(block_size_), max_blocks(math::divide_and_round_up(bits, block_size_)) { };
 	int get_block_size() const  { return block_size; };
 	int blocks_in_element(T element) const { return max_blocks; }
 	int operator ()(T element, int block_number, int blocks) const 
