@@ -11,7 +11,6 @@
 template <class T, class Comp = std::less<T> >
 class binomial_heap
 {
-	typedef Comp comparator;
 	typedef binomial_tree<T,Comp> tree;
 	std::vector< binomial_tree<T,Comp> > trees;
 	void compress()
@@ -50,6 +49,7 @@ class binomial_heap
 	};
 	int size_;
 	public:
+		Comp comparator;
 		void debug_write() const
 		{
 			for (auto i : trees)
@@ -58,7 +58,7 @@ class binomial_heap
 				i.debug_write();
 			}
 		}
-		binomial_heap(): trees()
+		explicit binomial_heap(Comp c = Comp()): comparator(c)
 		{
 			size_ = 0;
 		}
@@ -72,12 +72,12 @@ class binomial_heap
 			trees.push_back(binomial_tree<T,Comp>(value));
 			compress();
 		}
-		T 	 min() const 
+		T min() const
 		{
 			if (size_ == 0) throw std::logic_error("It's absolutely impossible to find minimal element in empty heap. But, if you want, I can try one more time");
 			T min_value = trees.begin()->root->key;
 			for (auto i = trees.begin(); i != trees.end(); i ++)
-				if (comparator()(i->root->key,min_value))
+				if (comparator(i->root->key,min_value))
 					min_value = i->root->key;
 			return min_value;
 		};
@@ -88,7 +88,7 @@ class binomial_heap
 			T min_value = trees.begin()->root->key;
 			auto it = trees.begin();
 			for (auto i = trees.begin(); i != trees.end(); i ++)
-				if (comparator()(i->root->key,min_value))
+				if (comparator(i->root->key,min_value))
 				{
 					min_value = i->root->key;
 					it = i;
