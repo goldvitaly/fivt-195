@@ -57,10 +57,7 @@ class binomial_tree
 	explicit binomial_tree(pnode v = pnode(0))
 	{
 		root = v;
-		if (v)
-			order = v -> order;
-		else
-			order = 0;
+		order = v ? v -> order : 0;
 	};
 	explicit binomial_tree(const T& value)
 	{

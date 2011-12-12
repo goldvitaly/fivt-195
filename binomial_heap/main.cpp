@@ -55,6 +55,7 @@ int insert_test(int n, int module)
 
 int main()
 {
+	insert_test(1e3,1e3);
 	merge_test(1e3,1e3,1e3);
 	merge_test(1e2,1e3,1e3);
 	return 0;
