@@ -172,7 +172,7 @@ public:
 		recalc_all();
 	}
 
-	Element get(size_t left, size_t right) {
+	Element get(size_t left, size_t right) /*mutable*/ {
 		if (left > right || right >= size)
 			throw std::logic_error("Invalid range");
 		return *_get(1, Interval(left, right), Interval(0, shift - 1));
