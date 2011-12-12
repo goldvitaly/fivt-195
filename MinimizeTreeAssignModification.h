@@ -5,8 +5,9 @@
 template <typename T>
 class MinimizeTreeAssignModification{
 	struct Min{
+		std::less<T> cmp;
 		const T& operator() (const T& a, const T& b) const {
-			return a<b?a:b;
+			return cmp(a,b)?a:b;
 		}
 	};
 

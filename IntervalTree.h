@@ -188,4 +188,3 @@ public:
 };
 
 #endif /* INTERVALTREE_H */
-
