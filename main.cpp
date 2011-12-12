@@ -2,6 +2,7 @@
 #include "MinimizeTreeAssignModification.h"
 #include "RSQAddModification.h"
 #include "RSQAssignModification.h"
+#include "MinimizeTreeAddModification.h"
 #include <cstdlib>
 #include <iostream>
 #include <limits>
@@ -43,7 +44,7 @@ void test_sum_assign(int n, int times) {
 	}
 }
 
-void test_sum(int n, int times) {
+void test_sum_add(int n, int times) {
 	srand(1);
 	RSQAddModification<LL> tree(n);
 	vector<LL> v(n);
@@ -144,10 +145,9 @@ void test_gcd(int n, int times) {
 	}
 }
 
-template <typename T>
-void test_min(size_t n, int times) {
+void test_min_assign(size_t n, int times) {
 	srand(4);
-	MinimizeTreeAssignModification<T> tree(n, 17);
+	MinimizeTreeAssignModification<int> tree(n, 17);
 	vector<int> v(n, 17);
 	for(int i = 0; i < times; ++i) {
 		int l = rand() % n;
@@ -175,12 +175,43 @@ void test_min(size_t n, int times) {
 	}
 }
 
+void test_min_add(size_t n, int times) {
+	srand(4);
+	MinimizeTreeAddModification<int> tree(n, 17);
+	vector<int> v(n, 17);
+	for(int i = 0; i < times; ++i) {
+		int l = rand() % n;
+		int r = rand() % n;
+		int value = rand() % 10;
+		if(l > r)
+			swap(l, r);
+		for(int i = l; i <= r; ++i) {
+			v[i] += value;
+		}
+		tree.increase(l, r, value);
+		//cout<<"setted "<<l<<" "<<r<<" to "<<value<<endl;
+		l = rand() % n;
+		r = rand() % n;
+		if(l > r)
+			swap(l, r);
+
+		int ans = numeric_limits<int>::max();
+
+		for(int i = l; i <= r; ++i) {
+			ans = min(ans, v[i]);
+		}
+		assert(ans == tree.getMin(l, r));
+
+	}
+}
+
 int main() {
-	test_sum(10000, 10000);
 	test_prefilling(1000, 10000);
 	test_gcd(1000, 100);
-	test_min<int>(10000, 10000);
+	test_min_assign(10000, 10000);
+	test_min_add(10000, 10000);
 	test_sum_assign(10000, 10000);
+	test_sum_add(10000, 10000);
 	return 0;
 }
 
