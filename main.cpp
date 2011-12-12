@@ -1,5 +1,5 @@
 #include "IntervalTree.h"
-#include "MinimizeTreeSetModification.h"
+#include "MinimizeTreeAssignModification.h"
 #include "RSQAddModification.h"
 #include <cstdlib>
 #include <iostream>
@@ -108,7 +108,7 @@ void test_gcd(int n,int times){
 template <typename T>
 void test_min(size_t n,int times){
 	srand(4);
-	MinimizeTreeSetModification<T> tree(n,17);
+	MinimizeTreeAssignModification<T> tree(n,17);
 	vector<int> v(n,17);
 	for(int i=0;i<times;++i){
 		int l=rand()%n;
