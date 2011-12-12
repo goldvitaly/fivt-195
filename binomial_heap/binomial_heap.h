@@ -22,18 +22,18 @@ class binomial_heap
 		std::vector <binomial_tree<T,Comp>> tree_of_order(max_order);
 		std::vector <bool> used(max_order, 0);
 		DEBUG_CODE(int oldsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, const tree& b){ return a + b.size(); }));
-		for (auto tree = trees.begin(); tree != trees.end(); tree ++)
+		for (auto added_tree = trees.begin(); added_tree != trees.end(); added_tree ++)
 		{
-			int cur_tree = tree -> order;
-			binomial_tree<T,Comp> t = *tree;
-			while (used[cur_tree])
+			int pushed_tree = added_tree -> order;
+			binomial_tree<T,Comp> t = *added_tree;
+			while (used[pushed_tree])
 			{
-				t = binomial_tree<T,Comp>::merge(tree_of_order[cur_tree], t);
+				t = binomial_tree<T,Comp>::merge(tree_of_order[pushed_tree], t);
 				used[j] = 0;
-				cur_tree ++;
+				pushed_tree ++;
 			}
-			tree_of_order[cur_tree] = t;
-			used[cur_tree] = 1;
+			tree_of_order[pushed_tree] = t;
+			used[pushed_tree] = 1;
 		}
 		trees.resize(0);
 		for (int i = 0; i < max_order; i ++)
