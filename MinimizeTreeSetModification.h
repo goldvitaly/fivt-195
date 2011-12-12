@@ -3,7 +3,7 @@
 #define MINIMIZETREESETMODIFICATION_H
 #include "IntervalTree.h"
 template <typename T>
-class MinimizeTreeSetModification{
+class MinimizeTreeAssignModification{
 	struct Min{
 		const T& operator() (const T& a, const T& b) const {
 			return a<b?a:b;
@@ -19,10 +19,10 @@ class MinimizeTreeSetModification{
 	IntervalTree<T,T,Min,SecondArgument,SecondArgument> tree;
 	
 	public:
-	MinimizeTreeSetModification(size_t n,T zero = T()):tree(n,zero){}
+	MinimizeTreeAssignModification(size_t n,T zero = T()):tree(n,zero){}
 
 	template<typename Iterator>
-	MinimizeTreeSetModification(Iterator begin, Iterator end):tree(begin,end){}
+	MinimizeTreeAssignModification(Iterator begin, Iterator end):tree(begin,end){}
 
 	int getMin(size_t l, size_t r){
 		return tree.get(l, r);
