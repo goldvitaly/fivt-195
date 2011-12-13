@@ -137,10 +137,6 @@ public:
         ans->del_last_zero();
         heap1->link.clear();
         heap2->link.clear();
-        delete heap1;
-        delete heap2;
-        heap1 = new BinHeap<T>;
-        heap2 = new BinHeap<T>;
         return ans;
     }
     static void push(BinHeap<T>*& heap, const T& key)
