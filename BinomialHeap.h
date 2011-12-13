@@ -44,7 +44,7 @@ public:
     {
         return num_children();
     }
-    const std::vector<BinTree<T>*>& get_children()
+    const std::vector<BinTree<T>*>& get_children() const
     {
         return children;
     }
@@ -135,6 +135,10 @@ public:
         }
         assert(flag == NULL);
         ans->del_last_zero();
+        heap1->link.clear();
+        heap2->link.clear();
+        delete heap1;
+        delete heap2;
         heap1 = new BinHeap<T>;
         heap2 = new BinHeap<T>;
         return ans;
