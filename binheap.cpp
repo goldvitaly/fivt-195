@@ -6,148 +6,162 @@
 #include <cmath>
 #include <ctime>
 
-int bcnt = 0;
-
-template <typename T>
-class bhnode
+template <typename ValueType>
+class BinHeapNode
 {
 public:
-	T x;
-	std::vector <bhnode*> s;
-	bhnode (T key);
+	ValueType _Value;
+	std::vector <BinHeapNode*> _Son;
+	explicit BinHeapNode (ValueType Value);
+	~BinHeapNode ();
 };
 
-template <typename T>
-bhnode<T>::bhnode (T key): x(key), s(0){bcnt++;}
+template <typename ValueType>
+BinHeapNode<ValueType> :: BinHeapNode (ValueType Value): _Value(Value), _Son(0){}
 
-template <typename T>
-bhnode<T>* bhnodemerge (bhnode<T> *a, bhnode<T> *b)
+template <typename ValueType>
+BinHeapNode<ValueType> :: ~BinHeapNode ()
 {
-	if (a == NULL || b == NULL) return std::max(a, b);
-	if (a->x > b->x) std::swap(a, b);
-	a->s.push_back(b);
+	for (size_t i = 0; i < _Son.size(); ++i)
+		if (_Son[i] != NULL)
+			delete _Son[i];
+}
+
+template <typename ValueType>
+BinHeapNode<ValueType>* BinHeapNodeMerge (BinHeapNode<ValueType> *a, BinHeapNode<ValueType> *b)
+{
+	if (a == NULL || b == NULL) return a == NULL ? b : a;
+	if (a->_Value > b->_Value) std::swap(a, b);
+	a->_Son.push_back(b);
 	return a;
 }
 
-template <typename T>
-class bheap
+template <typename ValueType>
+class BinHeap
 {
 private:
-	std::vector <bhnode<T>*> heap;
-	bheap (T key);
-	void update ();
+	std::vector <BinHeapNode<ValueType>*> _Heap;
+	void Clean ();
+	size_t FindMinPosition ()const;
 public:
-	bheap ();
-	void merge (bheap &h);
-	void push (T key);
-	T top ()const;
+	BinHeap ();
+	explicit BinHeap (ValueType Value);
+	void merge (BinHeap &h);
+	void push (ValueType Value);
+	ValueType top ()const;
 	void pop ();
 	bool empty ()const;
 };
 
-template <typename T>
-bheap<T>::bheap (): heap(0){}
-template <typename T>
-bheap<T>::bheap (T key): heap(1, new bhnode<T>(key)){}
+template <typename ValueType>
+BinHeap<ValueType> :: BinHeap (): _Heap(0){}
+template <typename ValueType>
+BinHeap<ValueType> :: BinHeap (ValueType Value): _Heap(1, new BinHeapNode<ValueType>(Value)){}
 
-template <typename T>
-void bheap<T>::update ()
+template <typename ValueType>
+void BinHeap<ValueType> :: Clean ()
 {
-	size_t sz = heap.size();
-	while (sz > 0 && heap[sz - 1] == NULL)
-		sz--;
-	heap.resize(sz);
+	while (_Heap.size() > 0 && _Heap.back() == NULL)
+		_Heap.pop_back();
 }
 
-template <typename T>
-void bheap<T>::merge (bheap<T> &h)
+template <typename ValueType>
+void BinHeap<ValueType> :: merge (BinHeap<ValueType> &h)
 {
-	if (h.heap.size() == 0)
+	if (h._Heap.size() == 0)
 		return;
-	if (heap.size() == 0)
+	if (_Heap.size() == 0)
 	{
-		heap = h.heap;
-		h.heap.resize(0);
+		_Heap.swap(h._Heap);
 		return;
 	}
-		
-	heap.resize(std::max(heap.size(), h.heap.size()) + 1, NULL);
-	h.heap.resize(heap.size(), NULL);
-	bhnode<T> *nd = NULL, *bf;
-	
-	for (size_t i = 0; i < heap.size(); ++i)
+
+	_Heap.resize(std::max(_Heap.size(), h._Heap.size()) + 1, NULL);
+	h._Heap.resize(_Heap.size(), NULL);
+	BinHeapNode<ValueType> *nd = NULL, *bf;
+
+	//Делать по количеству не понятно как, ибо пусть,
+	//мы даже знаем кол-во 
+	//нам придется как-то определять где находятси "живые" кучи
+	for (size_t i = 0; i < _Heap.size(); ++i)
 	{
-		if (heap[i] == NULL)
-			if (nd == NULL || h.heap[i] == NULL)
-				heap[i] = std::max(nd, h.heap[i]), nd = NULL;
+		if (_Heap[i] == NULL)
+			if (nd == NULL || h._Heap[i] == NULL)
+				_Heap[i] = (nd == NULL ? h._Heap[i] : nd), nd = NULL;
 			else
-				nd = bhnodemerge(h.heap[i], nd), heap[i] = NULL;
+				nd = BinHeapNodeMerge(h._Heap[i], nd), _Heap[i] = NULL;
 		else
-			if (nd != NULL || h.heap[i] != NULL)
-				bf = std::min(nd, h.heap[i]), 
-				nd = bhnodemerge(std::max(nd, h.heap[i]), heap[i]),
-				heap[i] = bf;
+			if (nd != NULL || h._Heap[i] != NULL)
+				bf = (nd == NULL ? nd : h._Heap[i]),
+				nd = BinHeapNodeMerge((nd == NULL ? h._Heap[i] : nd), _Heap[i]),
+				_Heap[i] = bf;
 	}
-	update();
-	h.heap.resize(0);
+	Clean();
+	h._Heap.resize(0);
 }
 
-template <typename T>
-void bheap<T>::push (T key)
+template <typename ValueType>
+void BinHeap<ValueType> :: push (ValueType Value)
 {
-	bheap<T> h(key);
+	BinHeap<ValueType> h(Value);
 	merge(h);
 }
 
-template <typename T>
-T bheap<T>::top ()const
+template <typename ValueType>
+size_t BinHeap<ValueType> :: FindMinPosition ()const
 {
-	assert(heap.size() > 0 /** "Heap has no elements!" **/ );
-	T Min = heap.back()->x;
-	for (size_t i = 0; i < heap.size(); ++i)
-		if (heap[i] != NULL)
-			Min = std::min(Min, heap[i]->x);
+	assert(_Heap.size() > 0 /** "Heap has no elements!" **/ );
+	size_t Min = -1;
+	for (size_t i = 0; i < _Heap.size(); ++i)
+		if (_Heap[i] != NULL)
+			if (Min == size_t(-1) || _Heap[i]->_Value < _Heap[Min]->_Value)
+				Min = i;
 	return Min;
 }
 
-template <typename T>
-void bheap<T>::pop ()
+template <typename ValueType>
+ValueType BinHeap<ValueType> :: top ()const
 {
-	assert(heap.size() > 0 /** "Heap has no elements!" **/ );
-	size_t MinInd = heap.size() - 1;
-	for (size_t i = 0; i < heap.size(); ++i)
-		if (heap[i] != NULL && heap[i]->x < heap[MinInd]->x)
-			MinInd = i;
+	size_t Min = FindMinPosition();
+	return _Heap[Min]->_Value;
+}
+
+template <typename ValueType>
+void BinHeap<ValueType> :: pop ()
+{
+	size_t Min = FindMinPosition();
+	BinHeap<ValueType> h;
 	
-	bheap<T> h;
-	h.heap.resize(MinInd, NULL);
-	for (size_t i = 0; i < MinInd; ++i)
-		h.heap[i] = heap[MinInd]->s[i];
-	heap[MinInd] = NULL;
+	h._Heap.resize(Min, NULL);
+	for (size_t i = 0; i < Min; ++i)
+		h._Heap[i] = _Heap[Min]->_Son[i];
+	_Heap[Min] = NULL;
 	merge(h);
 }
 
-template <typename T>
-bool bheap<T> :: empty ()const
+template <typename ValueType>
+bool BinHeap<ValueType> :: empty ()const
 {
-	return heap.size() == 0;
+	return _Heap.size() == 0;
 }
 
+const size_t Iterations = 1000 * 1000 * 1;
+
 std :: priority_queue <int> q;
-bheap <int> h;
+BinHeap <int> h;
 
 int main ()
 {
 	time_t st = std::clock();
-	for (int i = 0; i < 1000000; ++i)
+	for (size_t i = 0; i < Iterations; ++i)
 	{
 		int x = rand() - (RAND_MAX / 2);
 		h.push(x);
 		q.push(-x);
 		assert(h.top() == -q.top());
 	}
-	
-	for (int i = 0; i < 1000000 - 1; ++i)
+
+	for (size_t i = 0; i < Iterations - 1; ++i)
 	{
 		h.pop();
 		q.pop();
