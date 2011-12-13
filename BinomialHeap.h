@@ -95,6 +95,7 @@ public:
         heap->link[id] = NULL;
         BinHeap<T>* res = new BinHeap<T>(children_remove_link);
         heap = merge(heap, res);
+        delete res;
     }
     static BinHeap<T>* merge(BinHeap<T>*& heap1, BinHeap<T>*& heap2)
     {
@@ -132,6 +133,7 @@ public:
                 }
             }
         }
+        assert(flag == NULL);
         ans->del_last_zero();
         heap1 = new BinHeap<T>;
         heap2 = new BinHeap<T>;
@@ -141,6 +143,7 @@ public:
     {
         BinHeap<T>* newHeap = new BinHeap<T>(key);
         heap = merge(heap, newHeap);
+        delete newHeap;
     }
     bool empty() const
     {

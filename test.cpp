@@ -42,6 +42,8 @@ void test(const int& n)
         BinHeap<T>::pop(heap3);
     }
     assert(heap3->empty());
+    delete heap1;
+    delete heap2;
     delete heap3;
 }
 
