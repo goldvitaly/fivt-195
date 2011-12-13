@@ -36,7 +36,7 @@ void test(const int& n)
     {
         if(V[i] != heap3->min())
         {
-            cout << "Wrong work" << endl;
+            cerr << "Wrong work" << endl;
             exit(1);
         }
         BinHeap<T>::pop(heap3);
@@ -50,6 +50,6 @@ int main()
     for(int n = 10; n <= 10000; n *= 10)
         for(int trial = 0; trial < 5; trial++)
             test(n);
-    cout << "Ok" << endl;
+    cerr << "Ok" << endl;
     return 0;
 }
