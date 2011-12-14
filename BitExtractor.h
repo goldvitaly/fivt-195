@@ -4,22 +4,21 @@
 #include <vector>
 #include <string>
 #include <utility>
-using namespace std;
 
 
-
+template <class T>
 class IntBitExtractor
 {
     public:
-        IntBitExtractor(int BitsNum)
+        explicit IntBitExtractor(int BitsNum)
         {
             BitsNum_ = BitsNum;
-            BlocksNum_ = 32 / BitsNum;
+            BlocksNum_ = sizeof(T) * 8 / BitsNum;
         }
 
-        int Extract(vector <int>::iterator x, int p);
+        T Extract(T x, int p);
 
-        int GetCount()
+        int NumberOfBlockValues()
         {
             return(1 << BitsNum_);
         }
@@ -33,24 +32,24 @@ class IntBitExtractor
         int BitsNum_, BlocksNum_;
 };
 
-
-int IntBitExtractor::Extract(vector <int>::iterator x, int p)
+template <class T>
+T IntBitExtractor<T>::Extract(T x, int p)
 {
-    return(((*x) >> (p * BitsNum_) & ((1 << BitsNum_) - 1)));
+    return(x >> (p * BitsNum_) & ((1 << BitsNum_) - 1));
 }
 
 class StringBitExtrator
 {
     public:
-        StringBitExtrator(size_t BlocksNum = 5)
+        explicit StringBitExtrator(size_t BlocksNum = 5)
         {
             BitsNum_ = 8;
             BlocksNum_ = BlocksNum;
         }
 
-        int Extract(vector<string>::iterator x, int p);
+        int Extract(std::string x, int p);
 
-        int GetCount()
+        int NumberOfBlockValues()
         {
             return (1 << BitsNum_);
         }
@@ -68,9 +67,9 @@ class StringBitExtrator
 
 
 
-int StringBitExtrator::Extract(vector<string>::iterator x, int p)
+int StringBitExtrator::Extract(std::string x, int p)
 {
-    return int((*x)[BlocksNum_ - 1 - p]);
+    return int(x[BlocksNum_ - 1 - p]);
 }
 
 
@@ -78,15 +77,15 @@ int StringBitExtrator::Extract(vector<string>::iterator x, int p)
 class PairBitExtractor
 {
     public:
-        PairBitExtractor (int BitsNum)
+        explicit PairBitExtractor (int BitsNum)
         {
             BitsNum_ = BitsNum;
             BlocksNum_ = 64 / BitsNum_;
         }
 
-        int Extract(vector < pair<int, int> >::iterator x, int p);
+        int Extract(std::pair<int, int> x, int p);
 
-        int GetCount()
+        int NumberOfBlockValues()
         {
             return (1 << BitsNum_);
         }
@@ -101,44 +100,13 @@ class PairBitExtractor
 };
 
 
-int PairBitExtractor::Extract(vector< pair<int, int> >::iterator x, int p)
+int PairBitExtractor::Extract(std::pair<int, int> x, int p)
 {
     if(p >= BlocksNum_ / 2)
     {
         p -= BlocksNum_;
-        return((((*x).first) >> (p * BitsNum_)) & ((1 << BitsNum_) - 1));
+        return(((x.first) >> (p * BitsNum_)) & ((1 << BitsNum_) - 1));
     }
-    return((((*x).second) >> (p * BitsNum_)) & ((1 << BitsNum_) - 1));
-}
-
-
-class LongLongBitExtractor
-{
-    public:
-        LongLongBitExtractor (int BitsNum)
-        {
-            BitsNum_ = BitsNum;
-            BlocksNum_ = 64 / BitsNum_;
-        }
-
-        int Extract(vector <long long>::iterator x, int p);
-
-        int GetCount()
-        {
-            return (1 << BitsNum_);
-        }
-
-        int GetBlocksNum()
-        {
-            return BlocksNum_;
-        }
-
-    private:
-        int BitsNum_, BlocksNum_;
-};
-
-int LongLongBitExtractor::Extract(vector<long long>::iterator x, int p)
-{
-    return (((*x) >> (BitsNum_ * p)) & ((1LL << BitsNum_) - 1));
+    return(((x.second) >> (p * BitsNum_)) & ((1 << BitsNum_) - 1));
 }
 #endif // BITEXTRACTOR_H_INCLUDED
