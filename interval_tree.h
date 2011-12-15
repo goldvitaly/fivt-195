@@ -6,18 +6,18 @@
 template <class T>
 struct default_RMQ_merger
 {
-    T operator()(T x, T y)
+    T operator()(const T &x, const T &y) const
     {
         return std::min(x, y);
     }
 };
 
 template <class T>
-struct RMSQ_mod_type
+struct RMQ_RSQ_mod_type
 {
     bool change;
     T change_to, modify;
-    RMSQ_mod_type()
+    RMQ_RSQ_mod_type()
     {
         change = false;
         change_to = 0;
@@ -26,22 +26,23 @@ struct RMSQ_mod_type
 };
 
 template <class T>
-struct RMSQ_merge_mod_func
+struct RMQ_RSQ_merge_mod_func
 {
-    RMSQ_mod_type<T> operator()(RMSQ_mod_type<T> added, RMSQ_mod_type<T> prev)
+    RMQ_RSQ_mod_type<T> operator()(const RMQ_RSQ_mod_type<T> &added, const RMQ_RSQ_mod_type<T> &prev) const
     {
+        RMQ_RSQ_mod_type<T> res = prev;
         if(added.change)
         {
-            prev.modify = 0;
-            prev.change = true;
-            prev.change_to = added.change_to;
+            res.modify = 0;
+            res.change = true;
+            res.change_to = added.change_to;
         }
         else
         {
-            if(prev.change) prev.change_to += added.modify;
-            else            prev.modify += added.modify;
+            if(prev.change) res.change_to += added.modify;
+            else            res.modify += added.modify;
         }
-        return prev;
+        return res;
     }
 };
 
@@ -52,7 +53,7 @@ private:
 
     struct RMQ_mod_func
     {
-        T operator ()(T key_, RMSQ_mod_type<T> mod, size_t range_size)
+        T operator ()(T key_, RMQ_RSQ_mod_type<T> mod, size_t range_size)
         {
             if(mod.change)  key_ = mod.change_to;
             else            key_ += mod.modify;
@@ -64,13 +65,13 @@ private:
 
 public:
 
-    interval_tree<T, RMSQ_mod_type<T>, RMQ_merger, RMQ_mod_func, RMSQ_merge_mod_func<T> > *tree;
+    interval_tree<T, RMQ_RSQ_mod_type<T>, RMQ_merger, RMQ_mod_func, RMQ_RSQ_merge_mod_func<T> > *tree;
 
 
     template<class It>
     RMQ(It begin, It end)
     {
-        tree = new interval_tree<T, RMSQ_mod_type<T>, RMQ_merger, RMQ_mod_func, RMSQ_merge_mod_func<T> >(begin, end, std::numeric_limits<T>::max());
+        tree = new interval_tree<T, RMQ_RSQ_mod_type<T>, RMQ_merger, RMQ_mod_func, RMQ_RSQ_merge_mod_func<T> >(begin, end, std::numeric_limits<T>::max());
     }
 
     T get_min_from_range(size_t left, size_t right)
@@ -80,7 +81,7 @@ public:
 
     void change_range(size_t left, size_t right, T change_to)
     {
-        RMSQ_mod_type<T> delta;
+        RMQ_RSQ_mod_type<T> delta;
         delta.change = true;
         delta.change_to = change_to;
         tree->mod_range(left, right, delta);
@@ -88,7 +89,7 @@ public:
 
     void mod_range(size_t left, size_t right, T modify)
     {
-        RMSQ_mod_type<T> delta;
+        RMQ_RSQ_mod_type<T> delta;
         delta.modify = modify;
         tree->mod_range(left, right, delta);
     }
@@ -102,7 +103,7 @@ private:
 
     struct RSQ_mod_func
     {
-        T operator ()(T key_, RMSQ_mod_type<T> mod, size_t range_size)
+        T operator ()(T key_, RMQ_RSQ_mod_type<T> mod, size_t range_size) const
         {
             if(mod.change)  key_ = mod.change_to * range_size;
             else            key_ += mod.modify * range_size;
@@ -112,13 +113,13 @@ private:
 
 public:
 
-    interval_tree<T, RMSQ_mod_type<T>, RSQ_merger, RSQ_mod_func, RMSQ_merge_mod_func<T> > *tree;
+    interval_tree<T, RMQ_RSQ_mod_type<T>, RSQ_merger, RSQ_mod_func, RMQ_RSQ_merge_mod_func<T> > *tree;
 
 
     template<class It>
     RSQ(It begin, It end)
     {
-        tree = new interval_tree<T, RMSQ_mod_type<T>, RSQ_merger, RSQ_mod_func, RMSQ_merge_mod_func<T> >(begin, end, 0);
+        tree = new interval_tree<T, RMQ_RSQ_mod_type<T>, RSQ_merger, RSQ_mod_func, RMQ_RSQ_merge_mod_func<T> >(begin, end, 0);
     }
 
     T get_sum_from_range(size_t left, size_t right)
@@ -128,7 +129,7 @@ public:
 
     void change_range(size_t left, size_t right, T change_to)
     {
-        RMSQ_mod_type<T> delta;
+        RMQ_RSQ_mod_type<T> delta;
         delta.change = true;
         delta.change_to = change_to;
         tree->mod_range(left, right, delta);
@@ -136,7 +137,7 @@ public:
 
     void mod_range(size_t left, size_t right, T modify)
     {
-        RMSQ_mod_type<T> delta;
+        RMQ_RSQ_mod_type<T> delta;
         delta.modify = modify;
         tree->mod_range(left, right, delta);
     }
