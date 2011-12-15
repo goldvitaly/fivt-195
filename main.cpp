@@ -12,11 +12,7 @@
 using namespace std;
 
 
-vector <pair <int, int> > a, a2;
-vector <string> s, s2;
-vector <int> b, b2;
-vector <long long> l, l2;
-int N;
+
 
 bool operator < (const pair <int, int> &x, const pair <int, int> &y)
 {
@@ -62,97 +58,102 @@ void DigitSort(It b, It e, Ext p)
     }
 }
 
-void test_int()
+void test_int(int N)
 {
+    vector <int> sorted_by_stl, sorted_by_digit;
     time_t last;
     cout << "Ints:\n";
-    b.resize(N);
-    b2.resize(N);
-    for(int i = 0; i < N; b[i] = rand(), b2[i] = b[i], i++);
+    sorted_by_stl.resize(N);
+    sorted_by_digit.resize(N);
+    for(int i = 0; i < N; sorted_by_stl[i] = rand(), sorted_by_digit[i] = sorted_by_stl[i], i++);
     last = clock();
-    sort(b.begin(), b.end());
+    sort(sorted_by_stl.begin(), sorted_by_stl.end());
     cout << "  STL: " << clock() - last << endl;
     last = clock();
-    DigitSort(b2.begin(), b2.end(), IntBitExtractor<int>(8));
+    DigitSort(sorted_by_digit.begin(), sorted_by_digit.end(), IntBitExtractor<int>(8));
     cout << "  MyDigit: " << clock() - last << endl;
-    CheckSortedVectors(b.begin(), b.end(), b2.begin(), b2.end());
-    b.clear();
-    b2.clear();
+    CheckSortedVectors(sorted_by_stl.begin(), sorted_by_stl.end(), sorted_by_digit.begin(), sorted_by_digit.end());
+    sorted_by_stl.clear();
+    sorted_by_digit.clear();
 }
 
 
-void test_long_long()
+void test_long_long(int N)
 {
+    vector <long long> sorted_by_stl, sorted_by_digit;
     time_t last;
     cout << "Long Longs:\n";
-    l.resize(N);
-    l2.resize(N);
+    sorted_by_stl.resize(N);
+    sorted_by_digit.resize(N);
     for(int i = 0; i < N; i++)
     {
-        l[i] = (long long)(rand()) * (long long)(rand());
-        l2[i] = l[i];
+        sorted_by_stl[i] = (long long)(rand()) * (long long)(rand());
+        sorted_by_digit[i] = sorted_by_stl[i];
     }
     last = clock();
-    sort(l.begin(), l.end());
+    sort(sorted_by_stl.begin(), sorted_by_stl.end());
     cout << "  STL: " << clock() - last << endl;
     last = clock();
-    DigitSort(l2.begin(), l2.end(), IntBitExtractor<long long>(8));
+    DigitSort(sorted_by_digit.begin(), sorted_by_digit.end(), IntBitExtractor<long long>(8));
     cout << "  MyDigit: " << clock() - last << endl;
-    CheckSortedVectors(l.begin(), l.end(), l2.begin(), l2.end());
-    l.clear();
-    l2.clear();
+    CheckSortedVectors(sorted_by_stl.begin(), sorted_by_stl.end(), sorted_by_digit.begin(), sorted_by_digit.end());
+    sorted_by_stl.clear();
+    sorted_by_digit.clear();
 }
 
 
-void test_pairs()
+void test_pairs(int N)
 {
+    vector <pair<int, int> > sorted_by_stl, sorted_by_digit;
     time_t last;
-    a.resize(N);
-    a2.resize(N);
-    for(int i = 0; i < N; a[i].first = rand(), a[i].second = rand(),
-        a2[i].first = a[i].first, a2[i].second = a[i].second, i++);
+    sorted_by_stl.resize(N);
+    sorted_by_digit.resize(N);
+    for(int i = 0; i < N; sorted_by_stl[i].first = rand(), sorted_by_stl[i].second = rand(),
+        sorted_by_digit[i].first = sorted_by_stl[i].first, sorted_by_digit[i].second = sorted_by_stl[i].second, i++);
     last = clock();
-    sort(a.begin(), a.end());
+    sort(sorted_by_stl.begin(), sorted_by_stl.end());
     cout << "Pairs:\n  STL: " << clock() - last << endl;
     last = clock();
-    DigitSort(a2.begin(), a2.end(), PairBitExtractor::PairBitExtractor(8));
+    DigitSort(sorted_by_digit.begin(), sorted_by_digit.end(), PairBitExtractor::PairBitExtractor(8));
     cout << "  MyDigit: " << clock() - last << endl;
-    CheckSortedVectors(a.begin(), a.end(), a2.begin(), a2.end());
-    a.clear();
-    a2.clear();
+    CheckSortedVectors(sorted_by_stl.begin(), sorted_by_stl.end(), sorted_by_digit.begin(), sorted_by_digit.end());
+    sorted_by_stl.clear();
+    sorted_by_digit.clear();
 }
 
 
-void test_string()
+void test_string(int N)
 {
+    vector <string> sorted_by_stl, sorted_by_digit;
     time_t last;
-    s.resize(N);
-    s2.resize(N);
+    sorted_by_stl.resize(N);
+    sorted_by_digit.resize(N);
     cout << "Strings:\n";
     for(int i = 0; i < N; i++)
     {
-        s[i].clear();
+        sorted_by_stl[i].clear();
         for(int j = 0; j < 5; j++)
-            s[i].push_back(rand() % 26 + 'a');
-        s2[i] = s[i];
+            sorted_by_stl[i].push_back(rand() % 26 + 'a');
+        sorted_by_digit[i] = sorted_by_stl[i];
     }
     last = clock();
-    sort(s.begin(), s.end());
+    sort(sorted_by_stl.begin(), sorted_by_stl.end());
     cout << "  STL: " << clock() - last << endl;
     last = clock();
-    DigitSort(s2.begin(), s2.end(), StringBitExtrator());
+    DigitSort(sorted_by_digit.begin(), sorted_by_digit.end(), StringBitExtrator());
     cout << "  MyDigit: " << clock() - last << endl;
-    CheckSortedVectors(s.begin(), s.end(), s2.begin(), s2.end());
-    s.clear();
-    s2.clear();
+    CheckSortedVectors(sorted_by_stl.begin(), sorted_by_stl.end(), sorted_by_digit.begin(), sorted_by_digit.end());
+    sorted_by_stl.clear();
+    sorted_by_digit.clear();
 }
 int main()
 {
+    int N;
     cin >> N;
     srand(time(NULL));
-    test_int();
-    test_long_long();
-    test_pairs();
-    test_string();
+    test_int(N);
+    test_long_long(N);
+    test_pairs(N);
+    test_string(N);
     return 0;
 }
