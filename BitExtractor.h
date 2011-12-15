@@ -16,14 +16,14 @@ class IntBitExtractor
             BlocksNum_ = sizeof(T) * 8 / BitsNum;
         }
 
-        T Extract(T x, int p);
+        T Extract(T x, int p) const;
 
-        int NumberOfBlockValues()
+        int NumberOfBlockValues() const
         {
             return(1 << BitsNum_);
         }
 
-        int GetBlocksNum()
+        int GetBlocksNum() const
         {
             return BlocksNum_;
         }
@@ -33,7 +33,7 @@ class IntBitExtractor
 };
 
 template <class T>
-T IntBitExtractor<T>::Extract(T x, int p)
+T IntBitExtractor<T>::Extract(T x, int p) const
 {
     return(x >> (p * BitsNum_) & ((1 << BitsNum_) - 1));
 }
@@ -47,14 +47,14 @@ class StringBitExtrator
             BlocksNum_ = BlocksNum;
         }
 
-        int Extract(std::string x, int p);
+        int Extract(const std::string &x, int p) const;
 
-        int NumberOfBlockValues()
+        int NumberOfBlockValues() const
         {
             return (1 << BitsNum_);
         }
 
-        int GetBlocksNum()
+        int GetBlocksNum() const
         {
             return BlocksNum_;
         }
@@ -67,7 +67,7 @@ class StringBitExtrator
 
 
 
-int StringBitExtrator::Extract(std::string x, int p)
+int StringBitExtrator::Extract(const std::string &x, int p) const
 {
     return int(x[BlocksNum_ - 1 - p]);
 }
@@ -83,14 +83,14 @@ class PairBitExtractor
             BlocksNum_ = 64 / BitsNum_;
         }
 
-        int Extract(std::pair<int, int> x, int p);
+        int Extract(const std::pair<int, int> &x, int p) const;
 
-        int NumberOfBlockValues()
+        int NumberOfBlockValues() const
         {
             return (1 << BitsNum_);
         }
 
-        int GetBlocksNum()
+        int GetBlocksNum() const
         {
             return BlocksNum_;
         }
@@ -100,7 +100,7 @@ class PairBitExtractor
 };
 
 
-int PairBitExtractor::Extract(std::pair<int, int> x, int p)
+int PairBitExtractor::Extract(const std::pair<int, int> &x, int p) const
 {
     if(p >= BlocksNum_ / 2)
     {

@@ -1,9 +1,11 @@
 #include <iostream>
+#include <functional>
 #include <cstdio>
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <ctime>
+#include <numeric>
 #include <utility>
 #include <cstdlib>
 #include "BitExtractor.h"
@@ -23,30 +25,41 @@ bool operator < (const pair <int, int> &x, const pair <int, int> &y)
 }
 
 
-template <class It, class Cmp>
-void DigitSort(It b, It e, Cmp p)
+template<class It>
+void CheckSortedVectors(It FirstBegin, It FirstEnd, It SecondBegin, It SecondEnd)
+{
+    bool fail = false;
+    while(FirstBegin != FirstEnd  &&  SecondBegin != SecondEnd)
+    {
+        if(*FirstBegin != *SecondBegin) fail = true;
+        FirstBegin++;
+        SecondBegin++;
+    }
+    if(fail)    std::cout << "FAIL\n";
+}
+
+
+template <class It, class Ext>
+void DigitSort(It b, It e, Ext p)
 {
     size_t Length = e - b;
     size_t number_of_values = p.NumberOfBlockValues();
     size_t BlocksNum = p.GetBlocksNum();
-    vector <size_t> temp;
+    vector <size_t> storage;
     vector <typeof(*b)> sorted;
-    temp.resize(number_of_values);
+    storage.resize(number_of_values);
     sorted.resize(Length);
     for(size_t i = 0; i < BlocksNum; i++)
     {
-        for(size_t j = 0; j < number_of_values; j++)  temp[j] = 0;
-        for(size_t j = 0; j < Length; j++)  temp[p.Extract(*(b + j), i)]++;
-        for(size_t j = 1; j < number_of_values; j++)   temp[j] += temp[j - 1];
-        for(size_t j = number_of_values - 1; j > 0; j--)   temp[j] = temp[j - 1];
-        temp[0] = 0;
+        std::fill(storage.begin(), storage.end(), 0);
+        for(size_t j = 0; j < Length; j++)  storage[p.Extract(*(b + j), i)]++;
+        partial_sum(storage.begin(), storage.end(), storage.begin());
+        for(size_t j = number_of_values - 1; j > 0; j--)   storage[j] = storage[j - 1];
+        storage[0] = 0;
         for(size_t j = 0; j < Length; j++)
-            sorted[temp[p.Extract(*(b + j), i)]++] = *(b + j);
-        for(size_t j = 0; j < Length; j++)
-            *(b + j) = sorted[j];
+            sorted[storage[p.Extract(*(b + j), i)]++] = *(b + j);
+        std::copy(sorted.begin(), sorted.end(), b);
     }
-    temp.clear();
-    sorted.clear();
 }
 
 void test_int()
@@ -62,6 +75,7 @@ void test_int()
     last = clock();
     DigitSort(b2.begin(), b2.end(), IntBitExtractor<int>(8));
     cout << "  MyDigit: " << clock() - last << endl;
+    CheckSortedVectors(b.begin(), b.end(), b2.begin(), b2.end());
     b.clear();
     b2.clear();
 }
@@ -84,6 +98,7 @@ void test_long_long()
     last = clock();
     DigitSort(l2.begin(), l2.end(), IntBitExtractor<long long>(8));
     cout << "  MyDigit: " << clock() - last << endl;
+    CheckSortedVectors(l.begin(), l.end(), l2.begin(), l2.end());
     l.clear();
     l2.clear();
 }
@@ -102,7 +117,7 @@ void test_pairs()
     last = clock();
     DigitSort(a2.begin(), a2.end(), PairBitExtractor::PairBitExtractor(8));
     cout << "  MyDigit: " << clock() - last << endl;
-    last = clock();
+    CheckSortedVectors(a.begin(), a.end(), a2.begin(), a2.end());
     a.clear();
     a2.clear();
 }
@@ -127,6 +142,7 @@ void test_string()
     last = clock();
     DigitSort(s2.begin(), s2.end(), StringBitExtrator());
     cout << "  MyDigit: " << clock() - last << endl;
+    CheckSortedVectors(s.begin(), s.end(), s2.begin(), s2.end());
     s.clear();
     s2.clear();
 }
