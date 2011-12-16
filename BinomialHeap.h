@@ -30,10 +30,9 @@ public:
             swap(tree1, tree2);
         }
         tree1->children.push_back(tree2);
-        BinTree<T>* ans = new BinTree<T>;
-        ans = tree1;
-        tree1 = new BinTree<T>;
-        tree2 = new BinTree<T>;
+        BinTree<T>* ans = tree1;
+        tree1 = NULL;
+        tree2 = NULL;
         return ans;
     }
     size_t num_children() const
@@ -91,11 +90,11 @@ public:
         BinTree<T>* remove_tree = heap->link[id];
         std::vector<BinTree<T>*> children_remove_link = remove_tree->get_children();
         remove_tree->clear_children();
-        delete remove_tree;
+        delete heap->link[id];
         heap->link[id] = NULL;
         BinHeap<T>* res = new BinHeap<T>(children_remove_link);
         heap = merge(heap, res);
-        delete res;
+        assert(res == NULL);
     }
     static BinHeap<T>* merge(BinHeap<T>*& heap1, BinHeap<T>*& heap2)
     {
@@ -135,8 +134,13 @@ public:
         }
         assert(flag == NULL);
         ans->del_last_zero();
+
         heap1->link.clear();
         heap2->link.clear();
+        delete heap1;
+        delete heap2;
+        heap1 = NULL;
+        heap2 = NULL;
         return ans;
     }
     static void push(BinHeap<T>*& heap, const T& key)

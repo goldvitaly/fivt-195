@@ -8,7 +8,7 @@ using namespace std;
 void test(const int& n)
 {
     typedef int T;
-    srand(time(NULL));
+    srand(0);
     vector<T> V(n);
 
     for(int i = 0; i < n; i++)
@@ -27,10 +27,8 @@ void test(const int& n)
     assert(heap2->size() == n - middle);
 
     BinHeap<T>* heap3 = BinHeap<T> :: merge(heap1, heap2);
-
-    assert(heap1->empty());
-    assert(heap2->empty());
-
+    assert(heap1 == NULL);
+    assert(heap2 == NULL);
     sort(V.begin(), V.end());
     for(int i = 0; i < n; i++)
     {
@@ -47,11 +45,30 @@ void test(const int& n)
     delete heap3;
 }
 
+void test_merge()
+{
+    typedef int T;
+    srand(0);
+    BinHeap<T>* heap1 = new BinHeap<T>;
+    BinHeap<T>* heap2 = new BinHeap<T>;
+    for(int i = 0; i < 100000; i++)
+    {
+        BinHeap<T>::push(heap1, rand());
+        BinHeap<T>::push(heap2, rand());
+    }
+    BinHeap<T>* heap3 = BinHeap<T> :: merge(heap1, heap2);
+    delete heap1;
+    delete heap2;
+    delete heap3;
+}
+
 int main()
 {
-    for(int n = 10; n <= 10000; n *= 10)
+    for(int n = 10; n <= 100000; n *= 10)
         for(int trial = 0; trial < 5; trial++)
             test(n);
+    for(int trial = 0; trial < 4; trial++)
+        test_merge();
     cerr << "Ok" << endl;
     return 0;
 }
