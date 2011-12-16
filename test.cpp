@@ -11,7 +11,7 @@ using namespace std;
 template <class T>
 struct test_op
 {
-	T operator()(T a, T b)
+	T operator()(const T& a, const T& b) const
 	{
 		return a+b;
 	}
@@ -20,17 +20,16 @@ struct test_op
 template <class T>
 struct test_mod_op
 {
-	T operator()(T value, T modify, int left, int right)
+	T operator()(const T& value, const T& modify, int left, int right) const
 	{
-		//cerr << value << " " << modify << endl;
 		return value + modify * (right - left + 1);
 	} 
 };
 
 template <class T>
-struct test_mod_upd
+struct test_mod_upd// : binary_function<T, T, T>
 {
-	T operator()(T old_mod, T new_mod)
+	T operator()(const T& old_mod, const T& new_mod) const
 	{
 		return old_mod + new_mod;
 	}
@@ -39,25 +38,32 @@ struct test_mod_upd
 int main()
 {
 	srand(43);
+	//test_op<int> opr();
+	//cout << opr(3,8) << endl;
+	//return 0;
 	
 	typedef double test_type;
 	const int test_size = 10;
 	const int rand_range = 20;
 	const int test_count = 300;
 	
-	IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >* itree = new IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >(test_size);
+	//IntervalTree<test_type> itree(test_op<test_type>(), test_mod_op<test_type>(), test_mod_upd<test_type>());
 	
+	//(new IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >(test_size, test_op<test_type>(), test_mod_op<test_type>(), test_mod_upd<test_type>()))->print(cout);
+	//IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >(test_size, test_op<test_type>(), test_mod_op<test_type>(), test_mod_upd<test_type>()).print(cout);
+	IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> > itree(test_size, test_op<test_type>(), test_mod_op<test_type>(), test_mod_upd<test_type>());
+	//sizeof(IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >);
 	test_type* array = new test_type[test_size];
 	
 	test_type next;
 	for(int i = 0; i < test_size; i++)
 	{
 		next = test_type(rand() % rand_range / (double)rand_range);
-		itree->assign(next, i);
+		itree.assign(next, i);
 		array[i] = next;
 	}
 	
-	itree->print(cout);
+	itree.print(cout);
 	
 	int left, right;
 	test_type tree_res, array_res;
@@ -68,24 +74,18 @@ int main()
 		right = rand() % (test_size - 1) + 1;
 		left = rand() % right;
 		modif = rand() % rand_range;
-		//for(int j = 0; j < test_size; j++)
-		//	cerr << array[j] << " ";
-		//cerr << endl;
 		for(int j = left; j <= right; j++)
 			array[j] = test_mod_op<test_type>()(array[j], modif, j, j);
-		//for(int j = 0; j < test_size; j++)
-		//	cerr << array[j] << " ";
-		//cerr << endl;
-		itree->modify(left, right, modif);
+		//itree.modify(left, right, modif);
 	}
 	
-	itree->print(cout);
+	//itree.print(cout);
 	
 	for(int i = 0; i < test_count; i++)
 	{
 		right = rand() % (test_size - 1) + 1;
 		left = rand() % right;
-		tree_res = itree->query(left, right);
+		//tree_res = itree.query(left, right);
 		array_res = array[left];
 		for(int j = left + 1; j <= right; j++)
 		{
@@ -98,10 +98,10 @@ int main()
 		}
 	}
 	
-	delete itree;
 	delete array;
 	
 	cerr << "Passed _ALL_ the tests" << endl;
 	
 	return 0;
+	
 }

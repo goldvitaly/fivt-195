@@ -4,13 +4,13 @@
 #include <cassert>
 
 template <typename Elem, typename Operation>
-boost::optional<Elem> OptionalOperation(boost::optional<Elem> a, boost::optional<Elem> b)
+boost::optional<Elem> OptionalOperation(boost::optional<Elem> a, boost::optional<Elem> b, Operation op)
 {
 	if(!a)
 		return b;
 	if(!b)
 		return a;
-	return Operation()(*a,*b);
+	return op(*a,*b);
 }
 
 
@@ -18,7 +18,7 @@ template <class T, class Op, class ModOp, class ModUpd>
 class IntervalTree
 {
 	public:
-		IntervalTree(size_t size);
+		IntervalTree(size_t size, Op oper, ModOp mod_oper, ModUpd mod_update);
 		~IntervalTree();
 		
 		void print(std::ostream& stream) const;
@@ -26,6 +26,9 @@ class IntervalTree
 		T query(int left_index, int right_index);
 		void modify(int left_index, int rigth_index, const T& modification);
 	private:
+		Op operation;
+		ModOp modoperation;
+		ModUpd modupdate;
 		boost::optional<T>* tree;
 		boost::optional<T>* mods;
 		size_t data_size;
@@ -33,10 +36,11 @@ class IntervalTree
 		boost::optional<T> query(int left_index, int right_index, int v_index, int v_left, int v_right);
 		void modify(int left_index, int right_index, int v_index, int v_left, int v_right, const T& modification);
 		void update_node(int v_index, int v_left, int v_right);
+		
 };
 
 template <class T, class Op, class ModOp, class ModUpd>
-IntervalTree<T, Op, ModOp, ModUpd>::IntervalTree(size_t size)
+IntervalTree<T, Op, ModOp, ModUpd>::IntervalTree(size_t size, Op oper, ModOp mod_oper, ModUpd mod_update)
 {
 	data_size = 1;
 	while(data_size < size)
@@ -152,7 +156,7 @@ void IntervalTree<T, Op, ModOp, ModUpd>::update_node(int v_index, int v_left, in
 	if(!mods[v_index])
 		return;
 	//std::cerr << "Updating.." << *tree[v_index] << std::endl;
-	tree[v_index] = ModOp()(*tree[v_index],*mods[v_index], v_left, v_right);
+	tree[v_index] = ModOp(*tree[v_index],*mods[v_index], v_left, v_right);
 	//std::cerr << "Updated" << *tree[v_index] << std::endl;
 	if(v_index * 2 + 1 < (data_size << 1) - 1)
 	{
