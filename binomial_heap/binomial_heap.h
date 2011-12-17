@@ -95,7 +95,6 @@ class binomial_heap
 		int max_order = 0;
 		for (auto i = trees.begin(); i != trees.end(); ++ i)
 			max_order = std::max(max_order, i -> order);
-		max_order += 3;
 		std::vector <tree> tree_of_order(max_order, tree(comparator));
 		std::vector <bool> used(max_order, 0);
 		DEBUG_CODE(int oldsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, const tree& b){ return a + b.size(); }));
@@ -108,6 +107,12 @@ class binomial_heap
 				t = tree::merge(tree_of_order[pushed_tree], t);
 				used[pushed_tree] = 0;
 				pushed_tree ++;
+				while (pushed_tree >= used.size())
+				{
+					max_order ++;
+					used.push_back(false);
+					tree_of_order.push_back(tree(comparator));
+				}
 			}
 			tree_of_order[pushed_tree] = t;
 			used[pushed_tree] = 1;
