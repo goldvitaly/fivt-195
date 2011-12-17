@@ -12,7 +12,7 @@ template <class T, class cmp>
 class cmp_for_queue
 {
 public:
-    bool operator()(const T &x, const T &y)
+    bool operator()(const T &x, const T &y) const
     {
         return cmp()(x.first, y.first);
     }
