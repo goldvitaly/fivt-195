@@ -4,21 +4,24 @@
 #include <cassert>
 
 template <typename Elem, typename Operation>
-boost::optional<Elem> OptionalOperation(boost::optional<Elem> a, boost::optional<Elem> b, Operation op)
-{
-	if(!a)
-		return b;
-	if(!b)
-		return a;
-	return op(*a,*b);
-}
+struct OptionalOperation{
+		Operation op;
+		boost::optional<Elem> operator()(boost::optional<Elem> a, boost::optional<Elem> b)
+		{
+			if(!a)
+				return b;
+			if(!b)
+				return a;
+			return op(*a,*b);
+		}
+};
 
 
 template <class T, class Op, class ModOp, class ModUpd>
 class IntervalTree
 {
 	public:
-		IntervalTree(size_t size, Op oper, ModOp mod_oper, ModUpd mod_update);
+		IntervalTree(size_t size);
 		~IntervalTree();
 		
 		void print(std::ostream& stream) const;
@@ -27,6 +30,9 @@ class IntervalTree
 		void modify(int left_index, int rigth_index, const T& modification);
 	private:
 		Op operation;
+		OptionalOperation<T, Op> opop;
+		OptionalOperation<T, ModOp> opmod;
+		OptionalOperation<T, ModUpd> opupd;
 		ModOp modoperation;
 		ModUpd modupdate;
 		boost::optional<T>* tree;
@@ -40,7 +46,7 @@ class IntervalTree
 };
 
 template <class T, class Op, class ModOp, class ModUpd>
-IntervalTree<T, Op, ModOp, ModUpd>::IntervalTree(size_t size, Op oper, ModOp mod_oper, ModUpd mod_update)
+IntervalTree<T, Op, ModOp, ModUpd>::IntervalTree(size_t size)
 {
 	data_size = 1;
 	while(data_size < size)
@@ -88,7 +94,7 @@ void IntervalTree<T, Op, ModOp, ModUpd>::assign(const T& value, int index)
 	while(check_index > 0)
 	{
 		parent_index = (check_index - 1) / 2;
-		op_result = OptionalOperation<T, Op>(tree[(parent_index << 1) + 1], tree[(parent_index << 1) + 2]);
+		op_result = opop(tree[(parent_index << 1) + 1], tree[(parent_index << 1) + 2]); 
 		if(op_result != tree[parent_index])
 		{
 			tree[parent_index] = op_result;
@@ -111,35 +117,33 @@ template <class T, class Op, class ModOp, class ModUpd>
 boost::optional<T> IntervalTree<T, Op, ModOp, ModUpd>::query(int left_index, int right_index, int v_index, int v_left, int v_right)
 {
 	assert(left_index <= right_index);
-	
+	update_node(v_index, v_left, v_right);
 	if(v_right < left_index || v_left > right_index)
 		return boost::optional<T>();
 	if(v_left >= left_index && v_right <= right_index)
 		return tree[v_index];
-	
-	update_node(v_index, v_left, v_right);
 	boost::optional<T> left_query = query(left_index, right_index, (v_index << 1) + 1, v_left, ((v_left + v_right) >> 1));
 	boost::optional<T> right_query = query(left_index, right_index, (v_index << 1) + 2, ((v_left + v_right) >> 1) + 1, v_right);
-	return OptionalOperation<T, Op>(left_query, right_query);
+	return opop(left_query, right_query);
 }
 
 template <class T, class Op, class ModOp, class ModUpd>
 void IntervalTree<T, Op, ModOp, ModUpd>::modify(int left_index, int right_index, int v_index, int v_left, int v_right, const T& modification)
 {
 	assert(left_index <= right_index);
-	
+	//std::cout << "Mod!" << std::endl;
 	if(v_right < left_index || v_left > right_index)
 		return;
 	if(v_left >= left_index && v_right <= right_index)
 	{
 		if(mods[v_index])
-			mods[v_index] = OptionalOperation<T, ModUpd>(mods[v_index], modification);//TODO!!!
+			mods[v_index] = opupd(mods[v_index], modification);//TODO!!!
 		else
 			mods[v_index] = modification;
-	}
-	if(v_left >= left_index && v_right <= right_index)
 		return;
-	
+	}
+	//update_node(v_index);
+	tree[v_index] = modoperation(*tree[v_index], modification, std::max(left_index, v_left), std::min(right_index, v_right));
 	modify(left_index, right_index, (v_index << 1) + 1, v_left, ((v_left + v_right) >> 1), modification);
 	modify(left_index, right_index, (v_index << 1) + 2, ((v_left + v_right) >> 1) + 1, v_right, modification);	
 }
@@ -156,12 +160,12 @@ void IntervalTree<T, Op, ModOp, ModUpd>::update_node(int v_index, int v_left, in
 	if(!mods[v_index])
 		return;
 	//std::cerr << "Updating.." << *tree[v_index] << std::endl;
-	tree[v_index] = ModOp(*tree[v_index],*mods[v_index], v_left, v_right);
+	tree[v_index] = modoperation(*tree[v_index],*mods[v_index], v_left, v_right);
 	//std::cerr << "Updated" << *tree[v_index] << std::endl;
 	if(v_index * 2 + 1 < (data_size << 1) - 1)
 	{
-		mods[v_index * 2 + 1] = OptionalOperation<T, ModUpd>(mods[v_index * 2 + 1], mods[v_index]);
-		mods[v_index * 2 + 2] = OptionalOperation<T, ModUpd>(mods[v_index * 2 + 2], mods[v_index]);
+		mods[v_index * 2 + 1] = opop(mods[v_index * 2 + 1], mods[v_index]);
+		mods[v_index * 2 + 2] = opop(mods[v_index * 2 + 2], mods[v_index]);
 	}
 	mods[v_index] = boost::optional<T>();
 }

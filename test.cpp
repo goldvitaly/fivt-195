@@ -38,23 +38,19 @@ struct test_mod_upd// : binary_function<T, T, T>
 int main()
 {
 	srand(43);
-	//test_op<int> opr();
-	//cout << opr(3,8) << endl;
-	//return 0;
 	
+	//Main testing options
 	typedef double test_type;
-	const int test_size = 10;
+	const int test_size = 10000;
 	const int rand_range = 20;
-	const int test_count = 300;
+	const int test_count = 3000;
 	
-	//IntervalTree<test_type> itree(test_op<test_type>(), test_mod_op<test_type>(), test_mod_upd<test_type>());
 	
-	//(new IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >(test_size, test_op<test_type>(), test_mod_op<test_type>(), test_mod_upd<test_type>()))->print(cout);
-	//IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >(test_size, test_op<test_type>(), test_mod_op<test_type>(), test_mod_upd<test_type>()).print(cout);
-	IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> > itree(test_size, test_op<test_type>(), test_mod_op<test_type>(), test_mod_upd<test_type>());
-	//sizeof(IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> >);
+	//IntervalTree VS Array!
+	IntervalTree<test_type, test_op<test_type>, test_mod_op<test_type>, test_mod_upd<test_type> > itree(test_size);
 	test_type* array = new test_type[test_size];
 	
+	//Filling
 	test_type next;
 	for(int i = 0; i < test_size; i++)
 	{
@@ -63,11 +59,10 @@ int main()
 		array[i] = next;
 	}
 	
-	itree.print(cout);
-	
 	int left, right;
 	test_type tree_res, array_res;
 	
+	//Testing interval modifications
 	test_type modif;
 	for(int i = 0; i < test_count; i++)
 	{
@@ -76,16 +71,15 @@ int main()
 		modif = rand() % rand_range;
 		for(int j = left; j <= right; j++)
 			array[j] = test_mod_op<test_type>()(array[j], modif, j, j);
-		//itree.modify(left, right, modif);
+		itree.modify(left, right, modif);
 	}
 	
-	//itree.print(cout);
-	
+	//Testing queries
 	for(int i = 0; i < test_count; i++)
 	{
 		right = rand() % (test_size - 1) + 1;
 		left = rand() % right;
-		//tree_res = itree.query(left, right);
+		tree_res = itree.query(left, right);
 		array_res = array[left];
 		for(int j = left + 1; j <= right; j++)
 		{
@@ -99,9 +93,6 @@ int main()
 	}
 	
 	delete array;
-	
 	cerr << "Passed _ALL_ the tests" << endl;
-	
 	return 0;
-	
 }
