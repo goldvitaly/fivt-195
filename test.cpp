@@ -62,6 +62,7 @@ int main()
 	int left, right;
 	test_type tree_res, array_res;
 	
+	
 	//Testing interval modifications
 	test_type modif;
 	for(int i = 0; i < test_count; i++)
@@ -92,6 +93,7 @@ int main()
 		}
 	}
 	
+	//Finish
 	delete array;
 	cerr << "Passed _ALL_ the tests" << endl;
 	return 0;
