@@ -9,7 +9,7 @@
 
 
 template <class T, class cmp>
-class cmp_for_queue
+class reverse_cmp
 {
 public:
     bool operator()(const T &x, const T &y) const
@@ -21,20 +21,19 @@ public:
 
 
 template<class T, class cmp>
-void out_sort(std::ifstream &input, std::ofstream &output)
+void out_sort(std::ifstream &input, std::ofstream &output, size_t block_size)
 {
     cmp comparator;
     std::vector <T> storage;
-    std::priority_queue<std::pair<T, std::ifstream*>, std::vector<std::pair<T, std::ifstream*> >, cmp_for_queue<std::pair<T, std::ifstream*>, cmp> > files_heap;
+    std::priority_queue<std::pair<T, std::ifstream*>, std::vector<std::pair<T, std::ifstream*> >, reverse_cmp<std::pair<T, std::ifstream*>, cmp> > files_heap;
     T for_input;
     int number_of_files = 0;
     char temporary_file_name[10];
     while(input >> for_input)
     {
         storage.push_back(for_input);
-        if(storage.size() == 100000)
+        if(storage.size() == block_size  ||  (input.eof()  &&  !storage.empty()))
         {
-            add_file:
             sprintf(temporary_file_name, "%d.txt", number_of_files);
             std::ofstream writer(temporary_file_name);
             std::sort(storage.begin(), storage.end(), comparator);
@@ -48,18 +47,17 @@ void out_sort(std::ifstream &input, std::ofstream &output)
             number_of_files++;
         }
     }
-    if(!storage.empty())
-        goto add_file;
-    std::pair<T, std::ifstream*> pop_from_heap;
+
     while(!files_heap.empty())
     {
-        pop_from_heap = files_heap.top();
+        std::pair<T, std::ifstream*> next_to_output;
+        next_to_output = files_heap.top();
         files_heap.pop();
-        output << pop_from_heap.first << ' ';
-        if(!pop_from_heap.second -> eof())
+        output << next_to_output.first << ' ';
+        if(!next_to_output.second -> eof())
         {
-            *pop_from_heap.second >> pop_from_heap.first;
-            files_heap.push(pop_from_heap);
+            *next_to_output.second >> next_to_output.first;
+            files_heap.push(next_to_output);
         }
     }
 }
@@ -81,7 +79,7 @@ int main()
     test_writer.close();
     std::ifstream input("input.txt");
     std::ofstream output("output.txt");
-    out_sort<int, std::less<int> >(input, output);
+    out_sort<int, std::less<int> >(input, output, 100000);
     input.close();
     output.close();
     std::ifstream for_test("output.txt");
