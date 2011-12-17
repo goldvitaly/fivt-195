@@ -1,159 +1,80 @@
 #include <iostream>
-#include <functional>
-#include <cstdio>
-#include <vector>
+#include <fstream>
 #include <string>
+#include <vector>
 #include <algorithm>
-#include <ctime>
-#include <numeric>
-#include <utility>
 #include <cstdlib>
-#include "BitExtractor.h"
-using namespace std;
+#include <queue>
+#include <ctime>
 
 
-
-
-bool operator < (const pair <int, int> &x, const pair <int, int> &y)
+template <class T, class cmp>
+class cmp_for_queue
 {
-    if(x.first == y.first)  return(x.second < y.second);
-    return(x.first < y.first);
-}
-
-
-template<class It>
-void CheckSortedVectors(It FirstBegin, It FirstEnd, It SecondBegin, It SecondEnd)
-{
-    bool fail = false;
-    while(FirstBegin != FirstEnd  &&  SecondBegin != SecondEnd)
+public:
+    bool operator()(const T &x, const T &y)
     {
-        if(*FirstBegin != *SecondBegin) fail = true;
-        FirstBegin++;
-        SecondBegin++;
+        return cmp()(x.first, y.first);
     }
-    if(fail)    std::cout << "FAIL\n";
-}
+};
 
-
-template <class It, class Ext>
-void DigitSort(It b, It e, Ext p)
+template<class T, class cmp>
+void out_sort(std::ifstream &input, std::ofstream &output)
 {
-    size_t Length = e - b;
-    size_t number_of_values = p.NumberOfBlockValues();
-    size_t BlocksNum = p.GetBlocksNum();
-    vector <size_t> storage;
-    vector <typeof(*b)> sorted;
-    storage.resize(number_of_values);
-    sorted.resize(Length);
-    for(size_t i = 0; i < BlocksNum; i++)
+    cmp comparator;
+    std::vector <T> storage;
+    std::priority_queue<std::pair<T, std::ifstream*>, std::vector<std::pair<T, std::ifstream*> >, cmp_for_queue<std::pair<T, std::ifstream*>, cmp> > files_heap;
+    T for_input;
+    int number_of_files = 0, number_of_elements = 0;
+    char temporary_file_name[10];
+    while(input >> for_input)
     {
-        std::fill(storage.begin(), storage.end(), 0);
-        for(size_t j = 0; j < Length; j++)  storage[p.Extract(*(b + j), i)]++;
-        partial_sum(storage.begin(), storage.end(), storage.begin());
-        for(size_t j = number_of_values - 1; j > 0; j--)   storage[j] = storage[j - 1];
-        storage[0] = 0;
-        for(size_t j = 0; j < Length; j++)
-            sorted[storage[p.Extract(*(b + j), i)]++] = *(b + j);
-        std::copy(sorted.begin(), sorted.end(), b);
+        storage.push_back(for_input);
+        number_of_elements++;
+        if(number_of_elements == 100000)
+        {
+            sprintf(temporary_file_name, "%d.txt", number_of_files);
+            std::ofstream writer(temporary_file_name);
+            std::sort(storage.begin(), storage.end(), comparator);
+            for(int i = 0; i < 100000; i++)    writer << storage[i] << ' ';
+            writer.close();
+            std::pair<T, std::ifstream*> add_to_heap;
+            add_to_heap.second = new std::ifstream(temporary_file_name);
+            *add_to_heap.second >> add_to_heap.first;
+            files_heap.push(add_to_heap);
+            number_of_files++;
+            number_of_elements = 0;
+        }
     }
-}
-
-void test_int(int N)
-{
-    vector <int> sorted_by_stl, sorted_by_digit;
-    time_t last;
-    cout << "Ints:\n";
-    sorted_by_stl.resize(N);
-    sorted_by_digit.resize(N);
-    for(int i = 0; i < N; sorted_by_stl[i] = rand(), sorted_by_digit[i] = sorted_by_stl[i], i++);
-    last = clock();
-    sort(sorted_by_stl.begin(), sorted_by_stl.end());
-    cout << "  STL: " << clock() - last << endl;
-    last = clock();
-    DigitSort(sorted_by_digit.begin(), sorted_by_digit.end(), IntBitExtractor<int>(8));
-    cout << "  MyDigit: " << clock() - last << endl;
-    CheckSortedVectors(sorted_by_stl.begin(), sorted_by_stl.end(), sorted_by_digit.begin(), sorted_by_digit.end());
-    sorted_by_stl.clear();
-    sorted_by_digit.clear();
-}
-
-
-void test_long_long(int N)
-{
-    vector <long long> sorted_by_stl, sorted_by_digit;
-    time_t last;
-    cout << "Long Longs:\n";
-    sorted_by_stl.resize(N);
-    sorted_by_digit.resize(N);
-    for(int i = 0; i < N; i++)
+    std::pair<T, std::ifstream*> pop_from_heap;
+    while(files_heap.size())
     {
-        sorted_by_stl[i] = (long long)(rand()) * (long long)(rand());
-        sorted_by_digit[i] = sorted_by_stl[i];
+        pop_from_heap = files_heap.top();
+        files_heap.pop();
+        output << pop_from_heap.first << ' ';
+        if(!pop_from_heap.second -> eof())
+        {
+            *pop_from_heap.second >> pop_from_heap.first;
+            files_heap.push(pop_from_heap);
+        }
     }
-    last = clock();
-    sort(sorted_by_stl.begin(), sorted_by_stl.end());
-    cout << "  STL: " << clock() - last << endl;
-    last = clock();
-    DigitSort(sorted_by_digit.begin(), sorted_by_digit.end(), IntBitExtractor<long long>(8));
-    cout << "  MyDigit: " << clock() - last << endl;
-    CheckSortedVectors(sorted_by_stl.begin(), sorted_by_stl.end(), sorted_by_digit.begin(), sorted_by_digit.end());
-    sorted_by_stl.clear();
-    sorted_by_digit.clear();
 }
 
-
-void test_pairs(int N)
+void generate_test(int k, std::ofstream *writer)
 {
-    vector <pair<int, int> > sorted_by_stl, sorted_by_digit;
-    time_t last;
-    sorted_by_stl.resize(N);
-    sorted_by_digit.resize(N);
-    for(int i = 0; i < N; sorted_by_stl[i].first = rand(), sorted_by_stl[i].second = rand(),
-        sorted_by_digit[i].first = sorted_by_stl[i].first, sorted_by_digit[i].second = sorted_by_stl[i].second, i++);
-    last = clock();
-    sort(sorted_by_stl.begin(), sorted_by_stl.end());
-    cout << "Pairs:\n  STL: " << clock() - last << endl;
-    last = clock();
-    DigitSort(sorted_by_digit.begin(), sorted_by_digit.end(), PairBitExtractor::PairBitExtractor(8));
-    cout << "  MyDigit: " << clock() - last << endl;
-    CheckSortedVectors(sorted_by_stl.begin(), sorted_by_stl.end(), sorted_by_digit.begin(), sorted_by_digit.end());
-    sorted_by_stl.clear();
-    sorted_by_digit.clear();
+    for(int i = 0; i < k; i++)
+        *writer << rand() << ' ';
 }
 
 
-void test_string(int N)
-{
-    vector <string> sorted_by_stl, sorted_by_digit;
-    time_t last;
-    sorted_by_stl.resize(N);
-    sorted_by_digit.resize(N);
-    cout << "Strings:\n";
-    for(int i = 0; i < N; i++)
-    {
-        sorted_by_stl[i].clear();
-        for(int j = 0; j < 5; j++)
-            sorted_by_stl[i].push_back(rand() % 26 + 'a');
-        sorted_by_digit[i] = sorted_by_stl[i];
-    }
-    last = clock();
-    sort(sorted_by_stl.begin(), sorted_by_stl.end());
-    cout << "  STL: " << clock() - last << endl;
-    last = clock();
-    DigitSort(sorted_by_digit.begin(), sorted_by_digit.end(), StringBitExtrator());
-    cout << "  MyDigit: " << clock() - last << endl;
-    CheckSortedVectors(sorted_by_stl.begin(), sorted_by_stl.end(), sorted_by_digit.begin(), sorted_by_digit.end());
-    sorted_by_stl.clear();
-    sorted_by_digit.clear();
-}
 int main()
 {
-    int N;
-    cin >> N;
     srand(time(NULL));
-    test_int(N);
-    test_long_long(N);
-    test_pairs(N);
-    test_string(N);
+    std::ofstream test_writer("input.txt");
+    generate_test(1000000, &test_writer);
+    test_writer.close();
+    std::ifstream input("input.txt");
+    std::ofstream output("output.txt");
+    out_sort<int, std::less<int> >(input, output);
     return 0;
 }
