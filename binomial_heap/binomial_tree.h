@@ -34,28 +34,27 @@ class binomial_tree
 	}
 
 
-	static void check_heap_property(pnode v) 
+	void check_heap_property(pnode v) const
 	{
 		if (!v) return;
 		for (auto i = v->descendants.begin(); i != v->descendants.end(); i ++)
 		{
-			assert(!v->comparator((*i) -> key, v->key), "Heap property is broken. Keys are " << v->key << " " << (*i) -> key);
+			assert(!comparator((*i) -> key, v->key), "Heap property is broken. Keys are " << v->key << " " << (*i) -> key);
 			check_heap_property(*i);
 		}
 	};
-	void check_heap_property() const 
-	{
-		check_heap_property(root);
-	};	
-	
 	/* ONLY FOR DEBUGGING PURPOSES! */
-	void debug_write_ptr(pnode v, int shift = 0)
+	void debug_write_ptr(pnode v, int shift = 0) const
 	{
 		for (int i = 0; i < shift; i ++) std::cerr << "   "; std::cerr << v->key << std::endl;
 		for (auto i : v->descendants)
 			debug_write_ptr(i, shift + 1);
 	}
   public:
+	void check_heap_property() const 
+	{
+		check_heap_property(root);
+	};	
 	/* ONLY FOR DEBUGGING PURPOSES! */
 	void debug_write() const
 	{

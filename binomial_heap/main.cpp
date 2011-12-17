@@ -2,30 +2,30 @@
 #include <set>
 #include "binomial_heap.h"
 
-int merge_test(int first_heap_size, int second_heap_size, int module)
+template <class T, class Generator, class Comparator = std::less<T> > 
+int merge_test(int first_heap_size, int second_heap_size, Generator generator, Comparator comparator = Comparator())
 {
-	std::cerr << "Running merge test. Heap sizes are " << first_heap_size << " and " << second_heap_size << ". Maxvalue is " << module - 1 << std::endl;
-	std::multiset <int> all;
-	binomial_heap <int> first;
+	std::multiset <T, Comparator> all(comparator);
+	binomial_heap <T, Comparator> first(comparator);
 	for (int i = 0; i < first_heap_size; i ++)
 	{
-		int number = rand() % module;
-		first.insert(number);
-		all.insert(number);
+		T value = generator();
+		first.insert(value);
+		all.insert(value);
 	}
-	binomial_heap <int> second;
+	binomial_heap <T> second;
 	for (int i = 0; i < second_heap_size; i ++)
 	{
-		int number = rand() % module;
-		second.insert(number);
-		all.insert(number);
+		T value = generator();
+		second.insert(value);
+		all.insert(value);
 	}
-	binomial_heap <int> merged_heap = binomial_heap<int>::merge(first, second);
+	binomial_heap <T> merged_heap = binomial_heap<T>::merge(first, second);
 	assert(all.size() == merged_heap.size(), "Incorrect size of merged heap. Should be " << all.size() << " instead of " << merged_heap.size());
 	while (merged_heap.size())
 	{
 		assert(all.size() != 0, "Incorrect minimum extracting. Deleting is too slow: elements have alrealy finished");
-		int min_value = merged_heap.extract_min();
+		T min_value = merged_heap.extract_min();
 		assert(min_value == *all.begin(), "Incorrect extracted element: should be " << *all.begin() << " " << "instead of " << min_value << std::endl);
 		all.erase(all.begin());
 	}
@@ -33,14 +33,14 @@ int merge_test(int first_heap_size, int second_heap_size, int module)
 	std::cerr << "OK" << std::endl;
 };
 
-int insert_test(int n, int module)
+template <class T, class Generator, class Comparator = std::less<T> >
+int insert_test(int n, Generator generator, Comparator comparator = Comparator() )
 {
-	std::cerr << "Running insert test. Heap size is " << n << std::endl;
-	binomial_heap<int> t;
-	std::set<int> s;
+	binomial_heap<T, Comparator> t(comparator);
+	std::multiset<T, Comparator> s(comparator);
 	for (int i = 0; i < n; i ++)
 	{
-		int w = rand() % module;
+		T w = generator();
 		s.insert(w);
 		t.insert(w);
 		if (*s.begin() != t.min())
@@ -49,14 +49,39 @@ int insert_test(int n, int module)
 			return 1;
 		}
 	}
+	int step = 0;
+	while (s.size() > 0 && t.size() > 0)
+	{
+		T waited_value = t.min();
+		T v = t.extract_min();
+		t.check_heap_property();
+		assert(waited_value == v, "Waited: " << waited_value << ", got: " << v);
+		T u = *s.begin();
+		s.erase(s.begin());
+		step ++;
+		if (v != u)
+		{
+			std::cerr << "Error: incorrect value extracted on step " << step << ". Expected: " << u << ", got: " << v << std::endl;
+			return 1;
+		}
+	}
+	if (s.size() != 0)
+	{
+		std::cerr << "Error: incorrect size" << std::endl;
+		return 1;
+	}
+	if (t.size() != 0)
+	{
+		std::cerr << "Error: incorrect size" << std::endl;
+		return 1;
+	}
 	std::cerr << "OK" << std::endl;
 	return 0;
 };
 
 int main()
 {
-	insert_test(1e3,1e3);
-	merge_test(1e3,1e3,1e3);
-	merge_test(1e2,1e3,1e3);
+	insert_test<int>(1000, [](){ return rand() % 100; }, std::greater<int>());
+	merge_test<int>(1000,1000,rand);
 	return 0;
 }

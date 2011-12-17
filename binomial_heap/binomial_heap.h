@@ -15,6 +15,7 @@ class binomial_heap
 		Comp comparator;
 		void debug_write() const
 		{
+			std::cerr << "size = " << size_ << std::endl;
 			for (auto i : trees)
 			{
 				std::cerr << "Tree:" << std::endl;
@@ -38,18 +39,23 @@ class binomial_heap
 		T min() const 
 		{
 			if (size_ == 0) throw std::logic_error("It's absolutely impossible to find minimal element in empty heap. But, if you want, I can try one more time");
-			return trees[find_min_root_position()].min();
+			int min_position = find_min_root_position();
+			std::cerr.flush();
+			assert(0 <= min_position && min_position < trees.size(), "min_position out of range");	
+			return trees[min_position].min();
 		};
 		T extract_min()
 		{
 			if (size_ == 0) throw std::logic_error("It's absolutely impossible to remove element from empty heap. But, if you want, I can try one more time");
 			size_ -= 1;
-			auto min_root_iterator = trees.begin() + find_min_root_position();
-			for (auto i : min_root_iterator->root->descendants)
-				trees.push_back(tree(i, comparator));
+			int min_position = find_min_root_position();
+			for (auto pointer_to_subtree : trees[min_position].root->descendants)
+				trees.push_back(tree(pointer_to_subtree, comparator));
+			typename std::vector<tree>::iterator min_root_iterator = trees.begin() + min_position;
+			T result = min_root_iterator -> min();
 			trees.erase(min_root_iterator);
 			compress();
-			return min_root_iterator->min();
+			return result;
 		};
 
 		static binomial_heap<T,Comp> merge(const binomial_heap<T,Comp>& a, const binomial_heap<T,Comp>& b)
@@ -63,6 +69,11 @@ class binomial_heap
 			res.compress();
 			return res;
 		}
+	void check_heap_property() const
+	{
+		for (auto tree: trees)
+			tree.check_heap_property();
+	}
   private:
 	typedef binomial_tree<T,Comp> tree;
 	std::vector < tree > trees;
@@ -84,7 +95,7 @@ class binomial_heap
 		int max_order = 0;
 		for (auto i = trees.begin(); i != trees.end(); ++ i)
 			max_order = std::max(max_order, i -> order);
-		max_order += 2;
+		max_order += 3;
 		std::vector <tree> tree_of_order(max_order, tree(comparator));
 		std::vector <bool> used(max_order, 0);
 		DEBUG_CODE(int oldsize_=accumulate(trees.begin(), trees.end(), 0, [](int a, const tree& b){ return a + b.size(); }));
