@@ -40,7 +40,6 @@ class binomial_heap
 		{
 			if (size_ == 0) throw std::logic_error("It's absolutely impossible to find minimal element in empty heap. But, if you want, I can try one more time");
 			int min_position = find_min_root_position();
-			std::cerr.flush();
 			assert(0 <= min_position && min_position < trees.size(), "min_position out of range");	
 			return trees[min_position].min();
 		};

@@ -81,24 +81,24 @@ class binomial_tree
 		if (!root) return 0;
 		return (1 << root->order);
 	};
-	static binomial_tree<T,Comp> merge(const binomial_tree<T,Comp>& a, const binomial_tree<T,Comp>& b) 
+	static binomial_tree<T,Comp> merge(const binomial_tree<T,Comp>& first_tree, const binomial_tree<T,Comp>& second_tree) 
 	{
-		if (!a.root) return b;
-		if (!b.root) return a;
-		assert(a.order == b.order, "Merging two trees with unequal size is absolutely impossible");
-		binomial_tree<T,Comp> res(a.comparator);
-		res.order = a.order + 1; 
-		// we are using first tree comparator, they should be same
-		if (!a.comparator(b.root->key,a.root->key))
+		if (!first_tree.root) return second_tree;
+		if (!second_tree.root) return first_tree;
+		assert(first_tree.order == second_tree.order, "Merging two trees with unequal size is absolutely impossible");
+		binomial_tree<T,Comp> res(first_tree.comparator);
+		res.order = first_tree.order + 1; 
+		// we are using first_tree tree comparator, they should be same
+		if (!first_tree.comparator(second_tree.root->key,first_tree.root->key))
 		{
-			pnode v(new node(a.root->key));
-			v->descendants = a.root->descendants;
-			v->descendants.push_back(b.root);
-			v->order = a.order + 1;
-			res = binomial_tree<T,Comp>(v, a.comparator);
+			pnode v(new node(first_tree.root->key));
+			v->descendants = first_tree.root->descendants;
+			v->descendants.push_back(second_tree.root);
+			v->order = first_tree.order + 1;
+			res = binomial_tree<T,Comp>(v, first_tree.comparator);
 		}
 		else
-			return merge(b, a);
+			return merge(second_tree, first_tree);
 		DEBUG_CODE(res.check_heap_property());		
 		return res;
 	}

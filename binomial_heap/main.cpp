@@ -13,14 +13,14 @@ int merge_test(int first_heap_size, int second_heap_size, Generator generator, C
 		first.insert(value);
 		all.insert(value);
 	}
-	binomial_heap <T> second;
+	binomial_heap <T, Comparator> second;
 	for (int i = 0; i < second_heap_size; i ++)
 	{
 		T value = generator();
 		second.insert(value);
 		all.insert(value);
 	}
-	binomial_heap <T> merged_heap = binomial_heap<T>::merge(first, second);
+	binomial_heap <T, Comparator> merged_heap = binomial_heap<T, Comparator>::merge(first, second);
 	assert(all.size() == merged_heap.size(), "Incorrect size of merged heap. Should be " << all.size() << " instead of " << merged_heap.size());
 	while (merged_heap.size())
 	{
@@ -34,43 +34,43 @@ int merge_test(int first_heap_size, int second_heap_size, Generator generator, C
 };
 
 template <class T, class Generator, class Comparator = std::less<T> >
-int insert_test(int n, Generator generator, Comparator comparator = Comparator() )
+int insert_test(size_t size, Generator generator, Comparator comparator = Comparator() )
 {
-	binomial_heap<T, Comparator> t(comparator);
-	std::multiset<T, Comparator> s(comparator);
-	for (int i = 0; i < n; i ++)
+	binomial_heap<T, Comparator> heap(comparator);
+	std::multiset<T, Comparator> set(comparator);
+	for (int i = 0; i < size; i ++)
 	{
 		T w = generator();
-		s.insert(w);
-		t.insert(w);
-		if (*s.begin() != t.min())
+		set.insert(w);
+		heap.insert(w);
+		if (*set.begin() != heap.min())
 		{
-			std::cerr << "WA!" << std::cerr;
+			std::cerr << "Wrong answer on step " << i + 1 <<". Expected minimum: " << *set.begin() << ", got: " << heap.min() << std::cerr;
 			return 1;
 		}
 	}
 	int step = 0;
-	while (s.size() > 0 && t.size() > 0)
+	while (set.size() > 0 && heap.size() > 0)
 	{
-		T waited_value = t.min();
-		T v = t.extract_min();
-		t.check_heap_property();
-		assert(waited_value == v, "Waited: " << waited_value << ", got: " << v);
-		T u = *s.begin();
-		s.erase(s.begin());
+		T waited_value = heap.min();
+		T heap_min_value = heap.extract_min();
+		heap.check_heap_property();
+		assert(waited_value == heap_min_value, "Waited: " << waited_value << ", got: " << heap_min_value);
+		T set_min_value = *set.begin();
+		set.erase(set.begin());
 		step ++;
-		if (v != u)
+		if (heap_min_value != set_min_value)
 		{
-			std::cerr << "Error: incorrect value extracted on step " << step << ". Expected: " << u << ", got: " << v << std::endl;
+			std::cerr << "Error: incorrect value extracted on step " << step << ". Expected: " << set_min_value << ", got: " << heap_min_value << std::endl;
 			return 1;
 		}
 	}
-	if (s.size() != 0)
+	if (set.size() != 0)
 	{
 		std::cerr << "Error: incorrect size" << std::endl;
 		return 1;
 	}
-	if (t.size() != 0)
+	if (heap.size() != 0)
 	{
 		std::cerr << "Error: incorrect size" << std::endl;
 		return 1;
