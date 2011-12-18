@@ -5,15 +5,14 @@
 
 using namespace std;
 
+template<class T, class RandConstr>
 void test(const int& n)
 {
-    typedef int T;
     srand(0);
     vector<T> V(n);
 
     for(int i = 0; i < n; i++)
-        V[i] = rand();
-
+        V[i] = RandConstr().gen();
     BinHeap<T>* heap1 = new BinHeap<T>;
     BinHeap<T>* heap2 = new BinHeap<T>;
 
@@ -45,7 +44,23 @@ void test(const int& n)
     delete heap3;
 }
 
-void test_merge()
+class RandConstrInt{
+public:
+    int gen() const
+    {
+        return rand();
+    }
+};
+
+class RandConstrPair{
+public:
+    pair<int, int> gen() const
+    {
+        return pair<int, int>(rand(), rand());
+    }
+};
+
+void test_memory()
 {
     typedef int T;
     srand(0);
@@ -57,18 +72,23 @@ void test_merge()
         BinHeap<T>::push(heap2, rand());
     }
     BinHeap<T>* heap3 = BinHeap<T> :: merge(heap1, heap2);
-    delete heap1;
-    delete heap2;
+    assert(heap1 == NULL);
+    assert(heap2 == NULL);
     delete heap3;
 }
 
 int main()
 {
-    for(int n = 10; n <= 100000; n *= 10)
+    for(int n = 10; n <= 10000; n *= 10)
         for(int trial = 0; trial < 5; trial++)
-            test(n);
+        {
+            test<int, RandConstrInt>(n);
+            test<pair<int, int>, RandConstrPair>(n);
+        }
+
     for(int trial = 0; trial < 4; trial++)
-        test_merge();
+        test_memory();
+
     cerr << "Ok" << endl;
     return 0;
 }

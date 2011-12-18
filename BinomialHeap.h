@@ -7,7 +7,7 @@
 template<class T>
 class BinTree{
 public:
-    explicit BinTree(const T& key = 0)
+    explicit BinTree(const T& key = T())
     {
         key_ = key;
     }
@@ -64,7 +64,7 @@ public:
     {
         link.push_back(new BinTree<T>(key));
     }
-    explicit BinHeap(const BinTree<T>*& tree)
+    explicit BinHeap(BinTree<T>* tree)
     {
         link.resize(tree->num_children());
         link.push_back(tree);
