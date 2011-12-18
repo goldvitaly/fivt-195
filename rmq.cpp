@@ -1,8 +1,6 @@
 #include <iostream>
 #include <algorithm>
 
-using namespace std;
-
 template<typename ValueType,
 typename ModType,
 typename ModFunc,
@@ -11,19 +9,12 @@ typename PushFunc>
 class IntervalTree
 {
 private:
-	static ValueType _ValueDefault;
-	static ModType _ModDefault;
-
-	static ModFunc _ModFunc;
-	static MergeFunc _MergeFunc;
-	static PushFunc _PushFunc;
-
-	/*ValueType _ValueDefault;
+	ValueType _ValueDefault;
 	ModType _ModDefault;
 
 	ModFunc _ModFunc;
 	MergeFunc _MergeFunc;
-	PushFunc _PushFunc;*/
+	PushFunc _PushFunc;
 
 	size_t _Begin, _End;
 	IntervalTree *_Left, *_Right;
@@ -31,19 +22,6 @@ private:
 	ValueType _Value;
 	ModType _Mod;
 	
-	IntervalTree(size_t Begin, size_t End): _Begin(Begin), _End(End)
-	{		
-		_Value = _ValueDefault;
-		_Mod = _ModDefault;
-		
-		_Left = _Right = NULL;
-		
-		if (_End > _Begin + 1)
-		{
-			_Left = new IntervalTree(_Begin, (_Begin + _End - 1) / 2 + 1);
-			_Right = new IntervalTree((_Begin + _End - 1) / 2 + 1, _End);
-		}
-	}
 	void Push ()
 	{
 		if (_Begin + 1 != _End)
@@ -51,17 +29,15 @@ private:
 			_Left->_Mod = _PushFunc(_Mod, _Left->_Mod);
 			_Right->_Mod = _PushFunc(_Mod, _Right->_Mod);
 			_Mod = _ModDefault;
+			_Value = _MergeFunc(_ModFunc(_Left->_Mod, _Left->_Value), _ModFunc(_Right->_Mod, _Right->_Value));
 		}
 	}
 public:
-	IntervalTree(size_t Size, 
+	IntervalTree(size_t Begin, size_t End, 
 	ValueType ValueDefault, 
 	ModType ModDefault
-	): _Begin(0), _End(Size)
-	{
-		ValueType _ValueDefault(ValueDefault);// = ValueType();
-		ModType _ModDefault(ModDefault);// = ModType();
-		
+	): _Begin(Begin), _End(End)
+	{		
 		_ValueDefault = ValueDefault;
 		_ModDefault = ModDefault;
 		
@@ -69,17 +45,16 @@ public:
 		MergeFunc _MergeFunc = MergeFunc();
 		PushFunc _PushFunc = PushFunc();
 		
-		/*_Value = _ValueDefault;
+		_Value = _ValueDefault;
 		_Mod = _ModDefault;
 		
 		_Left = _Right = NULL;
 		
 		if (_End > _Begin + 1)
 		{
-			_Left = new IntervalTree(_Begin, (_Begin + _End - 1) / 2 + 1);
-			_Right = new IntervalTree((_Begin + _End - 1) / 2 + 1, _End);
-		}*/
-		IntervalTree(0, Size);
+			_Left = new IntervalTree(_Begin, (_Begin + _End - 1) / 2 + 1, ValueDefault, ModDefault);
+			_Right = new IntervalTree((_Begin + _End - 1) / 2 + 1, _End, ValueDefault, ModDefault);
+		}
 	}
 	ValueType GetValue (size_t Begin, size_t End)
 	{
@@ -121,7 +96,7 @@ public:
 			_Right->UpdateValue(_Right->_Begin, _End, Mod);
 		}
 		
-		_Value = _MergeFunc(_ModFunc(_Left->_Mod, _Left->Value), _ModFunc(_Right->_Mod, _Right->Value));
+		_Value = _MergeFunc(_ModFunc(_Left->_Mod, _Left->_Value), _ModFunc(_Right->_Mod, _Right->_Value));
 	}
 };
 
@@ -134,11 +109,20 @@ public:
 	}
 };
 
-//typedef IntervalTree<int, int, std::plus<int>, std::plus<int>, std::plus<int> > pt;
+class MAX 
+{
+public:
+	int operator () (const int a, const int b)
+	{
+		return std::max(a,b);
+	}
+};
 
 int main ()
 {
-	 IntervalTree<int, int, PLUS, PLUS, PLUS > r(int(100), int(NULL), int(NULL));
-	
+	IntervalTree<int, int, PLUS, MAX, PLUS > r(0, 4, int(NULL), int(NULL));
+	r.UpdateValue(1, 4, 1);
+	r.UpdateValue(3, 4, -1);
+	std::cout << r.GetValue(0, 3);
 	return 0;
 }
