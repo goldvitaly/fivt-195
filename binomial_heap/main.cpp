@@ -3,24 +3,24 @@
 #include "binomial_heap.h"
 
 template <class T, class Generator, class Comparator = std::less<T> > 
-int merge_test(int first_heap_size, int second_heap_size, Generator generator, Comparator comparator = Comparator())
+int merge_test(int first_heap_heap_size, int second_heap_heap_size, Generator generator, Comparator comparator = Comparator())
 {
 	std::multiset <T, Comparator> all(comparator);
-	binomial_heap <T, Comparator> first(comparator);
-	for (int i = 0; i < first_heap_size; i ++)
+	binomial_heap <T, Comparator> first_heap(comparator);
+	for (int i = 0; i < first_heap_heap_size; i ++)
 	{
 		T value = generator();
-		first.insert(value);
+		first_heap.insert(value);
 		all.insert(value);
 	}
-	binomial_heap <T, Comparator> second;
-	for (int i = 0; i < second_heap_size; i ++)
+	binomial_heap <T, Comparator> second_heap;
+	for (int i = 0; i < second_heap_heap_size; i ++)
 	{
 		T value = generator();
-		second.insert(value);
+		second_heap.insert(value);
 		all.insert(value);
 	}
-	binomial_heap <T, Comparator> merged_heap = binomial_heap<T, Comparator>::merge(first, second);
+	binomial_heap <T, Comparator> merged_heap = binomial_heap<T, Comparator>::merge(first_heap, second_heap);
 	assert(all.size() == merged_heap.size(), "Incorrect size of merged heap. Should be " << all.size() << " instead of " << merged_heap.size());
 	while (merged_heap.size())
 	{
