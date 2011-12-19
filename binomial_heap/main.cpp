@@ -39,9 +39,9 @@ int insert_test(size_t size, Generator generator, Comparator comparator = Compar
 	std::multiset<T, Comparator> set(comparator);
 	for (int i = 0; i < size; i ++)
 	{
-		T w = generator();
-		set.insert(w);
-		heap.insert(w);
+		T value = generator();
+		set.insert(value);
+		heap.insert(value);
 		if (*set.begin() != heap.min())
 		{
 			std::cerr << "Wrong answer on step " << i + 1 <<". Expected minimum: " << *set.begin() << ", got: " << heap.min() << std::cerr;
