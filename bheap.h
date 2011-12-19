@@ -1,225 +1,197 @@
-#include <algorithm>
-#include <iostream>
-#include <memory.h>
-#include <cstdlib>
-#include <time.h>
-#include <cstring>
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <queue>
-#include <cmath>
-#include <set>
-#include <map>
+#include <stdexcept>
 
-#define mp make_pair
-#define f first
-#define s second
-#define pb push_back
-
-using namespace std;
-
-typedef long long lglg;
-typedef double db;
-
-
-template <class T>
+template <class Type>
 class BHeap
 {
 public:
-    void Clear()
-    {
-        size = 0;
-        CClear(head);
-    }
-    int Size()
-    {
-        return size;
-    }
+	BHeap()
+	{
+		head = NULL;
+		size = 0;
+	}
 
-    BHeap()
+	~BHeap()
+	{
+		if (head != NULL)
+			ClearTree(head);
+	}
+
+	void Push(const Type& key)
+	{
+		BHeap<Type> pq;
+		Node* node = new Node;
+		node->key = key;
+		node->degree = 0;
+		node->child = node->parent = node->sibling = NULL;
+		pq.head = node;
+		pq.size = 1;
+		BHeapUnion(pq);
+	}
+
+	const Type& Top() const
+	{
+		if (head == NULL)
+			throw (std::logic_error("BHeap:Top, Heap is empty"));
+		Node* minNode = head;
+		for (Node* cur = head->sibling; cur != NULL; cur = cur->sibling)
+			if (cur->key < minNode->key)
+				minNode = cur;
+		return minNode->key;
+	}
+
+	void PopTop()
+	{
+		if (head == NULL)
+			throw (std::logic_error("BHeap:PopTop, Heap is empty"));
+
+		Node* minNode = head;
+		Node* minNodePrev = NULL;
+		Node* prev = head;
+		Node* cur = NULL;
+		for (cur = head->sibling; cur != NULL; cur = cur->sibling)
+		{
+			if (cur->key < minNode->key)
+			{
+				minNode = cur;
+				minNodePrev = prev;
+			}
+			prev = cur;
+		}
+
+		if (minNodePrev == NULL)
+			head = minNode->sibling;
+		else
+			minNodePrev->sibling = minNode->sibling;
+
+		size -= 1 << minNode->degree;
+
+		BHeap<Type> pq;
+		Node* next = NULL;
+		for (cur = minNode->child; cur != NULL; cur = next)
+		{
+			next = cur->sibling;
+			cur->sibling = pq.head;
+			cur->parent = NULL;
+			pq.head = cur;
+		}
+
+		pq.size = (1 << minNode->degree) - 1;
+		delete minNode;
+		BHeapUnion(pq);
+	}
+
+	int Size() const
+	{
+		return size;
+	}
+
+	struct Node
+	{
+		Type key;
+		int degree;
+		Node* parent;
+		Node* child;
+		Node* sibling;
+	};
+
+    void Add(BHeap<Type> &cur)
     {
-        head = NULL;
-        size = 0;
-    }
-    void Push(const T &key)
-    {
-        BHeap<T> temp;
-        Node *node = new Node;
-        node->key = key;
-        node->par = node->child = node->sibling = NULL;
-        node->degree = 0;
-        temp.head = node;
-        temp.size = 1;
-        size++;
-        BHeapUnion(node);
-    }
-    const T& Top()
-    {
-        if (size == 0)
-            throw 0;
-        Node *x = head;
-        T mn = x->key;
-
-        while (x != NULL)
-        {
-            if (x->key < mn)
-            {
-                mn = x->key;
-            }
-            x = x->sibling;
-        }
-        return mn;
-    }
-    void Add(BHeap<T> &x)
-    {
-        size += x.size;
-        BHeapUnion(x.head);
-    }
-    void PopTop()
-    {
-        if (size == 0)
-            throw 1;
-        Node *x = head, *prev, *mn = head;
-
-        while (x != NULL)
-        {
-            if (x->key < mn->key)
-            {
-                mn = x;
-            }
-            prev = x;
-            x = x->sibling;
-        }
-
-        prev->sibling = mn->sibling;
-        vector<Node*> temp;
-
-        for (Node *i = mn->child; i != NULL; i = i->sibling)
-        {
-            temp.pb(i);
-        }
-
-        for (int i = 0; i<temp.size(); i++)
-        {
-            temp[i]->sibling = temp[i]->par = NULL;
-            BHeapUnion(temp[i]);
-        }
-        delete mn;
-        size--;
-    }
-
-    ~BHeap()
-    {
-        return;
-        if (head != NULL)
-        {
-            CClear(head);
-        }
-
+        BHeapUnion(cur);
     }
 
 private:
-    struct Node
-    {
-        T key;
-        int degree;
-        Node *par, *child, *sibling;
-    };
-    Node *head;
-    int size;
-    void CClear(Node *&temp)
-    {
-        if (temp == NULL)
-            return;
-        for (Node *i = temp; i != NULL; i = i->sibling)
-            for (Node *&j = i->child; j != NULL; j = j->sibling)
-                CClear(j);
-         delete temp;
+	Node* head;
+	int size;
 
-    }
-    void BHeapLink(Node *a, Node *b)
-    {
-        b->par = a;
-        b->sibling = a->child;
-        a->child = b;
-        a->degree++;
-    }
-    Node* BHeapMerge(Node *a, Node *b)
-    {
-        Node *temp = NULL, *ans;
-        while (a != NULL || b != NULL)
-        {
-            //if (a != NULL)
-                //  cout<< a<<' ';
+	void ClearTree(Node* node)
+	{
+		Node* next;
+		for (Node* cur = node->child; cur != NULL; cur = next)
+		{
+			next = cur->sibling;
+			ClearTree(cur);
+		}
+		delete node;
+	}
 
-           // if (a != NULL)
-            //    cout<< (a -> degree);
+	void BHeapLink(Node* a, Node* b)
+	{
+		a->parent = b;
+		a->sibling = b->child;
+		b->child = a;
+		b->degree++;
+	}
+	Node& BHeapMerge(Node *cur1, Node *cur2)
+	{
+	    static Node beg;
+		beg.sibling = NULL;
+		Node* prev = &beg;
+	    while (cur1 != NULL && cur2 != NULL)
+		{
+			if (cur1->degree <= cur2->degree)
+			{
+				prev->sibling = cur1;
+				cur1 = cur1->sibling;
+			}
+			else
+			{
+				prev->sibling = cur2;
+				cur2 = cur2->sibling;
+			}
+			prev = prev->sibling;
+		}
+		while (cur1 != NULL)
+		{
+			prev->sibling = cur1;
+			cur1 = cur1->sibling;
+			prev = prev->sibling;
+		}
+		while (cur2 != NULL)
+		{
+			prev->sibling = cur2;
+            cur2 = cur2->sibling;
+			prev = prev->sibling;
+		}
+		return beg;
+	}
+	void BHeapUnion(BHeap<Type>& pq)
+	{
+	    Node &new_head = BHeapMerge(head, pq.head);
 
-            if (b == NULL || (a != NULL && a->degree <= b->degree))
+		head = new_head.sibling;
+		size += pq.size;
+		pq.head = NULL;
+		pq.size = 0;
+
+		if (head == NULL)
+			return;
+		Node* prevX = &new_head;
+		Node* x = head;
+		Node* nextX = x->sibling;
+		while (nextX != NULL)
+		{
+			if (x->degree != nextX->degree ||
+				nextX->sibling != NULL && nextX->sibling->degree == x->degree)
+			{
+				prevX = x;
+				x = nextX;
+			}
+			else if ( !(nextX->key < x->key) )
             {
-                if (temp == NULL)
-                {
-                    ans = temp = a;
-                    a = a->sibling;
-                }
-                else
-                {
-                    temp->sibling = a;
-                    temp = a;
-                    a = a->sibling;
-                }
-            }
-            else
-            {
-                if (temp == NULL)
-                {
-                    ans = temp = b;
-                    b = b->sibling;
-                }
-                else
-                {
-                    temp->sibling = b;
-                    temp = b;
-                    b = b->sibling;
-                }
-            }
-        }
-        return ans;
-    }
-    void BHeapUnion(Node *temp_head)
-    {
-        head = BHeapMerge(head, temp_head);
-        if (head == NULL)
-            return;
-        Node *x = head;
-        Node *next = x->sibling, *prev = NULL;
-        while (next != NULL)
-        {
-            if ((x->degree != next->degree) ||
-            (next->sibling != NULL && next->sibling->degree == x->degree))
-            {
-                prev = x;
-                x = next;
-            }
-            else
-            {
-                if (x->key <= next->key)
-                {
-                    x->sibling = next->sibling;
-                    BHeapLink(x, next);
-                }
-                else
-                {
-                    if (prev == NULL)
-                        head = next;
-                    else
-                        prev->sibling = next;
-                    BHeapLink(next, x);
-                    x = next;
-                }
-            }
-            next = x->sibling;
-        }
-    }
+				x->sibling = nextX->sibling;
+				BHeapLink(nextX, x);
+			}
+			else
+			{
+				prevX->sibling = nextX;
+				BHeapLink(x, nextX);
+				x = nextX;
+			}
+			nextX = x->sibling;
+		}
+		head = new_head.sibling;
+	}
+
+	//BHeap(const BHeap&) {}
+
 };
