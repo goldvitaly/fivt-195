@@ -3,18 +3,18 @@
 #include "binomial_heap.h"
 
 template <class T, class Generator, class Comparator = std::less<T> > 
-int merge_test(int first_heap_heap_size, int second_heap_heap_size, Generator generator, Comparator comparator = Comparator())
+int merge_test(int first_heap_size, int second_heap_size, Generator generator, Comparator comparator = Comparator())
 {
 	std::multiset <T, Comparator> all(comparator);
 	binomial_heap <T, Comparator> first_heap(comparator);
-	for (int i = 0; i < first_heap_heap_size; i ++)
+	for (int i = 0; i < first_heap_size; i ++)
 	{
 		T value = generator();
 		first_heap.insert(value);
 		all.insert(value);
 	}
 	binomial_heap <T, Comparator> second_heap;
-	for (int i = 0; i < second_heap_heap_size; i ++)
+	for (int i = 0; i < second_heap_size; i ++)
 	{
 		T value = generator();
 		second_heap.insert(value);
@@ -30,7 +30,6 @@ int merge_test(int first_heap_heap_size, int second_heap_heap_size, Generator ge
 		all.erase(all.begin());
 	}
 	assert(all.size() == 0, "Deleting is too quick: there are should be some more elements in heap");
-	std::cerr << "OK" << std::endl;
 };
 
 template <class T, class Generator, class Comparator = std::less<T> >
@@ -75,13 +74,15 @@ int insert_test(size_t size, Generator generator, Comparator comparator = Compar
 		std::cerr << "Error: incorrect size" << std::endl;
 		return 1;
 	}
-	std::cerr << "OK" << std::endl;
 	return 0;
 };
 
 int main()
 {
 	insert_test<int>(1000, [](){ return rand() % 100; }, std::greater<int>());
+	for (int first_heap_size = 1; first_heap_size <= 50; first_heap_size ++)
+		for (int second_heap_size = 1; second_heap_size <= 50; second_heap_size ++)
+			merge_test<int>(first_heap_size,second_heap_size,rand);
 	merge_test<int>(1000,1000,rand);
 	return 0;
 }
