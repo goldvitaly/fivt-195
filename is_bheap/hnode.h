@@ -41,16 +41,16 @@ class hnode
 	static int count;
 		hnode();
 		~hnode();
-		hnode(T);
+		explicit hnode(T);
 		
 		std :: vector<hnode<T>*>& get_child();
 		void cleanup();
 		
-		T top();
-		size_t rank();
-		size_t size();
+		const T& top() const;
+		size_t rank() const;
+		size_t size() const;
 		
-		void out();
+		void out(std :: ostream&) const;
 		
 		hnode<T> *merge (hnode<T> *);
 };
@@ -73,17 +73,17 @@ hnode<T> :: hnode(T new_value)
 	value = new_value;
 }
 template<typename T>
-T hnode<T> :: top()
+const T& hnode<T> :: top() const
 {
 	return value;
 }
 template<typename T>
-size_t hnode<T> :: rank()
+size_t hnode<T> :: rank() const
 {
 	return child.size();
 }
 template<typename T>
-size_t hnode<T> :: size()
+size_t hnode<T> :: size() const
 {
 	return 1 << rank();
 }
@@ -102,11 +102,11 @@ hnode<T> * hnode<T> :: merge (hnode<T> *foo)
 }
 
 template<typename T>
-void hnode<T> :: out()
+void hnode<T> :: out(std :: ostream& cout) const
 {
-	std :: cout << value << " ";
-	for (typename std :: vector<hnode<T> *> :: iterator it = child.begin(); it != child.end(); it++)
-		(*it)->out();
+	cout << value << " ";
+	for (typename std :: vector<hnode<T> *> :: const_iterator it = child.begin(); it != child.end(); it++)
+		(*it)->out(cout);
 }
 
 template<typename T>

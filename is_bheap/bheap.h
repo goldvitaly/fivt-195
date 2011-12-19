@@ -23,6 +23,7 @@
  * top - возвращает минимальный элемент кучи. Сложность - O(log N). Реализовано линейным проходом по корням всех деревьев.
  * pop - возвращает минимальный элемент кучи и удаляет его. Сложность - O(log N).
  * push - добавляет элемент в кучу, даже в том случае, если элемент с таким значением там уже есть. Сложность - O(log N).
+ * cleanup - очищает вектор деревьев, не удаляя сами деревья
  * 
  * out и pretty_out - поэлементный вывод кучи. Сложность - O(N).
  */
@@ -33,22 +34,23 @@ class bheap
 	private:
 		std :: vector<hnode<T>*> heaps;
 		size_t _size;
-		bheap(std :: vector<hnode<T>*>&);
+		explicit bheap(std :: vector<hnode<T>*>&);
 	public:
 		bheap();
 		~bheap();
 		
-		void merge(const bheap&);
+		void merge(bheap&);
 		
-		size_t size();
-		bool empty();
+		size_t size() const;
+		bool empty() const;
 		
-		T top();
+		const T& top() const;
 		void push(T);
 		T pop();
+		void cleanup();
 		
-		void out() const;
-		void pretty_out() const;
+		void out(std :: ostream&) const;
+		void pretty_out(std :: ostream&) const;
 };
 
 template<typename T>
@@ -69,34 +71,57 @@ bheap<T> :: bheap(std :: vector<hnode<T> *>& foo)
 }
 
 template<typename T>
-void bheap<T> :: out() const
+void bheap<T> :: out(std :: ostream& cout) const
 {
 	for (typename std :: vector<hnode<T>*> :: const_iterator it = heaps.begin(); it != heaps.end(); it++)
 		if (*it != NULL)
-			(*it)->out();
+			(*it)->out(cout);
 }
 template<typename T>
-void bheap<T> :: pretty_out() const
+void bheap<T> :: pretty_out(std :: ostream& cout) const
 {
 	for (typename std :: vector<hnode<T>*> :: const_iterator it = heaps.begin(); it != heaps.end(); it++)
 	{
 		if (*it != NULL)
-			(*it)->out();
-		std :: cout << "| ";
+			(*it)->out(cout);
+		cout << "| ";
 	}
-	std :: cout << std :: endl;
+	cout << std :: endl;
 }
 
 
 template<typename T>
-void bheap<T> :: merge (const bheap &foo) // this = merge(this, foo)
+void bheap<T> :: merge (bheap &foo) // this = merge(this, foo)
 {
 	heaps.resize(std :: max(heaps.size(), foo.heaps.size()));
 	_size += foo._size;
 	hnode<T>* carry = NULL;
 	for (size_t i = 0; i < heaps.size(); i++)
 	{
-		if ( (heaps[i] == NULL) && (i >= foo.heaps.size() || foo.heaps[i] == NULL)) //both are empty
+		hnode<T>* heap1 = heaps[i], *heap2 = (i < foo.heaps.size() ? foo.heaps[i] : NULL);
+		if (heap1 == NULL)
+			swap(heap1, heap2); //now heap1 >= heap2;
+		if (heap1 == NULL)
+		{
+			heaps[i] = carry;
+			carry = NULL;
+		}
+		else if (heap2 == NULL)
+		{
+			if (carry == NULL)
+				heaps[i] = heap1;
+			else
+			{
+				heaps[i] = NULL;
+				carry = carry->merge(heap1);
+			}
+		}
+		else
+		{
+			heaps[i] = heap1->merge(heap2);
+			swap(heaps[i], carry);
+		}
+		/*if ( (heaps[i] == NULL) && (i >= foo.heaps.size() || foo.heaps[i] == NULL)) //both are empty
 		{
 			heaps[i] = carry;
 			carry = NULL;
@@ -124,32 +149,33 @@ void bheap<T> :: merge (const bheap &foo) // this = merge(this, foo)
 			hnode<T>* carry1 = heaps[i]->merge(foo.heaps[i]);
 			heaps[i] = carry;
 			carry = carry1;
-		}
+		}*/
 	}
 	if (carry != NULL)
 		heaps.push_back(carry);
+	foo.cleanup();
 }
 
 template<typename T>
-size_t bheap<T> :: size()
+size_t bheap<T> :: size() const
 {
 	return _size;
 }
 template<typename T>
-bool bheap<T> :: empty()
+bool bheap<T> :: empty() const
 {
 	return _size == 0;
 }
 
 template<typename T>
-T bheap<T> :: top()
+const T& bheap<T> :: top() const
 {
 	assert(_size != 0);
-	T mn = heaps.back()->top();
-	for (typename std :: vector<hnode<T> *> :: iterator it = heaps.begin(); it != heaps.end(); it++)
-		if (*it != NULL)
-			mn = std :: min(mn, (*it)->top());
-	return mn;
+	const T* mn = &(heaps.back()->top());
+	for (typename std :: vector<hnode<T> *> :: const_iterator it = heaps.begin(); it != heaps.end(); it++)
+		if (*it != NULL && (*it)->top() < *mn)
+			mn = &((*it)->top());
+	return *mn;
 }
 template<typename T>
 void bheap<T> :: push(T new_value)
@@ -163,6 +189,7 @@ void bheap<T> :: push(T new_value)
 template<typename T>
 T bheap<T> :: pop()
 {
+	// не const T& pop(), поскольку возвращаемое значение больше не хранится в дереве и возвращать ссылку не на что.
 	assert(_size != 0);
 	int mnpos = heaps.size() - 1;
 	T mn = heaps.back()->top();
@@ -185,5 +212,10 @@ T bheap<T> :: pop()
 	merge(t);
 	return mn;
 }
-
+template<typename T>
+void bheap<T> :: cleanup()
+{
+	heaps.clear();
+	_size = 0;
+}
 #endif
