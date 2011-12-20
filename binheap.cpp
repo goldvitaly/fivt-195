@@ -6,6 +6,13 @@
 #include <cmath>
 #include <ctime>
 
+/**
+ * К сожалению, убунта на ноуте легла, 
+ * и мне стремно разбираться как тоже самое(GitHub) запилить на винде.
+ * Поэтому, я не могу создать отдельный хедер как и любой другой файл.
+ * Добавил тест merge'а.
+**/
+
 template <typename ValueType>
 class BinHeapNode
 {
@@ -13,11 +20,22 @@ public:
 	ValueType _Value;
 	std::vector <BinHeapNode*> _Son;
 	explicit BinHeapNode (ValueType Value);
+	explicit BinHeapNode (BinHeapNode *h);
 	~BinHeapNode ();
 };
 
 template <typename ValueType>
 BinHeapNode<ValueType> :: BinHeapNode (ValueType Value): _Value(Value), _Son(0){}
+
+template <typename ValueType>
+BinHeapNode<ValueType> :: BinHeapNode (BinHeapNode *h)
+{
+	_Value = h->_Value;
+	_Son.resize(h->_Son.size(), NULL);
+	for (size_t i = 0; i < _Son.size(); ++i)
+		if (h->_Son[i] != NULL)
+			_Son[i] = new BinHeapNode(h->_Son[i]);
+}
 
 template <typename ValueType>
 BinHeapNode<ValueType> :: ~BinHeapNode ()
@@ -46,6 +64,8 @@ private:
 public:
 	BinHeap ();
 	explicit BinHeap (ValueType Value);
+	explicit BinHeap (const BinHeap<ValueType> &h);
+	~BinHeap ();
 	void merge (BinHeap &h);
 	void push (ValueType Value);
 	ValueType top ()const;
@@ -57,6 +77,21 @@ template <typename ValueType>
 BinHeap<ValueType> :: BinHeap (): _Heap(0){}
 template <typename ValueType>
 BinHeap<ValueType> :: BinHeap (ValueType Value): _Heap(1, new BinHeapNode<ValueType>(Value)){}
+template <typename ValueType>
+BinHeap<ValueType> :: BinHeap (const BinHeap<ValueType> &h)
+{
+	_Heap.resize(h._Heap.size(), NULL);
+	for (size_t i = 0; i < _Heap.size(); ++i)
+		if (h._Heap[i] != NULL)
+			_Heap[i] = new BinHeapNode<ValueType>(h._Heap[i]);
+}
+template <typename ValueType>
+BinHeap<ValueType> :: ~BinHeap ()
+{
+	for (size_t i = 0; i < _Heap.size(); ++i)
+		if (_Heap[i] != NULL)
+			delete _Heap[i];
+}
 
 template <typename ValueType>
 void BinHeap<ValueType> :: Clean ()
@@ -145,28 +180,50 @@ bool BinHeap<ValueType> :: empty ()const
 	return _Heap.size() == 0;
 }
 
-const size_t Iterations = 1000 * 1000 * 1;
+const size_t Iterations = 1000 * 1 * 1;
 
-std :: priority_queue <int> q;
+std :: priority_queue <int, std::vector<int>, std::greater<int> > q;
+
 BinHeap <int> h;
+std::vector< BinHeap<int>* > vBinHeap;
 
 int main ()
 {
 	time_t st = std::clock();
 	for (size_t i = 0; i < Iterations; ++i)
 	{
-		int x = rand() - (RAND_MAX / 2);
+		int x = rand();
 		h.push(x);
-		q.push(-x);
-		assert(h.top() == -q.top());
+		q.push(x);
+		assert(h.top() == q.top());
+		
+		vBinHeap.push_back(new BinHeap<int>(h));
 	}
 
 	for (size_t i = 0; i < Iterations - 1; ++i)
 	{
 		h.pop();
 		q.pop();
-		assert(h.top() == -q.top());
+		assert(h.top() == q.top());
 	}
+	
+	for (size_t i = 0; i < Iterations; ++i)
+	{
+		int a = rand() % vBinHeap.size(), b = rand() % vBinHeap.size();
+		vBinHeap.push_back(new BinHeap<int>(*vBinHeap[a]));
+		vBinHeap.push_back(new BinHeap<int>(*vBinHeap[b]));
+		vBinHeap[vBinHeap.size() - 2]->merge(*vBinHeap.back());
+		delete vBinHeap.back();
+		vBinHeap.pop_back();
+	}
+	
+	while (!vBinHeap.empty())
+	{
+		delete vBinHeap.back();
+		vBinHeap.pop_back();
+	}
+	
 	std::cerr << (clock() - st) / double(CLOCKS_PER_SEC);
+	
 	return 0;
 }
