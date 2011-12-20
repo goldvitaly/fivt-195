@@ -72,7 +72,7 @@ public:
 			return _Right->GetValue(Begin, End);
 		else
 			return _MergeFunc(_Left->GetValue(Begin, _Left->_End), 
-							  _Right->GetValue(_Right->_Begin, End));
+								_Right->GetValue(_Right->_Begin, End));
 	}
 	void UpdateValue (size_t Begin, size_t End, ModType Mod)
 	{	
