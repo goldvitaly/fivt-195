@@ -10,24 +10,24 @@
 
 using namespace std;
 
-template <typename T>
-void TestSTDSort(T begin, T end) {
+template <typename Iterator>
+void TestSTDSort(Iterator begin, Iterator end) {
   double t1 = clock();
   sort(begin, end);
   double t2 = clock();
   printf("STL: %.lf\n", (t2 - t1) / 1000.0);
 }
 
-template <typename T, typename BlockExtractor>
-void TestDigitSort(T begin, T end, const BlockExtractor& BE) {
+template <typename Iterator, typename BlockExtractor>
+void TestDigitSort(Iterator begin, Iterator end, const BlockExtractor& BE) {
   double t1 = clock();
   DigitSort(begin, end, BE);
   double t2 = clock();
   printf("Digit: %.lf\n", (t2 - t1) / 1000.0);
 }
 
-template <typename T>
-void CheckSortResult(T begin1, T end1, T begin2, T end2) {
+template <typename Iterator>
+void CheckSortResult(Iterator begin1, Iterator end1, Iterator begin2, Iterator end2) {
   while (begin1 != end1) {
     assert(*begin1 == *begin2);
     begin1++;
