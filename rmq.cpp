@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
+#include <vector>
 
 template<typename ValueType,
 typename ModType,
@@ -61,6 +62,8 @@ public:
 	}
 	ValueType GetValue (size_t Begin, size_t End)
 	{			
+		assert(Begin >= _Begin && End <= _End);
+		
 		Push();
 		
 		if (Begin == _Begin && End == _End)
@@ -76,6 +79,8 @@ public:
 	}
 	void UpdateValue (size_t Begin, size_t End, ModType Mod)
 	{	
+		assert(Begin >= _Begin && End <= _End);
+		
 		Push();
 		
 		if (Begin == _Begin && End == _End)
@@ -103,7 +108,7 @@ public:
 class PLUS 
 {
 public:
-	int operator () (const int a, const int b)
+	int operator () (const int a, const int b)const
 	{
 		return a + b;
 	}
@@ -112,7 +117,7 @@ public:
 class MAX 
 {
 public:
-	int operator () (const int a, const int b)
+	int operator () (const int a, const int b)const
 	{
 		return std::max(a,b);
 	}
@@ -121,20 +126,9 @@ public:
 class IntervalTreeChecker
 {
 private:
-	int *_a;
-	size_t _Size;
+	std::vector<int> _a;
 public:
-	explicit IntervalTreeChecker (size_t Size)
-	{
-		_Size = Size;
-		_a = new int[_Size];
-		for (size_t i = 0; i < _Size; ++i)
-			_a[i] = 0;
-	}
-	~IntervalTreeChecker ()
-	{
-		delete [] _a;
-	}
+	explicit IntervalTreeChecker (size_t Size): _a(Size, 0){}
 	void UpdateValue (size_t Begin, size_t End, int Value)
 	{
 		for (size_t i = Begin; i < End; ++i)
@@ -171,10 +165,7 @@ int main ()
 		}
 		else
 		{
-			int resA, resB;
-			resA = r.GetValue(a, b);
-			resB = InChk.GetValue(a, b);
-			assert(resA == resB);
+			assert(r.GetValue(a, b) == InChk.GetValue(a, b));
 		}
 	}
 	return 0;
