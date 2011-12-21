@@ -19,13 +19,13 @@ class BinHeapNode
 public:
 	ValueType _Value;
 	std::vector <BinHeapNode*> _Son;
-	explicit BinHeapNode (ValueType Value);
+	explicit BinHeapNode (const ValueType &Value);
 	explicit BinHeapNode (BinHeapNode *h);
 	~BinHeapNode ();
 };
 
 template <typename ValueType>
-BinHeapNode<ValueType> :: BinHeapNode (ValueType Value): _Value(Value), _Son(0){}
+BinHeapNode<ValueType> :: BinHeapNode (const ValueType &Value): _Value(Value), _Son(0){}
 
 template <typename ValueType>
 BinHeapNode<ValueType> :: BinHeapNode (BinHeapNode *h)
@@ -58,28 +58,32 @@ template <typename ValueType>
 class BinHeap
 {
 private:
+	size_t _Size;
 	std::vector <BinHeapNode<ValueType>*> _Heap;
 	void Clean ();
 	size_t FindMinPosition ()const;
 public:
 	BinHeap ();
-	explicit BinHeap (ValueType Value);
+	explicit BinHeap (const ValueType &Value);
 	explicit BinHeap (const BinHeap<ValueType> &h);
 	~BinHeap ();
 	void merge (BinHeap &h);
-	void push (ValueType Value);
+	void push (const ValueType &Value);
 	ValueType top ()const;
 	void pop ();
 	bool empty ()const;
+	size_t size ()const;
 };
 
 template <typename ValueType>
-BinHeap<ValueType> :: BinHeap (): _Heap(0){}
+BinHeap<ValueType> :: BinHeap (): _Heap(0), _Size(0){}
 template <typename ValueType>
-BinHeap<ValueType> :: BinHeap (ValueType Value): _Heap(1, new BinHeapNode<ValueType>(Value)){}
+BinHeap<ValueType> :: BinHeap (const ValueType &Value): 
+_Heap(1, new BinHeapNode<ValueType>(Value)), _Size(1){}
 template <typename ValueType>
 BinHeap<ValueType> :: BinHeap (const BinHeap<ValueType> &h)
 {
+	_Size = h._Size;
 	_Heap.resize(h._Heap.size(), NULL);
 	for (size_t i = 0; i < _Heap.size(); ++i)
 		if (h._Heap[i] != NULL)
@@ -96,13 +100,17 @@ BinHeap<ValueType> :: ~BinHeap ()
 template <typename ValueType>
 void BinHeap<ValueType> :: Clean ()
 {
-	while (_Heap.size() > 0 && _Heap.back() == NULL)
+	while (!_Heap.empty() && _Heap.back() == NULL)
 		_Heap.pop_back();
 }
 
 template <typename ValueType>
 void BinHeap<ValueType> :: merge (BinHeap<ValueType> &h)
 {
+	Clean();
+	h.Clean();
+	
+	_Size += h._Size;
 	if (h._Heap.size() == 0)
 		return;
 	if (_Heap.size() == 0)
@@ -113,31 +121,39 @@ void BinHeap<ValueType> :: merge (BinHeap<ValueType> &h)
 
 	_Heap.resize(std::max(_Heap.size(), h._Heap.size()) + 1, NULL);
 	h._Heap.resize(_Heap.size(), NULL);
-	BinHeapNode<ValueType> *nd = NULL, *bf;
+	BinHeapNode<ValueType> *nd = NULL;
+	size_t AliveNodes;
 
-	//Делать по количеству не понятно как, ибо пусть,
-	//мы даже знаем кол-во 
-	//нам придется как-то определять где находятси "живые" кучи
 	for (size_t i = 0; i < _Heap.size(); ++i)
 	{
-		if (_Heap[i] == NULL)
-			if (nd == NULL || h._Heap[i] == NULL)
-				_Heap[i] = (nd == NULL ? h._Heap[i] : nd), nd = NULL;
-			else
-				nd = BinHeapNodeMerge(h._Heap[i], nd), _Heap[i] = NULL;
+		AliveNodes = ((nd != NULL) + (_Heap[i] != NULL) + (h._Heap[i] != NULL));
+		if (AliveNodes <= 1)
+		{
+			_Heap[i] = BinHeapNodeMerge(_Heap[i], nd);
+			_Heap[i] = BinHeapNodeMerge(_Heap[i], h._Heap[i]);
+			nd = NULL;
+		}
+		else if (AliveNodes == 2)
+		{
+			nd = BinHeapNodeMerge(_Heap[i], nd);
+			nd = BinHeapNodeMerge(h._Heap[i], nd);
+			_Heap[i] = NULL;
+		}
 		else
-			if (nd != NULL || h._Heap[i] != NULL)
-				bf = (nd == NULL ? nd : h._Heap[i]),
-				nd = BinHeapNodeMerge((nd == NULL ? h._Heap[i] : nd), _Heap[i]),
-				_Heap[i] = bf;
+		{
+			nd = BinHeapNodeMerge(_Heap[i], nd);
+			_Heap[i] = h._Heap[i];
+		}
 	}
+
 	Clean();
 	h._Heap.resize(0);
 }
 
 template <typename ValueType>
-void BinHeap<ValueType> :: push (ValueType Value)
+void BinHeap<ValueType> :: push (const ValueType &Value)
 {
+	_Size++;
 	BinHeap<ValueType> h(Value);
 	merge(h);
 }
@@ -158,26 +174,36 @@ template <typename ValueType>
 ValueType BinHeap<ValueType> :: top ()const
 {
 	size_t Min = FindMinPosition();
+
 	return _Heap[Min]->_Value;
 }
 
 template <typename ValueType>
 void BinHeap<ValueType> :: pop ()
 {
+	_Size--;
 	size_t Min = FindMinPosition();
-	BinHeap<ValueType> h;
+	BinHeap<ValueType> *h = new BinHeap();
 	
-	h._Heap.resize(Min, NULL);
+	h->_Heap.resize(Min, NULL);
 	for (size_t i = 0; i < Min; ++i)
-		h._Heap[i] = _Heap[Min]->_Son[i];
+		h->_Heap[i] = _Heap[Min]->_Son[i];
 	_Heap[Min] = NULL;
-	merge(h);
+	merge(*h);
+	
+	delete h;
 }
 
 template <typename ValueType>
 bool BinHeap<ValueType> :: empty ()const
 {
 	return _Heap.size() == 0;
+}
+
+template <typename ValueType>
+size_t BinHeap<ValueType> :: size ()const
+{
+	return _Size;
 }
 
 const size_t Iterations = 1000 * 1 * 1;
@@ -213,6 +239,29 @@ int main ()
 		vBinHeap.push_back(new BinHeap<int>(*vBinHeap[a]));
 		vBinHeap.push_back(new BinHeap<int>(*vBinHeap[b]));
 		vBinHeap[vBinHeap.size() - 2]->merge(*vBinHeap.back());
+		delete vBinHeap.back();
+		vBinHeap.pop_back();
+		
+		BinHeap<int> *H1 = new BinHeap<int>(*vBinHeap[a]);
+		BinHeap<int> *H2 = new BinHeap<int>(*vBinHeap[b]);
+		
+		assert(H1->size() + H2->size() == vBinHeap.back()->size());
+		
+		while (!vBinHeap.back()->empty())
+		{
+			int res;
+			if (H1->empty()) res = H2->top();
+			else if (H2->empty()) res = H1->top();
+			else res = std::min(H1->top(), H2->top());
+			
+			vBinHeap.back()->pop();
+			if (H1->empty())  H2->pop();
+			else if (H2->empty()) H1->pop();
+			else if (res == H1->top()) H1->pop();
+			else H2->pop();
+		}
+		
+		delete H1, H2;
 		delete vBinHeap.back();
 		vBinHeap.pop_back();
 	}
