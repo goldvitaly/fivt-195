@@ -97,7 +97,7 @@ class IntervalTree
 					push_modification(position, left(position));
 				if (is_valid_position(right(position)))
 					push_modification(position, right(position));
-				apply_modification_func_(tree[position].value.get(), tree[position].modification.get());
+				apply_modification_func_(*tree[position].value, tree[position].modification.get());
 			}
 			tree[position].modification.reset();
 		}

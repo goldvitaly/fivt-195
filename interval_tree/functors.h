@@ -25,12 +25,24 @@ namespace functors
 	class assign
 	{
 	  public:
-		void operator()(T& a, const T& b)
+		void operator()(T& a, const T& b) const
 		{
 			a = b;
 		}
 	};
 
+	template <class T, class BinaryOperation = std::plus<T> > 
+	class plus_equal
+	{
+      private:
+		BinaryOperation binary_operation;
+	  public:
+		explicit plus_equal(const BinaryOperation& binary_operation = BinaryOperation()): binary_operation(binary_operation) {};
+		void operator()(T&a, const T& b) const
+		{
+			a = binary_operation(a,b);
+		}
+	};
 }
 
 
