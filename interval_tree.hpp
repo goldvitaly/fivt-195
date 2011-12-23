@@ -6,8 +6,6 @@
 #include <cstdio>
 #include <cassert>
 
-#include "functors.hpp"
-
 #define DB(x) std::cerr << #x << " : " << x << std::endl;
 
 template<typename Element, typename Modification,
@@ -62,7 +60,8 @@ class IntervalTree {
     }
 
     Range CutWith(Range target) {
-      return Range(max(begin_, target.begin_), min(end_, target.end_));
+      begin_ = max(begin_, target.begin_);
+      end_ = min(end_, target.end_);
     }
 
     size_t length() const {
@@ -81,8 +80,10 @@ class IntervalTree {
   class Node {
    
    public:
-    Node();
-    explicit Node(const Element& key): key_(key) {}
+    explicit Node(const Element& key = Element()) {
+      key_ = key;
+      modified_ = 0;
+    }
 
     Node* left_child_;
     Node* right_child_;
@@ -98,6 +99,8 @@ class IntervalTree {
     {
       if (modified_)
         return modify_(key_, modification_, length);
+      else
+        return key_;
     }
 
     void PushUpdate() {
@@ -162,14 +165,24 @@ class IntervalTree {
       return zero_element_;
 
     root->PushUpdate();
+    root->Recalc(current.length());
     
     if (!target.IntersectWith(current))
       return zero_element_;
     
     target.CutWith(current);
     
-    if (current == target)
+    if (current == target) {
+//      current.Print();
+//      DB(root->GetKey(current.length()));
       return root->GetKey(current.length());
+    }
+
+//    Element value = merge_(GetValue(root->left_child_, current.LeftHalf(), target), 
+//                    GetValue(root->right_child_, current.RightHalf(), target));
+//    current.Print();
+//    DB(value);
+//    return value;
 
     return merge_(GetValue(root->left_child_, current.LeftHalf(), target), 
                   GetValue(root->right_child_, current.RightHalf(), target));
@@ -180,7 +193,7 @@ class IntervalTree {
     if (!root)
       return;
 
-    current.Print();
+
     root->PushUpdate();
 
     if (!target.IntersectWith(current))
@@ -188,8 +201,13 @@ class IntervalTree {
 
     target.CutWith(current);
 
+    //current.Print();
+    //target.Print();
+    //DB("--");
+
     if (current == target) {
       root->AddModification(modification);
+      //DB(root->GetKey(0));
       return;
     }
     
@@ -197,15 +215,17 @@ class IntervalTree {
     SetValue(root->right_child_, current.RightHalf(), target, modification);
 
     root->Recalc(current.length());
+    //current.Print();
+    //DB(root->GetKey(0));
   }
 
+  Node* root_;
   size_t size_;
   static Element zero_element_;
   static MergeFunc merge_;
   static ModifyFunc modify_;
   static PushUpdateFunc update_;
 
-  Node* root_;
 }; // IntervalTree
 
 template<typename Element, typename Modification,

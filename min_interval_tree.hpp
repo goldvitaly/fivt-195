@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "interval_tree.hpp"
+#include "functors.hpp"
 
 template<typename Element>
 class MinIntervalTree {
