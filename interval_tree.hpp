@@ -6,19 +6,46 @@
 #include <cstdio>
 #include <cassert>
 
+#include "functors.hpp"
+
+#define DB(x) std::cerr << #x << " : " << x << std::endl;
+
 template<typename Element, typename Modification,
          typename MergeFunc, typename ModifyFunc, typename PushUpdateFunc>
 class IntervalTree {
+ 
+ private:
+  class Node;
+  class Range;
 
  public:
+
+  IntervalTree() {
+    zero_element_ = Element();
+    size_ = 0;
+    root_ = NULL;
+  }
+
+  void Initialize(size_t size, const Element& zero_element) {
+    RemoveTree(root_);
+    CreateTree(size, zero_element);
+  }
 
   size_t size() const {
     return size_;
   }
 
+  Element GetValue(int begin, int end) {
+    return GetValue(root_, Range(0, size() - 1), Range(begin, end));
+  }
+
+  void SetValue(int begin, int end, const Modification& modification) {
+    SetValue(root_, Range(0, size() - 1), Range(begin, end), modification);
+  }
+
  private:
 
-  class Range {
+  struct Range {
     int begin_, end_;
     Range(int begin = 0, int end = 0): begin_(begin), end_(end) {}
 
@@ -34,7 +61,7 @@ class IntervalTree {
       return !(begin_ > target.end_ || target.begin_ > end_);
     }
 
-    void CutWith(Range target) {
+    Range CutWith(Range target) {
       return Range(max(begin_, target.begin_), min(end_, target.end_));
     }
 
@@ -42,23 +69,32 @@ class IntervalTree {
       return (end_ - begin_ + 1);
     }
 
-    bool operator ==(Range target) const {
-      return ((begin_ == target.begin_) && (end_ == target.end_))
+    void Print() const {
+      std::cout << begin_ << ":" << end_ << std::endl; 
     }
 
-  };
+    bool operator ==(Range target) const {
+      return ((begin_ == target.begin_) && (end_ == target.end_));
+    }
+  }; // Range
   
   class Node {
    
    public:
-    void Recalc() {
+    Node();
+    explicit Node(const Element& key): key_(key) {}
 
-      key_ = merge_(left_child_ ? GetKey(left_child_) : zero_element_,
-                    right_child_ ? GetKey(right_child_) : zero_element_);
+    Node* left_child_;
+    Node* right_child_;
+    
+    void Recalc(size_t length) {
+
+      key_ = merge_(left_child_ ? left_child_->GetKey(length) : zero_element_,
+                    right_child_ ? right_child_->GetKey(length) : zero_element_);
 
     }
 
-    Element GetKey(size_t length) const
+    Element GetKey(size_t length = 0) const
     {
       if (modified_)
         return modify_(key_, modification_, length);
@@ -94,17 +130,34 @@ class IntervalTree {
     }
 
    private:
-
     Element key_;
     Modification modification_;
     bool modified_;
-    Node* left_child_;
-    Node* right_child_;
-   
-  };
+  }; // Node
 
-  Element GetValue(Node* root, Range current, Range target)
-  {
+  void CreateTree(size_t size, const Element& zero_element) {
+    size_ = size;
+    zero_element_ = zero_element;
+    BuildNodes(root_, Range(0, size_ - 1));
+  }
+
+  void RemoveTree(Node* root) {
+    if (root) {
+      RemoveTree(root->left_child_);
+      RemoveTree(root->right_child_);
+      root = NULL;
+    }
+  }
+
+  void BuildNodes(Node* &root, Range current) {
+    root = new Node(zero_element_);
+    if (current.length() > 1) {
+      BuildNodes(root->left_child_, current.LeftHalf());
+      BuildNodes(root->right_child_, current.RightHalf());
+    }
+  }
+
+  Element GetValue(Node* root, Range current, Range target) {
     if (!root)
       return zero_element_;
 
@@ -116,22 +169,48 @@ class IntervalTree {
     target.CutWith(current);
     
     if (current == target)
-      return root->GetKey();
+      return root->GetKey(current.length());
 
-    return merge_(GetValue(root->left_child_, current->LeftHalf(), target), 
-                  GetValue(root->right_child_, current->RightHalf(), target));
+    return merge_(GetValue(root->left_child_, current.LeftHalf(), target), 
+                  GetValue(root->right_child_, current.RightHalf(), target));
 
   }
 
-  size_t size_;
-  Element zero_element_;
+  void SetValue(Node* root, Range current, Range target, const Modification& modification) {
+    if (!root)
+      return;
 
-  MergeFunc merge_;
-  ModifyFunc modify_;
-  PushUpdateFunc update_;
+    current.Print();
+    root->PushUpdate();
+
+    if (!target.IntersectWith(current))
+      return;
+
+    target.CutWith(current);
+
+    if (current == target) {
+      root->AddModification(modification);
+      return;
+    }
+    
+    SetValue(root->left_child_, current.LeftHalf(), target, modification);
+    SetValue(root->right_child_, current.RightHalf(), target, modification);
+
+    root->Recalc(current.length());
+  }
+
+  size_t size_;
+  static Element zero_element_;
+  static MergeFunc merge_;
+  static ModifyFunc modify_;
+  static PushUpdateFunc update_;
 
   Node* root_;
+}; // IntervalTree
 
-};
+template<typename Element, typename Modification,
+         typename MergeFunc, typename ModifyFunc, typename PushUpdateFunc>
+Element IntervalTree<Element, Modification, 
+                    MergeFunc, ModifyFunc, PushUpdateFunc>::zero_element_;
 
 #endif // INTERVAL_TREE_HPP_
