@@ -105,15 +105,6 @@ public:
 	}
 };
 
-class PLUS 
-{
-public:
-	int operator () (const int a, const int b)const
-	{
-		return a + b;
-	}
-};
-
 class MAX 
 {
 public:
@@ -136,10 +127,7 @@ public:
 	}
 	int GetValue (size_t Begin, size_t End)
 	{
-		int Max = _a[Begin];
-		for (size_t i = Begin; i < End; ++i)
-			Max = std::max(Max, _a[i]);
-		return Max;
+		return *std::max_element(_a.begin() + Begin, _a.begin() + End);
 	}
 };
 
@@ -147,7 +135,7 @@ int main ()
 {
 	const size_t TestNum = 100000, TestSize = 1000;
 	
-	IntervalTree<int, int, PLUS, MAX, PLUS > r(0, TestSize, int(NULL), int(NULL));
+	IntervalTree<int, int, std::plus<int>, MAX, std::plus<int> > r(0, TestSize, int(NULL), int(NULL));
 	IntervalTreeChecker InChk(TestSize);
 	for (size_t t = 0; t < TestNum; ++t)
 	{
