@@ -94,7 +94,7 @@ public:
 		Node* sibling;
 	};
 
-    void Add(BHeap<Type> &cur)
+    void Merge(BHeap<Type> &cur)
     {
         BHeapUnion(cur);
     }
@@ -165,33 +165,32 @@ private:
 
 		if (head == NULL)
 			return;
-		Node* prevX = &new_head;
-		Node* x = head;
-		Node* nextX = x->sibling;
-		while (nextX != NULL)
+		Node* prevCur = &new_head;
+		Node* cur = head;
+		Node* nextCur = cur->sibling;
+		while (nextCur != NULL)
 		{
-			if (x->degree != nextX->degree ||
-				nextX->sibling != NULL && nextX->sibling->degree == x->degree)
+			if (cur->degree != nextCur->degree ||
+				nextCur->sibling != NULL && nextCur->sibling->degree == cur->degree)
 			{
-				prevX = x;
-				x = nextX;
+				prevCur = cur;
+				cur = nextCur;
 			}
-			else if ( !(nextX->key < x->key) )
+			else if ( !(nextCur->key < cur->key) )
             {
-				x->sibling = nextX->sibling;
-				BHeapLink(nextX, x);
+				cur->sibling = nextCur->sibling;
+				BHeapLink(nextCur, cur);
 			}
 			else
 			{
-				prevX->sibling = nextX;
-				BHeapLink(x, nextX);
-				x = nextX;
+				prevCur->sibling = nextCur;
+				BHeapLink(cur, nextCur);
+				cur = nextCur;
 			}
-			nextX = x->sibling;
+			nextCur = cur->sibling;
 		}
 		head = new_head.sibling;
 	}
 
-	//BHeap(const BHeap&) {}
 
 };

@@ -12,7 +12,8 @@ int main()
     BHeap<int> a, b;
     srand(234);
     vector<int> v, v2;
-    cout<< "Please Wait 3-4 seconds:\n\n";
+    cout<< "Please Wait:\n\n";
+    int cnt = 0;
     for (int i=1; i<1000; i++)
     {
         int x = rand();
@@ -41,14 +42,61 @@ int main()
             swap(v[0], v[v.size()-1]);
             v.pop_back();
         }
+
         if (rand() % 241 == 0)
         {
-            a.Add(b);
-            for (i=0; i<v2.size(); i++)
-                v.push_back(v2[i]);
+
+            a.Merge(b);
+            for (int j=0; j<v2.size(); j++)
+                v.push_back(v2[j]);
+            sort(v.begin(), v.end());
             v2.clear();
         }
+
+
     }
+    cout<< "Random tests pasted\n\n";
+    BHeap<int> na, nb;
+    v.clear();a.Merge(b);
+    v2.clear();
+    for (int i=1; i<1000; i++)
+    {
+        int x = rand();
+        v.push_back(x);
+        na.Push(x);
+
+        x = rand();
+        v2.push_back(x);
+        nb.Push(x);
+
+        sort(v.begin(), v.end());
+
+        if (v[0] != na.Top())
+        {
+            cout<< "It was found wrong MIN";
+            return 0;
+        }
+        if (na.Size() != v.size())
+        {
+            cout<< "It was found wrong SIZE";
+            return 0;
+        }
+        if (i % 20 == 0)
+        {
+            na.PopTop();
+            swap(v[0], v[v.size()-1]);
+            v.pop_back();
+        }
+        if (i % 40 == 0)
+        {
+            na.Merge(nb);
+            for (int j=0; j<v2.size(); j++)
+                v.push_back(v2[j]);
+            v2.clear();
+        }
+
+    }
+
     cout<< "Congratulations!!! Your code is perfect.\n";
 
     return 0;
