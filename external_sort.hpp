@@ -13,14 +13,14 @@ using namespace std;
 
 const int block_size = 1000000;
 
-int ReadInt(fstream& stream) {
+int ReadInt(istream& stream) {
   int result = 0;
   for(int i = 0; i < 4; i++)
     result = (result << 8) | stream.get();
   return result;
 }
 
-void PrintInt(int x, fstream& F) {
+void PrintInt(int x, ostream& F) {
   vector<int> digit;
   for(int i = 3; i >= 0; i--) {
     char NextChar = (x >> (8 * i)) & ((1 << 8) - 1);
@@ -28,7 +28,7 @@ void PrintInt(int x, fstream& F) {
   }
 }
 
-void ExternalSort(string source_filename, string destination_filename) {
+void ExternalSort(const string& source_filename, const string& destination_filename) {
   fstream storage("storage.txt", ios::trunc | ios::out | ios::binary);
   fstream source(source_filename.c_str(), ios::in | ios::binary);
   fstream destination(destination_filename.c_str(), ios::out | ios::trunc | ios::binary);
@@ -43,7 +43,8 @@ void ExternalSort(string source_filename, string destination_filename) {
   priority_queue< pair<int, int> , vector<pair<int, int> >, greater<pair<int, int> > > Q;
 
   for(int i=0; i < block_count; i++) {
-    for(int j=0; (j < block_size) && (i * block_size + j < element_count); j++) {
+    int block_element_count = min(block_size, element_count - i * block_size);
+    for(int j=0; j < block_element_count; j++) {
       block_storage[j] = ReadInt(source);
     }
     sort(block_storage.begin(), block_storage.end());
@@ -55,7 +56,7 @@ void ExternalSort(string source_filename, string destination_filename) {
     ));
     block_stream[i].first->seekg(storage.tellp());
 
-    for(int j=0; (j < block_size) && (i * block_size + j < element_count); j++) {
+    for(int j=0; j < block_element_count; j++) {
       PrintInt(block_storage[j], storage);
     }
   }

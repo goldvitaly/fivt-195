@@ -4,24 +4,24 @@
 #include <cstring>
 #include <time.h>
 #include <vector>
+#include <sstream>
 
 #include "external_sort.hpp"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
-  int n = 0, pnt = 0;
+  srand(42);
+  int n = 100, pnt = 0;
   if (argc > 1) {
-    while (pnt < strlen(argv[1])) {
-      n *= 10;
-      n += argv[1][pnt++] - '0';
-    }
+    istringstream stream(argv[1], istringstream::in);
+    stream >> n;
   }
-  PrintInt(n);
-  srand(time(NULL));
+  fstream output("input.txt", ios::out | ios::binary | ios::trunc);
+  PrintInt(n, output);
   for(int i=0; i<n; i++) {
     int x = rand();
-    PrintInt(x);
+    PrintInt(x, output);
   }
   return 0;
 }
