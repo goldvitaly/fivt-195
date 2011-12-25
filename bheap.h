@@ -32,11 +32,7 @@ public:
 	{
 		if (head == NULL)
 			throw (std::logic_error("BHeap:Top, Heap is empty"));
-		Node* minNode = head;
-		for (Node* cur = head->sibling; cur != NULL; cur = cur->sibling)
-			if (cur->key < minNode->key)
-				minNode = cur;
-		return minNode->key;
+		return FindMin(head).first->key;
 	}
 
 	void PopTop()
@@ -44,19 +40,9 @@ public:
 		if (head == NULL)
 			throw (std::logic_error("BHeap:PopTop, Heap is empty"));
 
-		Node* minNode = head;
-		Node* minNodePrev = NULL;
-		Node* prev = head;
-		Node* cur = NULL;
-		for (cur = head->sibling; cur != NULL; cur = cur->sibling)
-		{
-			if (cur->key < minNode->key)
-			{
-				minNode = cur;
-				minNodePrev = prev;
-			}
-			prev = cur;
-		}
+		std::pair<Node*, Node*> temp = FindMin(head);
+		Node* minNode = temp.first;
+		Node* minNodePrev = temp.second;
 
 		if (minNodePrev == NULL)
 			head = minNode->sibling;
@@ -67,6 +53,7 @@ public:
 
 		BHeap<Type> pq;
 		Node* next = NULL;
+		Node *cur;
 		for (cur = minNode->child; cur != NULL; cur = next)
 		{
 			next = cur->sibling;
@@ -102,6 +89,23 @@ public:
 private:
 	Node* head;
 	int size;
+	std::pair<Node*, Node*> FindMin(Node* minNode) const
+	{
+	    Node* minNodePrev = NULL;
+		Node* prev = head;
+		Node* cur = NULL;
+		for (cur = head->sibling; cur != NULL; cur = cur->sibling)
+		{
+			if (cur->key < minNode->key)
+			{
+				minNode = cur;
+				minNodePrev = prev;
+			}
+			prev = cur;
+		}
+		return make_pair(minNode, minNodePrev);
+
+	}
 
 	void ClearTree(Node* node)
 	{
