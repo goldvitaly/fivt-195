@@ -33,8 +33,8 @@ class IntervalTree {
     return size_;
   }
 
-  Element GetValue(int begin, int end) {
-    return GetValue(root_, Range(0, size() - 1), Range(begin, end));
+  Element GetValue(int begin, int end, int type) {
+    return GetValue(root_, Range(0, size() - 1), Range(begin, end), type);
   }
 
   void SetValue(int begin, int end, const Modification& modification) {
@@ -160,7 +160,7 @@ class IntervalTree {
     }
   }
 
-  Element GetValue(Node* root, Range current, Range target) {
+  Element GetValue(Node* root, Range current, Range target, int type) {
     if (!root)
       return zero_element_;
 
@@ -173,16 +173,18 @@ class IntervalTree {
     target.CutWith(current);
     
     if (current == target) {
-//      current.Print();
-//      DB(root->GetKey(current.length()));
+      //current.Print();
+      //DB(root->GetKey(current.length()));
       return root->GetKey(current.length());
     }
 
-//    Element value = merge_(GetValue(root->left_child_, current.LeftHalf(), target), 
-//                    GetValue(root->right_child_, current.RightHalf(), target));
-//    current.Print();
-//    DB(value);
-//    return value;
+
+    Element value = merge_(GetValue(root->left_child_, current.LeftHalf(), target), 
+                          GetValue(root->right_child_, current.RightHalf(), target));
+
+    //current.Print();
+    //DB(value);
+    return value;
 
     return merge_(GetValue(root->left_child_, current.LeftHalf(), target), 
                   GetValue(root->right_child_, current.RightHalf(), target));

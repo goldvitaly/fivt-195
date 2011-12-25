@@ -22,7 +22,7 @@ class MinIntervalTree {
     tree_.Initialize(size, zero_element);
   }
 
-  Element Get(int begin, int end) {
+  Element Get(int begin, int end, int type) {
     return tree_.GetValue(begin, end);
   }
   void Set(int begin, int end, Element modification) {
