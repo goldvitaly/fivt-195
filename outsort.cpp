@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <iostream>
 #include <queue>
 #include <algorithm>
 #include <vector>
@@ -10,87 +9,90 @@
 #include <sstream>
 #include <typeinfo>
 #include <functional>
+#include <ctime>
+#include <istream>
+#include <ostream>
+#include <iostream>
 
-using namespace std;
-
-string crTmpFile(int k)
+std::string createTmpFile(int k)
 {
     std::stringstream buf;
-    string output1 = "tmp";
-    string output2 = ".out";
+    std::string pref = "tmp";
+    std::string suf = ".out";
     buf.clear();
     buf << k;
-    string num;
+    std::string num;
     buf >> num;
-    string FileName = output1 + num + output2;
-    return FileName;
+    std::string fileName = pref + num + suf;
+    return fileName;
 }
 
-template <typename typeElem>
-bool cmpfunc(const typeElem &a, const typeElem &b)
+//for testing
+template <typename TypeElem>
+bool cmpfunc(const TypeElem &a, const TypeElem &b)
 {
     return a > b;
 }
 
-template <typename typeElem, class Compare>
-void OutSort(string inputName, string outputName, Compare cmpElem) // передаем имя входного, выходного файлов и переменную сортируемого типа данных
+template <typename TypeElem, class Compare>
+void OutSort(const std::string &inputName, const std::string &outputName, Compare cmpElem) // �������� ��� ��������, ��������� ������ � ���������� ������������ ���� ������
 {
-//Открываем входной и выходной файлы
-    ifstream in;
-    ofstream res;
-    in.open(inputName, ifstream::in);
-    res.open(outputName, ofstream::out);
+//open input file and output file
+    std::ifstream in;
+    std::ofstream res;
+    in.open(inputName, std::ifstream::in);
+    res.open(outputName, std::ofstream::out);
     //const int maxsize = 30; // for debugging
-    const int maxsize = 50000000; // максимальное количество байт в памяти, которое мы можем использовать (с маленькой погрешностью)
+    const int maxSize = 50000000; // maximal memory, which we can use
 
-    typedef pair <typeElem, fstream *> ourPair;
-    vector< pair <typeElem, string> > files;
+    typedef std::pair <TypeElem, std::fstream *> mergePair;
+    std::vector< std::pair <TypeElem, std::string> > files;
 
-//чтение данных, их обработка в временные файлы, в которых числа отсортированы
+//read data, create tmp files
     while (in.good())
     {
         size_t cursize = 0;
-        vector<typeElem> block;
-        while (cursize < maxsize && in.good())
+        std::vector<TypeElem> block;
+        while (cursize < maxSize && in.good())
         {
-            typeElem readElem;
+            TypeElem readElem;
             in >> readElem;
             block.push_back(readElem);
             cursize += sizeof(readElem);
         }
         if (!in.good())
             block.pop_back();
-        sort(block.begin(), block.end(), cmpElem);
-        string FileName = crTmpFile(files.size());
-        fstream out;
-        out.open(FileName, fstream::out);
-        files.push_back(make_pair(block[0], FileName));
+        std::sort(block.begin(), block.end(), cmpElem);
+        std::string fileName = createTmpFile(files.size());
+        std::fstream out;
+        out.open(fileName, std::fstream::out);
+        files.push_back(make_pair(block[0], fileName));
         for (size_t i = 0; i < block.size(); i++)
-            out << block[i] << endl;
+            out << block[i] << std::endl;
         out.close();
     }
     in.close();
 
-//создаем кучу
-    auto compQueue = [cmpElem](const ourPair &a, const ourPair &b ) { return cmpElem(b.first, a.first); };
-    priority_queue <ourPair, vector<ourPair>, decltype(compQueue) > q(compQueue);
+//create queue
+    auto compQueue = [cmpElem](const mergePair &a, const mergePair &b ) { return cmpElem(b.first, a.first); };
+    std::priority_queue <mergePair, std::vector<mergePair>, decltype(compQueue) > q(compQueue);
     for (size_t i = 0; i < files.size(); i++)
     {
-        typeElem elem;
-        fstream * tmpFile = new fstream;
-        (*tmpFile).open(files[i].second, fstream::in);
+        TypeElem elem;
+        std::fstream * tmpFile = new std::fstream;
+        (*tmpFile).open(files[i].second, std::fstream::in);
         (*tmpFile) >> elem;
         q.push(make_pair(elem, tmpFile));
     }
 
-//производим сортировку слиянием с помощью кучи
+//merging with queue
     while (!q.empty())
     {
-        ourPair top = q.top(), newElem;
+        mergePair top = q.top(), newElem;
         q.pop();
         res << top.first << " ";
-        fstream * curFile = newElem.second = top.second;
-        (*curFile) >> ws;
+        std::fstream * curFile = newElem.second = top.second; // add next element from file top.second in queue
+        (*curFile) >> std::ws;
         if ((*curFile).good())
         {
             (*curFile) >> newElem.first;
@@ -100,24 +102,23 @@ void OutSort(string inputName, string outputName, Compare cmpElem) // перед
             (*curFile).close();
     }
     res.close();
-// стираем временные файлы
     for (size_t i = 0; i < files.size(); i++)
         remove(files[i].second.c_str());
 }
 
-// тестируем нашу МЕГАпрогу
-const int N = 100000; // количество элементов, которое будем сортировать
-void testint()
+// testing
+const int N = 100000; // quantity of elements, which we will sort
+void testInt()
 {
     srand(time(NULL));
-    ofstream in;
-    ifstream out;
-    in.open("testint.in", ifstream::out);
+    std::ofstream in;
+    std::ifstream out;
+    in.open("testint.in", std::ifstream::out);
     for (int i = 0; i < N; i++)
         in << rand() << " ";
     in.close();
-    OutSort<int>("testint.in", "testint.out", greater<int>());
-    out.open("testint.out", ofstream::in);
+    OutSort<int>("testint.in", "testint.out", std::greater<int>());
+    out.open("testint.out", std::ofstream::in);
     bool res = true;
     int pr, y;
     out >> pr;
@@ -137,13 +138,13 @@ void testint()
             }
             pr = y;
         }
-    cout << res;
+    std::cout << res;
     out.close();
 }
 
 int main()
 {
-    testint();
+    testInt();
     //OutSort<int>("testint.in", "testint.out", greater<int>());
     return 0;
 }
