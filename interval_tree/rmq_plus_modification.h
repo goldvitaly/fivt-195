@@ -18,12 +18,10 @@ class RMQPlusModification
 	}
 	void apply(int l, int r, const T& modification)
 	{
-		if (l >= r || l < 0 || r < 0 || l > size_ || r > size_) throw std::logic_error("invalid range");
 		tree.apply(l, r, modification);
 	}
 	T request(int l, int r)
 	{
-		if (l >= r || l < 0 || r < 0 || l > size_ || r > size_) throw std::logic_error("invalid range");
 		return tree.request(l, r);
 	}
 	int size() const { return size_; };

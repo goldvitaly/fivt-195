@@ -4,6 +4,8 @@
 #include "interval.h"
 
 #include <boost/optional.hpp>
+#include <stdexcept>
+#include <vector>
 
 /*
    ElementType
@@ -17,11 +19,11 @@ template <class ElementType, class MergeElementFunc, class ModificationType, cla
 class IntervalTree
 {
 	public:
-		int size() const 
+		size_t size() const 
 		{
 			return size_;
 		}
-		IntervalTree(int size_, const ElementType& element, 
+		IntervalTree(size_t size_, const ElementType& element, 
 			MergeElementFunc merge_element_func_, MergeModificationFunc merge_modification_func_, ApplyModificationFunc apply_modification_func_):
 				size_(size_), merge_element_func_(merge_element_func_), 
 				merge_modification_func_(merge_modification_func_), apply_modification_func_(apply_modification_func_) 
@@ -40,14 +42,16 @@ class IntervalTree
 		// TODO: 0- or 1- numeration? Current - 0. now using [) - intervals
 		ElementType request(int left, int right)
 		{
+			if (left < 0 || right < 0 || left > size_ || right > size_ || left >= right) throw std::logic_error("invalid range");
 			return request(0, Interval(0, size_), Interval(left, right));
 		}
 		void apply(int left, int right, const ModificationType& modification)
 		{
+			if (left < 0 || right < 0 || left > size_ || right > size_ || left >= right) throw std::logic_error("invalid range");
 			apply(0, Interval(0, size_), Interval(left, right), modification);
 		}
 	private:
-		const int size_;
+		const size_t size_;
 		MergeElementFunc merge_element_func_;
 		MergeModificationFunc merge_modification_func_;
 		ApplyModificationFunc apply_modification_func_;
@@ -68,8 +72,8 @@ class IntervalTree
 		  public:
 			boost::optional<ElementType> value;
 			boost::optional<ModificationType> modification;
-			explicit node(){};
-			node(ElementType value): value(value)
+			node(){};
+			explicit node(ElementType value): value(value)
 			{
 			}
 			node(ElementType value, ModificationType modification): value(value), modification(modification)
@@ -85,7 +89,7 @@ class IntervalTree
 				tree[destination].modification = tree[source].modification;
 		}
 		// TODO: iterators needed. 
-		bool is_valid_position(int position) const 
+		bool is_valid_position(size_t position) const 
 		{
 			return 0 <= position && position < tree.size();
 		}
@@ -114,7 +118,6 @@ class IntervalTree
 
 		ElementType request(int node, const Interval& current_range, const Interval& request_range)
 		{
-//			std::cerr << "node " << node << ", requesting " << request_range << ", range " << current_range << std::endl;
 			update(node);
 			if (request_range.contains(current_range))
 				return tree[node].value.get();
@@ -143,7 +146,6 @@ class IntervalTree
 				return;
 			apply(left(node), current_range.left_half(), request_range, modification);
 			apply(right(node), current_range.right_half(), request_range, modification);
-			//recount needed
 			tree[node].value = merge_element_func_(get_value(left(node)), get_value(right(node)));
 		}
 }; 

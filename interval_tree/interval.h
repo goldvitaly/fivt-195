@@ -40,10 +40,6 @@ class Interval
 		  return std::max(0, right_bound - left_bound);
 	  }
 	  int left_bound, right_bound;
-	  static Interval intersect(const Interval& first, const Interval& second) 
-	  {
-		  return Interval( std::max(first.left_bound, second.left_bound), std::min(first.right_bound, first.right_bound)); 
-	  }
 };
 
 std::ostream& operator << (std::ostream& stream, const Interval& interval)

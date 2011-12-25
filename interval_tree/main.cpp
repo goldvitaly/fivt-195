@@ -1,5 +1,3 @@
-#define private public
-
 #include "rmq_assign_modification.h"
 #include "rmq_plus_modification.h"
 
@@ -37,10 +35,11 @@ int test_rmq_assign_modification(int size, int requests, const T& initial_value,
 			if (array_request_value != tree_request_value)
 			{
 				std::cerr << "Error: incorrent value on step " << request_number + 1 << ". Expected value: " << array_request_value << ", got: " << tree_request_value  << std::endl;
-				return 1;
+				return 0;
 			}
 		}
 	}
+	return 1;
 }
 
 template <class T, class Generator, class Comparator = std::less<T>, class BinaryOperation = std::plus<T> > 
