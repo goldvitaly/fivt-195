@@ -13,29 +13,29 @@ private:
         size_t l, r;
         Interval leftPart() const
         {
-			return Interval(l, (l + r) >> 1);
-		}
-		Interval rightPart() const
-		{
-			return Interval(((l + r) >> 1) + 1, r);
-		}
-		bool inside(const Interval & b) const
-		{
-			return l >= b.l && r <= b.r;
-		}
-		bool intersect(const Interval & b) const
-		{
-			return r >= b.l && l <= b.r;
-		}
-		size_t length() const
-		{
-			return r - l + 1;
-		}
-		Interval(const int &l, const int &r) : l(l), r(r)
-		{
-			assert(l <= r);
-			assert(l >= 0);
-		}
+		return Interval(l, (l + r) >> 1);
+	}
+	Interval rightPart() const
+	{
+		return Interval(((l + r) >> 1) + 1, r);
+	}
+	bool inside(const Interval & b) const
+	{
+		return l >= b.l && r <= b.r;
+	}
+	bool intersect(const Interval & b) const
+	{
+		return r >= b.l && l <= b.r;
+	}
+	size_t length() const
+	{
+		return r - l + 1;
+	}
+	Interval(const int l, const int r) : l(l), r(r)
+	{
+		assert(l <= r);
+		assert(l >= 0);
+	}
     };
 
     struct TreeElement
@@ -55,23 +55,23 @@ private:
     size_t kolElem;
     const static size_t root = 1;
 
-    Interval fullInterval()
+    Interval fullInterval() const
     {
         return Interval(1, lastLevel - 1);
     }
-    inline size_t leftChild(const size_t &pos)
+    inline size_t leftChild(const size_t pos) const
     {
         return pos << 1;
     }
-    inline size_t rightChild(const size_t &pos)
+    inline size_t rightChild(const size_t pos) const
     {
         return (pos << 1) + 1;
     }
-    inline size_t parent(const size_t &pos)
+    inline size_t parent(const size_t pos) const
     {
         return pos >> 1;
     }
-    size_t minstep2(const size_t &x)
+    size_t minpower2(const size_t x) const
     {
         size_t p = 1;
         while (p < x)
@@ -79,12 +79,12 @@ private:
         return p;
     }
 
-    void off(const size_t &pos)
+    void off(const size_t pos)
     {
         assert(pos < tree.size());
         tree[pos].active = tree[pos].isMod = false;
     }
-    void recalc(const size_t &pos)
+    void recalc(const size_t pos)
     {
         assert(pos < tree.size());
         if (pos >= lastLevel)
@@ -98,7 +98,7 @@ private:
     }
 
 //может быть ещё надо передавать интервал, иначе сумма не будет работать
-    void updMod (const size_t &pos, const ModType &change, const Interval &our)
+    void updMod (const size_t pos, const ModType &change, const Interval &our)
     {
         if (tree[pos].isMod)
         {
@@ -112,7 +112,7 @@ private:
         tree[pos].value = modFunc(tree[pos].value, change, our.length());
     }
 
-    void siftDown(const size_t &pos)
+    void siftDown(const size_t pos)
     {
         assert(pos < lastLevel);
         tree[pos].isMod = false;
@@ -122,7 +122,7 @@ private:
 
 //значение в самой вершине считается при апдэйте
 //инвариант - отрезки перед каждым вызовом обязательно пересекаются
-    ValueType query(const size_t &pos, const Interval &our, const Interval &req)
+    ValueType query(const size_t pos, const Interval &our, const Interval &req)
     {
         assert(pos < tree.size());
         assert(req.intersect(our));
@@ -152,7 +152,7 @@ private:
     }
 
 //инвариант - отрезки перед каждым вызовом обязательно пересекаются
-    void upd(const size_t &pos, const Interval &our, const Interval &req, const ModType &change)
+    void updRange(const size_t pos, const Interval &our, const Interval &req, const ModType &change)
     {
         assert(pos < tree.size());
         if (req.inside(our))
@@ -164,20 +164,21 @@ private:
         siftDown(pos);
         if ((our.leftpart()).intersect(req))
         {
-            upd(leftChild(pos), our.leftPart(), req, change);
+            updRange(leftChild(pos), our.leftPart(), req, change);
             if ((our.rightPart()).intersect(req))
             {
-                upd(rightChild(pos), our.rightPart(), req, change);
+                updRange(rightChild(pos), our.rightPart(), req, change);
             }
         }
         else
         {
             assert((our.rightpart()).intersect(req));
-            upd(rightChild(pos), our.rightPart(), req);
+            updRange(rightChild(pos), our.rightPart(), req);
         }
         recalc(pos);
     }
-    void upds(const size_t &pos)
+
+    void updsingle(const size_t pos)
     {
         assert(pos < tree.size());
         pos = parent(pos);
@@ -198,7 +199,7 @@ private:
     };
 public:
 //конструкторы ещё надо доработать
-    IntervalTree (const ValueType &elem, Merge merge = Merge(),
+    explicit IntervalTree (const ValueType &elem, Merge merge = Merge(),
     ModFunc modFunc = ModFunc(), CompMod compMod = CompMod()):
     lastLevel(1), merge(merge), modFunc(modFunc), compMod(compMod)
     {
@@ -212,25 +213,23 @@ public:
     lastLevel(1), merge(merge), modFunc(modFunc), compMod(compMod)
     {
         int sz = std::distance(begin, end);
-        lastLevel = minstep2(sz);
+        lastLevel = minpower2(sz);
         tree.resize(2 * lastLevel);
         std::copy(begin, end, tree.begin() + lastLevel);
         buildTree();
     }
 
-
-
-    size_t size()
+    size_t size() const
     {
         return kolElem;
     }
 
-    ValueType get(const int &num)
+    ValueType get(const int num)
     {
         return get(num, num);
     }
 
-    ValueType get(const int &left, const int &right)
+    ValueType get(const int left, const int right)
     {
         assert(left >= 0);
         assert(right < kolElem);
@@ -238,14 +237,14 @@ public:
     }
 
 
-    void update(const int &left, const int &right, const ModType &newMod)
+    void update(const int left, const int right, const ModType &newMod)
     {
         assert(left >= 0);
         assert(right < kolElem);
-        upd(root, fullInterval(), Interval(left, right), newMod);
+        updRange(root, fullInterval(), Interval(left, right), newMod);
     }
 
-    void update(const int &num, const ModType &newMod)
+    void update(const int num, const ModType &newMod)
     {
         update(num, num, newMod);
     }
