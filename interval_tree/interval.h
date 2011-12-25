@@ -8,18 +8,22 @@
 class Interval
 {
   public:
-	  Interval left_half() const
+	  inline Interval left_half() const
 	  {
-		  return Interval(left_bound, (left_bound + right_bound) / 2);
+		  return Interval(left_bound, middle());
 	  }
-	  Interval right_half() const
+	  inline Interval right_half() const
 	  {
-		  return Interval( (left_bound + right_bound) / 2, right_bound);
+		  return Interval(middle(), right_bound);
 	  }
 	  Interval()
 	  {
 		  left_bound = 0;
 		  right_bound = 0;
+	  }
+	  int middle() const
+	  {
+		  return (left_bound + right_bound) / 2;
 	  }
 	  Interval(int left, int right)
 	  {

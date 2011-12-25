@@ -23,35 +23,69 @@ class IntervalTree
 		{
 			return size_;
 		}
+		IntervalTree(const std::vector<ElementType>& v, 
+			MergeElementFunc merge_element_func_, MergeModificationFunc merge_modification_func_, ApplyModificationFunc apply_modification_func_):
+				size_(v.size()), merge_element_func_(merge_element_func_), 
+				merge_modification_func_(merge_modification_func_), apply_modification_func_(apply_modification_func_) 
+		{
+			init();
+			for (int i = 0; i < size_; i ++) 
+				tree[leaves_begin_position_ + i].value = v[i];
+			recount();
+		}	
 		IntervalTree(size_t size_, const ElementType& element, 
 			MergeElementFunc merge_element_func_, MergeModificationFunc merge_modification_func_, ApplyModificationFunc apply_modification_func_):
 				size_(size_), merge_element_func_(merge_element_func_), 
 				merge_modification_func_(merge_modification_func_), apply_modification_func_(apply_modification_func_) 
+		{
+			init();
+			for (int i = leaves_begin_position_; i < leaves_begin_position_ + leaves_number_; i ++) 
+				tree[i].value = element;
+			recount();
+		}	
+		// TODO: provide ability to use any type for requesting
+		// TODO: 0- or 1- numeration? Current - 0. now using [) - intervals
+		ElementType request(size_t left, size_t right)
+		{
+			if (!valid_range(left, right)) throw std::logic_error("invalid range");
+			return request(0, Interval(0, leaves_number_), Interval(left, right));
+		}
+		void apply(size_t left, size_t right, const ModificationType& modification)
+		{
+			if (!valid_range(left,right)) throw std::logic_error("invalid range");
+			apply(0, Interval(0, leaves_number_ ), Interval(left, right), modification);
+		}
+	private:
+		bool valid_range(size_t left, size_t right) const 
+		{
+			return !(left > size_ || right > size_ || left >= right);
+		}
+		void init()
 		{
 			leaves_number_ = 2;
 			while (leaves_number_ < size_)  // TODO: do something for avoiding overflowing
 				leaves_number_ *= 2;
 			tree.resize(2 * leaves_number_ - 1);
 			leaves_begin_position_ = leaves_number_ - 1;
-			for (int i = leaves_begin_position_; i < leaves_begin_position_ + leaves_number_; i ++) 
-				tree[i].value = element;
+		}
+		void recount()
+		{
 			for (int i = leaves_begin_position_ - 1; i >= 0; i --)
-				tree[i].value = merge_element_func_(tree[left(i)].value.get(), tree[right(i)].value.get());
-		}	
-		// TODO: provide ability to use any type for requesting
-		// TODO: 0- or 1- numeration? Current - 0. now using [) - intervals
-		ElementType request(int left, int right)
-		{
-			if (left < 0 || right < 0 || left > size_ || right > size_ || left >= right) throw std::logic_error("invalid range");
-			return request(0, Interval(0, size_), Interval(left, right));
+			{
+				bool has_left_value = tree[left(i)].value;
+				bool has_right_value = tree[right(i)].value;
+				if (has_left_value && has_right_value)
+				{
+					tree[i].value = merge_element_func_(tree[left(i)].value.get(), tree[right(i)].value.get());
+					continue;
+				}
+				if (has_left_value)
+					tree[i].value = tree[left(i)].value.get();
+				if (has_right_value)
+					tree[i].value = tree[right(i)].value.get();
+			}
 		}
-		void apply(int left, int right, const ModificationType& modification)
-		{
-			if (left < 0 || right < 0 || left > size_ || right > size_ || left >= right) throw std::logic_error("invalid range");
-			apply(0, Interval(0, size_), Interval(left, right), modification);
-		}
-	private:
-		const size_t size_;
+		size_t size_;
 		MergeElementFunc merge_element_func_;
 		MergeModificationFunc merge_modification_func_;
 		ApplyModificationFunc apply_modification_func_;
@@ -75,8 +109,7 @@ class IntervalTree
 			node(){};
 			explicit node(ElementType value): value(value)
 			{
-			}
-			node(ElementType value, ModificationType modification): value(value), modification(modification)
+			}node(ElementType value, ModificationType modification): value(value), modification(modification)
 			{
 			}
 		};
@@ -124,8 +157,8 @@ class IntervalTree
 			assert(request_range.intersects(current_range));
 			Interval left_range = current_range.left_half();
 			Interval right_range = current_range.right_half();
-			bool need_left_request = left_range.intersects(request_range);
-			bool need_right_request = right_range.intersects(request_range);
+			bool need_left_request = left_range.intersects(request_range) && tree[left(node)].value;
+			bool need_right_request = right_range.intersects(request_range) && tree[right(node)].value;
 			if (need_left_request && need_right_request)
 				return merge_element_func_(request(left(node), left_range, request_range), request(right(node), right_range, request_range));
 			if (need_left_request)
@@ -142,11 +175,23 @@ class IntervalTree
 				tree[node].modification = modification;
 				return;
 			}
+			if (!tree[node].value) 
+				return;
 			if (!request_range.intersects(current_range))
 				return;
 			apply(left(node), current_range.left_half(), request_range, modification);
 			apply(right(node), current_range.right_half(), request_range, modification);
-			tree[node].value = merge_element_func_(get_value(left(node)), get_value(right(node)));
+			bool has_left_value = tree[left(node)].value;
+			bool has_right_value = tree[right(node)].value;
+			if (has_left_value && has_right_value)
+			{
+				tree[node].value = merge_element_func_(get_value(left(node)), get_value(right(node)));
+				return;
+			}
+			if (has_left_value)
+				tree[node].value = get_value(left(node));
+			if (has_right_value)
+				tree[node].value = get_value(right(node));
 		}
 }; 
 
