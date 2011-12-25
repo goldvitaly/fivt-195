@@ -1,1 +1,15 @@
-This is just a README for my Binomial Heap.
+Binomial Heap branch README.
+
+binomial_heap.hpp
+--->
+    BinomialHeap Implementation
+    file includes:
+      BinomialHeap Class
+      Class Method's Definitions
+
+tester.cpp
+--->
+    Stress Test
+    generates random array and sort it using BinomialHeap(Insert/PopMin)
+    checks the correctness of BinomialHeap sorting algorithm.
+  

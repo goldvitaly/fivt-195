@@ -3,11 +3,13 @@
 #include <map>
 #include <exception>
 #include <stdexcept>
+#include <algorithm>
 #include "binomial_heap.hpp"
 
 using namespace std;
 
 const int element_count = 10000;
+const int iterations = 1000000;
 
 vector<int> RandomVector(int size) {
   vector<int> result;
@@ -29,10 +31,22 @@ void Print(const vector<int>& array) {
   printf("\n");
 }
 
+void TestMergeMemoryLeaks(int iterations) {
+  for(int i = 0; i < iterations; i++) {
+    typedef BinomialTree<int> tree;
+    typedef std::shared_ptr<BinomialTree<int>> ptree;
+
+    ptree tree1(new tree(rand()));
+    ptree tree2(new tree(rand()));
+    ptree result = tree::Merge(tree1, tree2);
+  }
+}
+
 map<int, int> counter;
 
 int main() {
   srand(42);
+  double t1 = clock();
   BinomialHeap<int> heap;
   vector<int> array = RandomVector(element_count);
   for(int i = 0; i < array.size(); i++) {
@@ -50,6 +64,9 @@ int main() {
   }
   if (!Sorted(array))
     throw logic_error("Bad sort order");
-  printf("OK\n");
+
+  TestMergeMemoryLeaks(iterations);
+  double t2 = clock();
+  printf("Execution time: %.3lf\n", (t2 - t1) / CLOCKS_PER_SEC);
   return 0;
 }

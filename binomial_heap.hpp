@@ -57,7 +57,8 @@ class BinomialTree {
 
     T->size_ = A->size_ + B->size_;
 
-    A = B = 0;
+    A = 0;
+    B = 0;
     return T;
   }
 
@@ -80,7 +81,7 @@ class BinomialHeap {
     return size_;
   }
 
-  void AddToRootList(ptree& item) {
+  void MoveToRootList(ptree& item) {
     if (item) {
       this->root_list_.push_back(item);
       this->size_ += item->size();
@@ -97,27 +98,27 @@ class BinomialHeap {
     for(auto it : root_list_)
       maxrank = std::max(maxrank, it->rank());
     
-    std::vector<ptree> add_items1(maxrank + 2), add_items2(maxrank + 2);
+    std::vector<ptree> heap1_tree(maxrank + 2), heap2_tree(maxrank + 2);
 
     for(auto it : H->root_list_)
-      add_items1[it->rank()] = it;
+      heap1_tree[it->rank()] = it;
 
     for(auto it : root_list_)
-      add_items2[it->rank()] = it;
+      heap2_tree[it->rank()] = it;
       
     this->size_ = 0;
     this->root_list_.clear();
 
     ptree carry = 0;
     for(int i=0; i <= maxrank + 1; ++i) {
-      if (carry && add_items1[i] && add_items2[i])
-        AddToRootList(carry);
+      if (carry && heap1_tree[i] && heap2_tree[i])
+        MoveToRootList(carry);
 
-      carry = tree::Merge(add_items1[i], carry);
-      carry = tree::Merge(add_items2[i], carry);
+      carry = tree::Merge(heap1_tree[i], carry);
+      carry = tree::Merge(heap2_tree[i], carry);
 
       if (carry && (carry->rank() == i))
-        AddToRootList(carry);
+        MoveToRootList(carry);
     }
     H = 0;
   }
