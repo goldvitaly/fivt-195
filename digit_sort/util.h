@@ -15,17 +15,20 @@ int stringExtractor (const string& s, size_t BlockNumber)
 	else
 		return s[MaxLength - BlockNumber - 1];
 }
+template<typename T>
+inline int integerExtractor (const T& a, size_t BlockNumber)
+{
+	if (BlockNumber >= sizeof(T))
+		return -1;
+	return (a >> (BlockNumber * sizeof(T))) & 0xFF;
+}
 inline int intExtractor (const int& a, size_t BlockNumber)
 {
-	if (BlockNumber > 3)
-		return -1;
-	return (a >> (BlockNumber * 8)) & 0xFF;
+	return integerExtractor<int> (a, BlockNumber);
 }
 inline int i64Extractor (const long long& a, size_t BlockNumber)
 {
-	if (BlockNumber > 7)
-		return -1;
-	return (a >> (BlockNumber * 8)) & (long long)0xFF;
+	return integerExtractor<long long> (a, BlockNumber);
 }
 inline int pairExtractor (const pair<int, int>& a, size_t BlockNumber)
 {

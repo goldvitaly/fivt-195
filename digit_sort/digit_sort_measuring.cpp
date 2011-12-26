@@ -1,4 +1,5 @@
 #include <cassert>
+#include <numeric>
 #include <typeinfo>
 #include <cassert>
 #include <iostream>
@@ -25,7 +26,7 @@ using namespace std;
    * @brief Digitally sort range [begin, end)
    * @param	begin		Start of range to sort.
    * @param end			End of range to sort
-   * @param Extractor	(ObjectType &object, size_t BlockNumber) -> size_t Block
+   * @param Extractor	(const OT& object, size_t BlockNumber) -> size_t Block
    * @return void
   */
   
@@ -65,8 +66,9 @@ void digit_sort(Iterator begin, Iterator end, BlockExtractor Extractor, size_t E
 				blockAmount.resize(ExtractedValue + 3);
 			++ blockAmount[ExtractedValue];
 		}
-		for (vector<size_t> :: iterator it = blockAmount.begin(); it != blockAmount.end() - 1; ++it)
-			*(it + 1) += *it;
+		//for (vector<size_t> :: iterator it = blockAmount.begin(); it != blockAmount.end() - 1; ++it)
+//			*(it + 1) += *it;
+		std :: partial_sum(blockAmount.begin(), blockAmount.end(), blockAmount.begin());
 		
 		for (Iterator it = begin; it != end; ++ it)
 		{
@@ -84,19 +86,22 @@ void digit_sort(Iterator begin, Iterator end, BlockExtractor Extractor, size_t E
 template<class Iterator>
 bool is_sorted (Iterator begin, Iterator end)
 {
-	for (Iterator it = begin; it < end - 1; it++)
-		if (*it > *(it + 1))
+	Iterator it1 = begin;
+	++it1;
+	while (it1 != end)
+	{
+		if (*begin > *it1)
 			return false;
+		++it1;
+	}
 	return true;
 }
 template<class T, class Extractor, class T_Gen>
-void measure(Extractor BlockExtractor, T_Gen Gen, string tname = "my class", int step = 100000)
+void measure(Extractor BlockExtractor, T_Gen Gen, const string& tname = "my class", int step = 100000)
 {	
-	enum
-	{
-		maxn = 5000000,
-		seed = 991845232
-	};
+	
+	const int maxn = 5000000,
+			  seed = 991845232;
 	clock_t start;
 	
 	T *d = new T[maxn];
