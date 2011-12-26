@@ -8,16 +8,42 @@
 #define NULL 0L
 #endif
 
-namespace rq{
+/**
+ * Для работы со структурой пользователю требуется реализовать два класса.
+ * 
+ * Первый должен обеспечивать бинарную операцию слияния двух хранимых значений
+ * типа Т и включать реализацию двух методов:
+ * 
+ * const T& operator() (const T&, const T&) - операция слияния
+ * void reset (T&) - присвоение хранимому элементу значения по умолчанию.
+ * 
+ * 
+ * Второй должен обеспечивать применение изменений и их слияние. Для этого
+ * требуется реализация следующих методов (T - тип хранимого элемента, 
+ * TMod - тип значения модификации):
+ * 
+ * конструктор от двух чисел типа int - правая и левая граница отрезка, которому
+ * соответствует модификация
+ * const T& merge (const T&, const TMod&) - применение модификации к значению
+ * void mergeMod (const TMod&, TMod&) - проталкивание модификации от первого параметра ко второму
+ * void reset (TMod&) - обнуление модификации
+ * 
+ * 
+ * В комплекте также есть две пары стандартных классов (работающих только для элементарных типов
+ * из-за сложности с начальными значениями, которые должен определять пользователь):
+ * 1) min, minPainter - взятие минимума с операцией замены на отрезке
+ * 2) sum, sumAdder - взятие суммы с прибавлением на отрезке
+ */
+
+namespace range_query{
 
 template<typename T>
 class min
 {
 public:
-	const T& getNeutral() const
+	T getNeutral() const
 	{
-		const static T tmp = std :: numeric_limits<T> :: max();
-		return tmp;
+		return std :: numeric_limits<T> :: max();
 	}
 	const T& operator() (const T& a, const T& b) const
 	{
@@ -193,19 +219,19 @@ private:
 	node<T, Func, TMod, Modder> *base;
 	
 public:
-	RangeQuery(int lq, int rq)
+	RangeQuery(int left, int right)
 	{
-		base = new node<T, Func, TMod, Modder>(lq, rq);
+		base = new node<T, Func, TMod, Modder>(left, right);
 	}
-	T get (int lq, int rq)
+	T get (int left, int right)
 	{
-		return base->get(lq, rq);
+		return base->get(left, right);
 	}
-	void update(int lq, int rq, TMod x)
+	void update(int left, int right, TMod x)
 	{
-		base->modify(lq, rq, x);
+		base->modify(left, right, x);
 	}
 };
 
-} //namespace rq
+} //namespace range_query
 #endif
