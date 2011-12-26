@@ -42,7 +42,7 @@ void OutSort(const std::string &inputName, const std::string &outputName, Compar
     std::ofstream res;
     in.open(inputName, std::ifstream::in);
     res.open(outputName, std::ofstream::out);
-    //const int maxsize = 30; // for debugging
+    //const int maxSize = 300; // for debugging
     const int maxSize = 50000000; // maximal memory, which we can use
 
     typedef std::pair <TypeElem, std::fstream *> mergePair;
@@ -82,7 +82,7 @@ void OutSort(const std::string &inputName, const std::string &outputName, Compar
         std::fstream * tmpFile = new std::fstream;
         (*tmpFile).open(files[i].second, std::fstream::in);
         (*tmpFile) >> elem;
-        q.push(make_pair(elem, tmpFile));
+        q.push(std::make_pair(elem, tmpFile));
     }
 
 //merging with queue
