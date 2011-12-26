@@ -10,10 +10,11 @@
 using namespace std;
 
 enum{blockSize = 1000000};
-const char *file1, *file2;
 
 int main(int argc, char* argv[])
 {
+	const char *file1,
+			   *file2;
 	assert(argc > 1);
 	file1 = argv[1];
 	

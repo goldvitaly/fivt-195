@@ -11,21 +11,23 @@
 #include <iostream>
 using namespace std;
 
+template<typename T>
+T readInteger(istream& in)
+{
+	T res = 0;
+	for (size_t i = 0; i < sizeof(T); i++)
+		res = (res << 8) | (in.get());
+	return res;
+}
 int readInt(istream& in)
 {
-	int res = 0;
-	for (int i = 0; i < 4; i++)
-		res = (res << 8) | (in.get());
-	return res;
+	return readInteger<int>(in);
 }
-int readI64(istream& in)
+long long readI64(istream& in)
 {
-	long long res = 0;
-	for (int i = 0; i < 8; i++)
-		res = (res << 8) | (in.get());
-	return res;
+	return readInteger<long long>(in);
 }
-long long readInt(char* s)
+long long readI64(char* s)
 {
 	long long result = 0;
 	int len = strlen(s);
@@ -37,22 +39,18 @@ long long readInt(char* s)
 	return result;
 }
 
-
+template<typename T>
+void writeInteger (ostream& out, T x)
+{
+	out.write((char*)x, sizeof(T));
+}
 void writeInt(ostream& out, int x)
 {
-	for (int i = 8*3, j = 0xFF000000; i >= 0; i -= 8, j >>= 8)
-	{
-		char toWrite = (x & j) >> i;
-		out.put(toWrite);
-	}	
+	writeInteger<int>(out, x);
 }
 void writeI64(ostream& out, long long x)
 {
-	for (long long i = 8*7, j = 0xFF00000000000000ll; i >= 0; i -= 8, j >>= 8)
-	{
-		char toWrite = (x & j) >> i;
-		out.put(toWrite);
-	}	
+	writeInteger<long long>(out, x);
 }
 
 streamoff fileSize(iostream& st)
@@ -66,23 +64,15 @@ streamoff fileSize(iostream& st)
 	st.seekg(tmp);
 	return end - beg;
 }
-void advp(ostream& st, int k)
-{
-	st.seekp(k, st.cur);
-}
-void advg(istream& st, int k)
-{
-	st.seekg(k, st.cur);
-}
 
 int peekInt(istream &st)
 {
 	int t = readInt(st);
-	advg(st, -4);
+	st.seekg(-4, st.cur);
 	return t;
 }
 
-void printFile(istream& st, streampos b = 0, streampos e = -1, ostream& out = cout)
+void printFile(istream& st, streampos b, streampos e, ostream& out)
 {
 	streampos tmp = st.tellg();
 	if (e == -1)
@@ -100,6 +90,18 @@ void printFile(istream& st, streampos b = 0, streampos e = -1, ostream& out = co
 	out << endl;
 	
 	st.seekg(tmp);
+}
+void printFile (istream& st)
+{
+	printFile(st, 0, -1, cout);
+}
+void printFile(istream& st, streampos b, streampos e)
+{
+	printFile(st, b, e, cout);
+}
+void printFile(istream& st, ostream& out)
+{
+	printFile(st, 0, -1, out);
 }
 void copy (const char* src, const char* dst)
 {
