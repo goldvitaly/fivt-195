@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	assert(argc > 2);
 	
 	fstream out (argv[1], ios :: out | ios :: binary);
-	long long n = readInt(argv[2]);
+	long long n = readI64(argv[2]);
 	int seed = (argc > 3 ? atoi(argv[3]) : 1984202);
 	
 	srand(seed);
