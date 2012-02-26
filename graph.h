@@ -18,7 +18,7 @@ public:
     {
         neighbours.erase(nameVer);
     }
-    std::vector<TypeNameVer>* list_neighbour()
+    std::vector<TypeNameVer>* list_neighbour() const
     {
         //set<TypeNameVer>::iterator it;
         std::vector<TypeNameVer>* Vec = new std::vector<TypeNameVer>;
@@ -26,7 +26,7 @@ public:
         std::copy(neighbours.begin(), neighbours.end(), Vec->begin());
         return Vec;
     }
-    size_t degree()
+    size_t degree() const
     {
         return neighbours.size();
     }
@@ -40,41 +40,43 @@ class Graph {
 public:
     void add_vertex(const TypeNameVer& nameVer, const StructVer& structVer = StructVer())
     {
+        check_exist(nameVer, false);
         graph.insert(std::make_pair(nameVer, structVer));
     }
     void delete_vertex(const TypeNameVer& nameVer)
     {
-        check_exist(nameVer);
+        check_exist(nameVer, true);
         graph.erase(nameVer);
     }
     void add_edge(const TypeNameVer& outVer, const TypeNameVer& inVer)
     {
-        check_exist(outVer);
-        check_exist(inVer);
+        check_exist(outVer, true);
+        check_exist(inVer, true);
         graph[outVer].add_neighbour(inVer);
     }
     void delete_edge(const TypeNameVer& outVer, const TypeNameVer& inVer)
     {
-        check_exist(outVer);
-        check_exist(inVer);
+        check_exist(outVer, true);
+        check_exist(inVer, true);
         graph[outVer].delete_neighbour(inVer);
     }
     std::vector<TypeNameVer>* list_neighbour(const TypeNameVer& nameVer)
     {
-        check_exist(nameVer);
+        check_exist(nameVer, true);
         return graph[nameVer].list_neighbour();
     }
-    size_t size()
+    size_t size() const
     {
         return graph.size();
     }
 private:
     std::map <TypeNameVer, StructVer> graph;
-    void check_exist(const TypeNameVer& nameVer)
+    void check_exist(const TypeNameVer& nameVer, bool suppos) const
     {
-        if(graph.find(nameVer) == graph.end())
+        bool activity = (graph.find(nameVer) != graph.end());
+        if(activity != suppos)
         {
-            std::cerr << "Don't find vertex" << std::endl;
+            std::cerr << "Error" << std::endl;
             exit(0);
         }
     }
