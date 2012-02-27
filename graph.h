@@ -10,25 +10,28 @@
 template<class TypeNameVer>
 class Vertex {
 public:
-    void add_neighbour(const TypeNameVer& nameVer)
+    virtual void add_neighbour(const TypeNameVer& nameVer)
     {
         neighbours.insert(nameVer);
     }
-    void delete_neighbour(const TypeNameVer& nameVer)
+    virtual void delete_neighbour(const TypeNameVer& nameVer)
     {
         neighbours.erase(nameVer);
     }
-    std::vector<TypeNameVer>* list_neighbour() const
+    virtual std::vector<TypeNameVer>* list_neighbour() const
     {
-        //set<TypeNameVer>::iterator it;
         std::vector<TypeNameVer>* Vec = new std::vector<TypeNameVer>;
         Vec->resize(neighbours.size());
         std::copy(neighbours.begin(), neighbours.end(), Vec->begin());
         return Vec;
     }
-    size_t degree() const
+    virtual size_t degree() const
     {
         return neighbours.size();
+    }
+    virtual ~Vertex<TypeNameVer>()
+    {
+        neighbours.clear();
     }
 private:
     std::set<TypeNameVer> neighbours;

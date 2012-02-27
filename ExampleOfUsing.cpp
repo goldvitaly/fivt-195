@@ -10,31 +10,31 @@
 template<class TypeNameVer>
 class MyVertex : public Vertex<TypeNameVer> {
 public:
-    virtual void add_neighbour(const TypeNameVer& nameVer)
+    void add_neighbour(const TypeNameVer& nameVer)
     {
         neighbours.push_back(nameVer);
     }
-    virtual void delete_neighbour(const TypeNameVer& nameVer)
+    void delete_neighbour(const TypeNameVer& nameVer)
     {
         neighbours.erase(find(neighbours.begin(), neighbours.end(), nameVer));
     }
-    virtual std::vector<TypeNameVer>* list_neighbour() const
+    std::vector<TypeNameVer>* list_neighbour() const
     {
         std::vector<TypeNameVer>* Vec = new std::vector<TypeNameVer>;
         Vec->resize(neighbours.size());
         std::copy(neighbours.begin(), neighbours.end(), Vec->begin());
         return Vec;
     }
-    virtual size_t degree() const
+    size_t degree() const
     {
         return neighbours.size();
     }
-    virtual ~MyVertex()
+    ~MyVertex()
     {
         neighbours.clear();
     }
 private:
-    std::vector<TypeNameVer> neighbours;  // ?
+    std::vector<TypeNameVer> neighbours;
 };
 
 void make_graph(Graph<int, Vertex<int> >& graph, int numVer)
@@ -62,6 +62,7 @@ void dfs(int vertex, Graph<int, Vertex<int> >& graph, std::vector<int>& mark)
             dfs((*neighbours)[i], graph, mark);
         }
     }
+    delete neighbours;
 }
 
 int main()
