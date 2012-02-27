@@ -18,11 +18,11 @@ public:
     {
         neighbours.erase(nameVer);
     }
-    virtual std::vector<TypeNameVer>* list_neighbour() const
+    virtual std::vector<TypeNameVer> list_neighbour() const
     {
-        std::vector<TypeNameVer>* Vec = new std::vector<TypeNameVer>;
-        Vec->resize(neighbours.size());
-        std::copy(neighbours.begin(), neighbours.end(), Vec->begin());
+        std::vector<TypeNameVer> Vec;
+        Vec.resize(neighbours.size());
+        std::copy(neighbours.begin(), neighbours.end(), Vec.begin());
         return Vec;
     }
     virtual size_t degree() const
@@ -63,7 +63,7 @@ public:
         check_exist(inVer, true);
         graph[outVer].delete_neighbour(inVer);
     }
-    std::vector<TypeNameVer>* list_neighbour(const TypeNameVer& nameVer)
+    std::vector<TypeNameVer> list_neighbour(const TypeNameVer& nameVer)
     {
         check_exist(nameVer, true);
         return graph[nameVer].list_neighbour();

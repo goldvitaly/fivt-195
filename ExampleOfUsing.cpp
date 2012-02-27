@@ -18,11 +18,11 @@ public:
     {
         neighbours.erase(find(neighbours.begin(), neighbours.end(), nameVer));
     }
-    std::vector<TypeNameVer>* list_neighbour() const
+    std::vector<TypeNameVer> list_neighbour() const
     {
-        std::vector<TypeNameVer>* Vec = new std::vector<TypeNameVer>;
-        Vec->resize(neighbours.size());
-        std::copy(neighbours.begin(), neighbours.end(), Vec->begin());
+        std::vector<TypeNameVer> Vec;
+        Vec.resize(neighbours.size());
+        std::copy(neighbours.begin(), neighbours.end(), Vec.begin());
         return Vec;
     }
     size_t degree() const
@@ -53,16 +53,15 @@ void make_graph(Graph<int, Vertex<int> >& graph, int numVer)
 void dfs(int vertex, Graph<int, Vertex<int> >& graph, std::vector<int>& mark)
 {
     mark[vertex] = 1;
-    std::vector<int>* neighbours;
+    std::vector<int> neighbours;
     neighbours = graph.list_neighbour(vertex);
-    for(size_t i = 0; i < neighbours->size(); i++)
+    for(size_t i = 0; i < neighbours.size(); i++)
     {
-        if(mark[(*neighbours)[i]] != 1)
+        if(mark[neighbours[i]] != 1)
         {
-            dfs((*neighbours)[i], graph, mark);
+            dfs(neighbours[i], graph, mark);
         }
     }
-    delete neighbours;
 }
 
 int main()
