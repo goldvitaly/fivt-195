@@ -6,7 +6,7 @@ using namespace std;
 Graph <int> a;
 int res, n, x, m;
 
-//здесь решение задачи из архива codeforces 115A
+
 
 void dfs(Graph<int>::Node* u, int col)
 {
