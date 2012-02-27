@@ -1,6 +1,6 @@
 #ifndef INCIDENTS_HPP
 #define INCIDENTS_HPP
-
+//dummy
 class Incidents {
 public:
 	class Iterator {
