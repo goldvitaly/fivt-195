@@ -5,23 +5,26 @@ using namespace std;
 
 int main()
 {
-	cout << "Sizeof Vertex<int, int>: " << sizeof(Vertex<int, int> ) << endl;
-	//int-vertex test
-	const int int_sz = 10000;
-	Graph<Vertex<int, int>, int> g;
-	for(int i = 0; i < int_sz; i++)
+	//basic-vertex test
+	Graph<Vertex<string>, int> g;
+	string n[] = {"MSC", "NY", "LA", "London"};
+	Vertex<string> v[4];
+	for(int i = 0; i < 4; i++)
 	{
-		int id = i;
-		int val = i * i % 1000001 + i % 100001;
-		Vertex<int, int> v(id, val);
-		g.addVertex(v);
+		v[i] = Vertex<string>(n[i]);
+		g.addVertex(v[i]);
 	}
-	for(int i = 0; i < int_sz; i++)
+	g.link(n[0], n[3], 100);
+	g.link(n[3], n[1], 300);
+	g.link(n[1], n[2], 50);
+	g.link(n[2], n[0], 400);
+	for(int i = 0; i < 4; i++)
 	{
-		int v1 = i;
-		int v2 = i * i % int_sz;
-		int edge = i * i * i % 10001;
-		g.link(v1, v2,  edge);
+		Graph<Vertex<string>, int>::links_list_t list = g.getLinksList(n[i]);
+		Graph<Vertex<string>, int>::links_iterator_t iter = list.begin();
+		while(iter != list.end())
+			cout << iter++->first << endl;
+		cout << "---" << endl;
 	}
 	return 0;
 }
