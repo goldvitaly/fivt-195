@@ -18,9 +18,6 @@ public:
 		Iterator(BaseIterator* iter):it(iter){
 			//std::cerr<<"Create Iter"<<this<<' '<<it.<<std::endl;
 		}
-		Iterator(Iterator&& iter):it(iter.it){
-			iter.it = 0;
-		}
 		void operator ++ (){
 			++(*it);
 			//return *this;
