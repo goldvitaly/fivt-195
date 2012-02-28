@@ -16,12 +16,10 @@ int main(int argc, char** argv) {
 	graph.addEdge(0,3);
 	graph.addEdge(2,1);
 	graph.addEdge(2,3);
-	Incidents::Iterator* it = graph.getIncidents(2)->createIterator();
-	for(; it->is_valid(); it->increase()){
-		cout<<it->value()<<' ';
+	for(auto vertex_id: *graph.getIncidents(2)){
+	//for(auto vertex_id = graph.getIncidents(2)->begin(),end=graph.getIncidents(2)->end();vertex_id!=end; ++vertex_id){
+		(cout<<vertex_id<<' ').flush();
 	}
-	delete it;
-	
 	return 0;
 }
 

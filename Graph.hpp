@@ -7,8 +7,8 @@ class Graph{
 	std::vector<Incidents*> incidents;
 public:
 	//reachs ownership
-	void addVertex(Incidents* vertixIncidents){
-		incidents.push_back(vertixIncidents);
+	void addVertex(Incidents* vertexIncidents){
+		incidents.push_back(vertexIncidents);
 	}
 	
 	void addEdge(size_t from, size_t to){
@@ -32,7 +32,7 @@ public:
 	}
 	
 	~Graph(){
-		for(int i=0;i<incidents.size();++i){
+		for(size_t i=0;i<incidents.size();++i){
 			delete incidents[i];
 		}
 	}

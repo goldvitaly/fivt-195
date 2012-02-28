@@ -2,37 +2,39 @@
 #define VECTORINCIDENTS_HPP
 #include <vector>
 #include "Incidents.hpp"
+#include <typeinfo>
 class VectorIncidents : public Incidents {
 public:
-	class Iterator : public Incidents::Iterator {
+	class BaseIterator : public Incidents::BaseIterator {
 	public:
-		Iterator(const std::vector<size_t>& v){
-			cur = v.begin();
-			end = v.end();
+		BaseIterator(const std::vector<size_t>::const_iterator& iter):iter(iter){}
+		virtual void operator ++ () {
+			++iter;
 		}
-	
-		virtual bool is_valid() const {
-			return cur != end;
+		virtual size_t operator * () const {
+			return *iter;
 		}
-		virtual void increase(){
-			++cur;
-		}
-		virtual size_t value() const {
-			return *cur;
+		virtual bool operator != (const Incidents::BaseIterator& base) const {
+			try{
+				const BaseIterator& second = dynamic_cast<const BaseIterator&>(base);
+				return iter != second.iter;
+			}
+			catch(std::bad_cast){
+				return false;
+			}
 		}
 	private:
-		std::vector<size_t>::const_iterator cur, end;
+		std::vector<size_t>::const_iterator iter;
 	};
 
-	VectorIncidents(){
-		
-	}
-	VectorIncidents(std::vector<size_t> v): incidents(v) {
-		
-	}
+	VectorIncidents(){}
+	VectorIncidents(std::vector<size_t> v): incidents(v) {}
 	
-	Incidents::Iterator* createIterator() const {
-		return new VectorIncidents::Iterator(incidents);
+	virtual Iterator begin() const{
+		return Iterator(new BaseIterator(incidents.begin()));
+	}
+	virtual Iterator end() const{
+		return Iterator(new BaseIterator(incidents.end()));
 	}
 	
 	size_t count() const {

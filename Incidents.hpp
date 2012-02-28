@@ -1,16 +1,49 @@
 #ifndef INCIDENTS_HPP
 #define INCIDENTS_HPP
-//dummy
+#include <typeinfo>
+#include <memory>
+
 class Incidents {
 public:
+	class BaseIterator {
+	public:
+		virtual void operator ++ () = 0;
+		virtual size_t operator * () const = 0;
+		virtual bool operator != (const BaseIterator&) const = 0;
+	};
 	class Iterator {
 	public:
-		virtual bool is_valid() const = 0;
-		virtual void increase() = 0;
-		virtual size_t value() const = 0;
-		virtual ~Iterator(){}
+		BaseIterator* it;
+		//reaches ownership
+		Iterator(BaseIterator* iter):it(iter){
+			//std::cerr<<"Create Iter"<<this<<' '<<it.<<std::endl;
+		}
+		Iterator(Iterator&& iter):it(iter.it){
+			iter.it = 0;
+		}
+		void operator ++ (){
+			++(*it);
+			//return *this;
+		}
+		size_t operator * () const {
+			return **it;
+		}
+		~Iterator() {
+			//std::cerr<<"destroy iter"<<this<<' '<<it<<std::endl;
+			delete it;
+		}
+		bool operator != (Iterator& second) const {
+			/*std::cerr<<"Start Iterator::!="<<std::endl;
+			std::cerr<<"Current obj: "<<this<<' '<<it<<std::endl;
+			std::cerr<<"Second obj: "<<&second<<' '<<second.it<<std::endl;
+			std::cerr<<"Current obj type"<<typeid(*it).hash_code()<<std::endl;
+			std::cerr<<"Secont obj type"<<typeid(*(second.it)).hash_code()<<std::endl;
+			std::cerr<<"Call child !="<<std::endl;*/
+			return (*it) != *(second.it);
+		}
 	};
-	virtual Iterator* createIterator() const = 0;
+	virtual Iterator begin() const = 0;
+	virtual Iterator end() const = 0;
 	virtual size_t count() const = 0;
 	virtual void addEdge(size_t to) = 0;
 	virtual void removeEdge(size_t to) = 0;
@@ -19,4 +52,3 @@ public:
 };
 
 #endif /* INCIDENTS_HPP */
-
