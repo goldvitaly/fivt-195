@@ -7,7 +7,7 @@ class VectorIncidents : public Incidents {
 public:
 	class BaseIterator : public Incidents::BaseIterator {
 	public:
-		BaseIterator(const std::vector<size_t>::const_iterator& iter):iter(iter){}
+		explicit BaseIterator(const std::vector<size_t>::const_iterator& iter):iter(iter){}
 		virtual void operator ++ () {
 			++iter;
 		}
@@ -28,7 +28,7 @@ public:
 	};
 
 	VectorIncidents(){}
-	VectorIncidents(std::vector<size_t> v): incidents(v) {}
+	explicit VectorIncidents(std::vector<size_t> v): incidents(v) {}
 	
 	virtual Iterator begin() const{
 		return Iterator(new BaseIterator(incidents.begin()));

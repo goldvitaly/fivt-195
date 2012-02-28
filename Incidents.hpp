@@ -15,7 +15,7 @@ public:
 	public:
 		BaseIterator* it;
 		//reaches ownership
-		Iterator(BaseIterator* iter):it(iter){
+		explicit Iterator(BaseIterator* iter):it(iter){
 			//std::cerr<<"Create Iter"<<this<<' '<<it.<<std::endl;
 		}
 		void operator ++ (){
