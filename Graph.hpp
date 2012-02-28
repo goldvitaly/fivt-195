@@ -5,7 +5,7 @@
 
 class Graph{
 	typedef std::unique_ptr<Incidents> Pointer;
-	std::vector< Pointer > incidents;
+	std::vector<Pointer> incidents;
 public:
 	//reachs ownership
 	void addVertex(Incidents* vertexIncidents){

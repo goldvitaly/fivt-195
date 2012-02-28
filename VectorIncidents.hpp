@@ -7,7 +7,7 @@ class VectorIncidents : public Incidents {
 public:
 	class BaseIterator : public Incidents::BaseIterator {
 	public:
-		explicit BaseIterator(const std::vector<size_t>::const_iterator& iter):iter(iter){}
+		explicit BaseIterator(const std::vector<size_t>::const_iterator& iter): iter(iter){}
 		virtual void operator ++ () {
 			++iter;
 		}
@@ -46,7 +46,7 @@ public:
 	}
 	
 	virtual void removeEdge(size_t to){
-		for(std::vector<size_t>::iterator it=incidents.begin(); it!=incidents.end(); ++it){
+		for(std::vector<size_t>::iterator it = incidents.begin(); it != incidents.end(); ++it){
 			if(*it == to){
 				incidents.erase(it);
 				break;
@@ -55,7 +55,7 @@ public:
 	}
 	
 	virtual bool checkEdge(size_t to) const {
-		for(std::vector<size_t>::const_iterator it=incidents.begin(); it!=incidents.end(); ++it){
+		for(std::vector<size_t>::const_iterator it = incidents.begin(); it != incidents.end(); ++it){
 			if(*it == to){
 				return true;
 			}
