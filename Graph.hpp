@@ -4,11 +4,12 @@
 #include "Incidents.hpp"
 
 class Graph{
-	std::vector<Incidents*> incidents;
+	typedef std::unique_ptr<Incidents> Pointer;
+	std::vector< Pointer > incidents;
 public:
 	//reachs ownership
 	void addVertex(Incidents* vertexIncidents){
-		incidents.push_back(vertexIncidents);
+		incidents.push_back(Pointer(vertexIncidents));
 	}
 	
 	void addEdge(size_t from, size_t to){
@@ -24,17 +25,11 @@ public:
 	}
 	
 	Incidents* getIncidents(size_t from) const {
-		return incidents[from];
+		return incidents[from].get();
 	}
 	
 	size_t vertexCount() const {
 		return incidents.size();
-	}
-	
-	~Graph(){
-		for(size_t i=0;i<incidents.size();++i){
-			delete incidents[i];
-		}
 	}
 };
 #endif /* GRAPH_HPP */

@@ -12,18 +12,16 @@ public:
 		virtual bool operator != (const BaseIterator&) const = 0;
 	};
 	class Iterator {
+		typedef std::unique_ptr<BaseIterator> Pointer;
 	public:
-		BaseIterator* it;
+		Pointer it;
 		//reaches ownership
-		explicit Iterator(BaseIterator* iter):it(iter){}
+		explicit Iterator(BaseIterator* iter):it(Pointer(iter)){}
 		void operator ++ (){
 			++(*it);
 		}
 		size_t operator * () const {
 			return **it;
-		}
-		~Iterator() {
-			delete it;
 		}
 		bool operator != (Iterator& second) const {
 			return (*it) != *(second.it);
