@@ -15,27 +15,17 @@ public:
 	public:
 		BaseIterator* it;
 		//reaches ownership
-		explicit Iterator(BaseIterator* iter):it(iter){
-			//std::cerr<<"Create Iter"<<this<<' '<<it.<<std::endl;
-		}
+		explicit Iterator(BaseIterator* iter):it(iter){}
 		void operator ++ (){
 			++(*it);
-			//return *this;
 		}
 		size_t operator * () const {
 			return **it;
 		}
 		~Iterator() {
-			//std::cerr<<"destroy iter"<<this<<' '<<it<<std::endl;
 			delete it;
 		}
 		bool operator != (Iterator& second) const {
-			/*std::cerr<<"Start Iterator::!="<<std::endl;
-			std::cerr<<"Current obj: "<<this<<' '<<it<<std::endl;
-			std::cerr<<"Second obj: "<<&second<<' '<<second.it<<std::endl;
-			std::cerr<<"Current obj type"<<typeid(*it).hash_code()<<std::endl;
-			std::cerr<<"Secont obj type"<<typeid(*(second.it)).hash_code()<<std::endl;
-			std::cerr<<"Call child !="<<std::endl;*/
 			return (*it) != *(second.it);
 		}
 	};
