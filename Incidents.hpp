@@ -1,6 +1,5 @@
 #ifndef INCIDENTS_HPP
 #define INCIDENTS_HPP
-#include <typeinfo>
 #include <memory>
 
 class Incidents {

@@ -4,12 +4,13 @@
 #include "Graph.hpp"
 #include "Incidents.hpp"
 #include "VectorIncidents.hpp"
+#include "SetIncidents.hpp"
 
 using namespace std;
 int main(int argc, char** argv) {
 	Graph graph;
 	for(int i = 0; i < 5; ++i){
-		graph.addVertex(new VectorIncidents());
+		graph.addVertex(new SetIncidents());
 	}
 	graph.addEdge(1, 4);
 	graph.addEdge(2, 4);
