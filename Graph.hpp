@@ -24,8 +24,8 @@ public:
 		return incidents[from]->checkEdge(to);
 	}
 	
-	Incidents* getIncidents(size_t from) const {
-		return incidents[from].get();
+	Incidents& getIncidents(size_t from) const {
+		return *incidents[from];
 	}
 	
 	size_t vertexCount() const {
