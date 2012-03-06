@@ -44,21 +44,11 @@ public:
 	}
 	
 	virtual void removeEdge(size_t to){
-		for(std::set<size_t>::iterator it = incidents.begin(); it != incidents.end(); ++it){
-			if(*it == to){
-				incidents.erase(it);
-				break;
-			}
-		}
+		incidents.erase(to);
 	}
 	
 	virtual bool checkEdge(size_t to) const {
-		for(std::set<size_t>::const_iterator it = incidents.begin(); it != incidents.end(); ++it){
-			if(*it == to){
-				return true;
-			}
-		}
-		return false;
+		return incidents.find(to) != incidents.end();
 	}
 	
 private:
