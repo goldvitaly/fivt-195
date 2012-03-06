@@ -37,7 +37,7 @@ public:
 		return Iterator(new BaseIterator(incidents.end()));
 	}
 	
-	size_t count() const {
+	size_t size() const {
 		return incidents.size();
 	}
 	
