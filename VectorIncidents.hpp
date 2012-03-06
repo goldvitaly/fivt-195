@@ -46,21 +46,13 @@ public:
 	}
 	
 	virtual void removeEdge(size_t to){
-		for(std::vector<size_t>::iterator it = incidents.begin(); it != incidents.end(); ++it){
-			if(*it == to){
-				incidents.erase(it);
-				break;
-			}
-		}
+		std::vector<size_t>::const_iterator founded=std::find(incidents.begin(),incidents.end(), to);
+		if(founded !=incidents.end())
+			incidents.erase(founded);
 	}
 	
 	virtual bool checkEdge(size_t to) const {
-		for(std::vector<size_t>::const_iterator it = incidents.begin(); it != incidents.end(); ++it){
-			if(*it == to){
-				return true;
-			}
-		}
-		return false;
+		return std::find(incidents.begin(),incidents.end(), to) != incidents.end();
 	}
 	
 private:
