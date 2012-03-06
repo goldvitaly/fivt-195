@@ -26,7 +26,7 @@ public:
 	};
 
 	SetIncidents(){}
-	explicit SetIncidents(std::set<size_t> v): incidents(v) {}
+	explicit SetIncidents(const std::set<size_t>& v): incidents(v) {}
 	
 	virtual Iterator begin() const{
 		return Iterator(new BaseIterator(incidents.begin()));

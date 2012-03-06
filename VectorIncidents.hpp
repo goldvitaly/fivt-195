@@ -28,7 +28,7 @@ public:
 	};
 
 	VectorIncidents(){}
-	explicit VectorIncidents(std::vector<size_t> v): incidents(v) {}
+	explicit VectorIncidents(const std::vector<size_t>& v): incidents(v) {}
 	
 	virtual Iterator begin() const{
 		return Iterator(new BaseIterator(incidents.begin()));
