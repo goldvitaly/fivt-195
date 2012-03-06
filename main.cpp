@@ -18,8 +18,6 @@ int main(int argc, char** argv) {
 	graph.addEdge(2, 1);
 	graph.addEdge(2, 3);
 	
-	//auto a = Graph.getIncidents();
-	//auto b = a;
 	for(auto vertex_id: graph.getIncidents(2)){
 		cout << vertex_id << ' ';
 	}
