@@ -3,6 +3,7 @@
 #include <vector>
 #include "Incidents.hpp"
 #include <typeinfo>
+#include <algorithm>
 class VectorIncidents : public Incidents {
 public:
 	class BaseIterator : public Incidents::BaseIterator {
@@ -46,7 +47,7 @@ public:
 	}
 	
 	virtual void removeEdge(size_t to){
-		std::vector<size_t>::const_iterator founded=std::find(incidents.begin(),incidents.end(), to);
+		std::vector<size_t>::iterator founded=std::find(incidents.begin(),incidents.end(), to);
 		if(founded !=incidents.end())
 			incidents.erase(founded);
 	}
