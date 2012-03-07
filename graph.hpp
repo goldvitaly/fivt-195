@@ -6,69 +6,14 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
+#include <typeinfo>
 
+#include "incidence.hpp"
 #include "macro.hpp"
 
-/**
- * @brief	Abstract virtual class representing graph's vertex's incidence list
- */
-class Incidence
-{
-public:
-	virtual void add_edge(size_t) = 0;
-	virtual void delete_edge(size_t) = 0;
-	virtual bool check_edge(size_t) const = 0;
-	
-	class Iterator_base
-	{
-	public:
-		virtual size_t operator* () = 0;
-		virtual Iterator_base& operator++ () = 0;
-		virtual Iterator_base& operator++ (int) = 0;
-		virtual ~Iterator_base ()
-		{
-		}
-	};
-	class Iterator
-	{
-	public:
-		Iterator_base *iterator;
-
-		Iterator(Iterator_base *iterator_)
-		{
-			iterator = iterator_;
-		}
-		
-		size_t operator*()
-		{
-			return **iterator;
-		}
-		Iterator operator++ ()
-		{
-			++(*iterator);
-			return *this;
-		}
-		Iterator operator++ (int)
-		{
-			(*iterator)++;
-			return *this;
-		}
-		
-		~Iterator ()
-		{
-			delete iterator;
-		}
-	};
-	
-	virtual Iterator begin() const = 0;
-	virtual Iterator end() const = 0;
-};
-
 
 /**
- * @brief	Data structure representing an unoriented graph
- * 
- * @todo 	Add any flags and be able to handle oriented graphs
+ * @brief	Data structure representing an unoriented graphs
  */
 class Graph
 {
@@ -86,9 +31,10 @@ public:
 			delete it;
 	}
 	
-	Incidence* operator[] (size_t v)
+	///@todo add const
+	Incidence& operator[] (size_t v)
 	{
-		return incident[v];
+		return *incident[v];
 	}
 	
 	template<typename T>
@@ -100,13 +46,21 @@ public:
 	{
 		m_assert(from < incident.size() && to < incident.size(), vertex number out of bound);
 		incident[from]->add_edge(to);
-		incident[to]->add_edge(from);
+	}
+	void add_undirected_edge(size_t from, size_t to)
+	{
+		add_edge(from, to);
+		add_edge(to, from);
 	}
 	void delete_edge(size_t from, size_t to)
 	{
 		m_assert(from < incident.size() && to < incident.size(), vertex number out of bound);
 		incident[from]->delete_edge(to);
-		incident[to]->delete_edge(to);
+	}
+	void delete_undirected_edge(size_t from, size_t to)
+	{
+		delete_edge(from, to);
+		delete_edge(to, from);
 	}
 };
 
@@ -136,7 +90,7 @@ public:
 	class VectorIterator_base: public Iterator_base
 	{
 	private:
-		std::vector<size_t>::const_iterator iterator;
+		std::vector<size_t>::iterator iterator;
 		
 	public:
 		#warning todo
@@ -145,10 +99,6 @@ public:
 		{
 			iterator = iterator_;
 		}
-		VectorIterator_base (std::vector<size_t>::const_iterator iterator_)
-		{
-			iterator = iterator_;
-		}			
 		
 		size_t operator* ()
 		{
@@ -159,24 +109,22 @@ public:
 			++iterator;
 			return *this;
 		}
-		VectorIterator_base& operator++ (int)
+		bool operator != (const Iterator_base& it) const
 		{
-			iterator++;
-			return *this;
+			//std::cerr << typeid(it).name() << std::endl;
+			return false;
+			//return dynamic_cast<const VectorIterator_base&>(it).iterator != iterator;
 		}
-		
-		~VectorIterator_base ()
-		{
-		}
+		~VectorIterator_base() {}
 	};
 	
-	Iterator begin() const
+	Iterator begin()
 	{
-		return Iterator(new VectorIterator_base(incident.begin()));
+		return Iterator(new VectorIterator_base(std::begin(incident)));
 	}
-	Iterator end() const
+	Iterator end()
 	{
-		return Iterator(new VectorIterator_base(incident.end()));
+		return Iterator(new VectorIterator_base(std::end(incident)));
 	}
 };
 
