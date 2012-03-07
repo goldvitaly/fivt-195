@@ -1,7 +1,7 @@
 #ifndef INCIDENTS_HPP
 #define INCIDENTS_HPP
 #include <memory>
-
+#include <utility>
 class Incidents {
 public:
 	class BaseIterator {
@@ -26,6 +26,11 @@ public:
 		bool operator != (Iterator& second) const {
 			return (*it) != *(second.it);
 		}
+		Iterator (Iterator&& m){
+			it = std::move(m.it);
+		}
+		Iterator(const Iterator&) = delete;
+		Iterator& operator=(const Iterator&) = delete;
 	};
 	virtual Iterator begin() const = 0;
 	virtual Iterator end() const = 0;
