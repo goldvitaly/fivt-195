@@ -29,6 +29,10 @@ public:
 		Iterator (Iterator&& m){
 			it = std::move(m.it);
 		}
+		Iterator& operator=(Iterator&& m){
+			it = std::move(m.it);
+			return *this;
+		}
 		Iterator(const Iterator&) = delete;
 		Iterator& operator=(const Iterator&) = delete;
 	};
