@@ -8,7 +8,7 @@
 
 using namespace std;
 
-
+/*
 class pGraph
 {
 private:
@@ -18,7 +18,7 @@ public:
 	{
 		graph[from]->addNeighbour(to);
 	}
-	void addDualEdge(const int from, const int to)
+	void addUnDirEdge(const int from, const int to)
 	{
 		addEdge(from, to);
 		addEdge(to, from);
@@ -27,7 +27,7 @@ public:
 	{
 		graph[from]->delNeighbour(to);
 	}
-	void delDualEdge(const int from, const int to)
+	void delUnDirEdge(const int from, const int to)
 	{
 		delEdge(from, to);
 		delEdge(to, from);
@@ -68,7 +68,7 @@ public:
 	{
 		graph[v]->clear();
 	}
-	const size_t numVertex()
+	const size_t numVertices()
 	{
 		return graph.size();
 	}
@@ -79,8 +79,7 @@ public:
 			addVertex(i);
 	}
 };
-
-
+*/
 class Graph
 {
 private:
@@ -90,7 +89,7 @@ public:
 	{
 		graph[from].addNeighbour(to);
 	};
-	void addDualEdge(const int from, const int to)
+	void addUnDirEdge(const int from, const int to)
 	{
 		addEdge(from, to);
 		addEdge(to, from);
@@ -99,7 +98,7 @@ public:
 	{
 		graph[from].delNeighbour(to);
 	};
-	void delDualEdge(const int from, const int to)
+	void delUnDirEdge(const int from, const int to)
 	{
 		delEdge(from, to);
 		delEdge(to, from);
@@ -124,7 +123,7 @@ public:
 				for (int j = 0; j < n; j++)
 					if (graph[j].isConnect(i))
 						graph[j].delNeighbour(i);
-			resize(n);
+			graph.resize(n);
 		}
 	};
 };

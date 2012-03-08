@@ -10,13 +10,13 @@ using namespace std;
 class ICB
 {
 public:
-	virtual void operator() (int v)= 0;
+	virtual void operator() (size_t v)= 0;
 };
 
 class ICBprint : public ICB
 {
 public:
-	void operator() (int v)
+	void operator() (size_t v)
 	{
 		cout << v << endl;
 	}
@@ -25,10 +25,10 @@ public:
 class pVertex
 {
 public:
-	virtual void addNeighbour (const int v) = 0;
-	virtual void delNeighbour (const int v) = 0;
-	virtual const bool isConnect(const int v) = 0;
-	virtual const size_t degree() = 0;
+	virtual void addNeighbour (const size_t v) = 0;
+	virtual void delNeighbour (const size_t v) = 0;
+	virtual bool isConnect(const size_t v) const = 0;
+	virtual size_t degree() const = 0;
 	virtual void clear() = 0;
 	virtual void incedents (ICB& cb) = 0;
 };
@@ -37,33 +37,36 @@ class Vvectorbool : public pVertex
 { 
 private:
 	vector<bool> adj;
-	int deg;
+	size_t deg;
 public:
-	Vvectorbool ()
-	{
-		deg = 0;
-	}
-	void addNeighbour (const int v)
+	Vvectorbool () : deg(0) {};
+	void addNeighbour (const size_t v)
 	{
 		if (v >= adj.size())
 			adj.resize(v + 1);
 		if (adj[v] == false)
-			adj[v] = true, deg++;
+		{
+			adj[v] = true;
+			deg++;
+		}
 	}
-	void delNeighbour (const int v)
+	void delNeighbour (const size_t v)
 	{
 		if (v >= adj.size())
 			return;
-		if (adj[v] == true)
-			deg--, adj[v] = false;		
+		if (adj[v] != false)
+		{
+			deg--;
+			adj[v] = false;
+		}		
 	}
-	const bool isConnect(const int v)
+	bool isConnect(const size_t v) const
 	{
 		if (v >= adj.size())
 			return false;
 		return adj[v];
 	}
-	const size_t degree()
+	size_t degree() const 
 	{
 		return deg;
 	}
@@ -74,7 +77,7 @@ public:
 	}
 	void incedents(ICB& cb)
 	{
-		for (int i = 0; i < adj.size(); i++)
+		for (size_t i = 0; i < adj.size(); i++)
 			if (adj[i])
 				cb(i);
 	}
@@ -83,18 +86,16 @@ public:
 class Vvectorint : public pVertex
 { 
 private:
-	vector<int> adj;
-	int deg;
+	vector<size_t> adj;
+	size_t deg;
 public:
-	Vvectorint ()
+	Vvectorint (): deg(0) {};
+	void addNeighbour (const size_t v)
 	{
-		deg = 0;
+		adj[v]++;
+		deg++;
 	}
-	void addNeighbour (const int v)
-	{
-		adj[v]++, deg++;
-	}
-	void delNeighbour (const int v)
+	void delNeighbour (const size_t v)
 	{
 		if (v >= adj.size() || adj[v] == 0)
 		{
@@ -102,15 +103,18 @@ public:
 			return;
 		}
 		if (adj[v] > 0)
-			deg--, adj[v]--;		
+		{
+			deg--;
+			adj[v]--;
+		}		
 	}
-	const bool isConnect(const int v)
+	bool isConnect(const size_t v) const 
 	{
 		if (v >= adj.size())
 			return false;
 		return (adj[v] > 0);
 	}
-	const size_t degree()
+	size_t degree() const 
 	{
 		return deg;
 	}
@@ -121,7 +125,7 @@ public:
 	}
 	void incedents(ICB& cb)
 	{
-		for (int i = 0; i < adj.size(); i++)
+		for (size_t i = 0; i < adj.size(); i++)
 			if (adj[i])
 				cb(i);
 	}
@@ -130,25 +134,25 @@ public:
 class Vset : public pVertex
 {
 private:
-	set<int> adj;
+	set<size_t> adj;
 public:
-	void addNeighbour (const int v)
+	void addNeighbour (const size_t v)
 	{
 		adj.insert(v);
 	}
-	void delNeighbour (const int v)
+	void delNeighbour (const size_t v)
 	{
-		set<int>:: iterator it;
+		set<size_t>:: iterator it;
 		it = adj.find(v);
 		if (it == adj.end())
 			cerr << "Deleting error" << endl;	
 		adj.erase(it);
 	}
-	const bool isConnect(const int v)
+	bool isConnect(const size_t v) const 
 	{
 		return (adj.find(v) != adj.end());
 	}
-	const size_t degree()
+	size_t degree() const 
 	{
 		return adj.size();
 	}
@@ -158,6 +162,8 @@ public:
 	}
 	void incedents(ICB& cb)
 	{
+		//for_each (adj.begin(), adj.end(), cb);
+		
 		for (auto it = adj.begin(); it != adj.end(); it++)
 			cb(*it);
 	}
@@ -166,15 +172,15 @@ public:
 class Vmap : public pVertex
 {
 private:
-	map<int, int> adj;
+	map<size_t, size_t> adj;
 public:
-	void addNeighbour (const int v)
+	void addNeighbour (const size_t v)
 	{
 		adj[v]++;
 	}
-	void delNeighbour (const int v)
+	void delNeighbour (const size_t v)
 	{
-		map<int, int>:: iterator it; // maybe static?
+		map<size_t, size_t>:: iterator it; // maybe static?
 		it = adj.find(v);
 		if (it == adj.end())
 		{
@@ -186,11 +192,11 @@ public:
 		else
 			(*it).second--;
 	}
-	const bool isConnect(const int v)
+	bool isConnect(const size_t v) const 
 	{
 		return (adj.find(v) != adj.end());
 	}
-	const size_t degree()
+	size_t degree() const 
 	{
 		return adj.size();
 	}
@@ -208,15 +214,15 @@ public:
 class Vlist : public pVertex
 {
 private:
-	vector<int> adj;
+	vector<size_t> adj;
 public:
-	void addNeighbour (const int v)
+	void addNeighbour (const size_t v)
 	{
 		adj.push_back(v);
 	}
-	void delNeighbour (const int v)
+	void delNeighbour (const size_t v)
 	{
-		for (int pos = 0; pos < adj.size(); pos++)
+		for (size_t pos = 0; pos < adj.size(); pos++)
 			if (adj[pos] == v)
 			{
 				swap(adj[pos], adj[adj.size() - 1]);
@@ -224,14 +230,22 @@ public:
 				break;
 			}	 
 	}
-	const bool isConnect(const int v) 
+	bool isConnect(const size_t v) const  
 	{
+		/*
+		auto it = 
+			find_if(adj.begin(), adj.end(), [] (int x)
+			{
+				return (x == v);
+			});
+		return (it != adj.end());*/
+		
 		for (auto it = adj.begin(); it != adj.end(); it++)
 			if ((*it) == v)
 				return true;
 		return false;
 	}
-	const size_t degree()
+	size_t degree() const 
 	{
 		return adj.size();
 	}
@@ -241,6 +255,8 @@ public:
 	}
 	void incedents(ICB& cb)
 	{
+		//for_each (adj.begin(), adj.end(), cb);
+		
 		for (auto it = adj.begin(); it != adj.end(); it++)
 			cb(*it);
 	}
@@ -283,15 +299,15 @@ public:
 	{
 		delete pV;
 	};
-	void addNeighbour (const int v)
+	void addNeighbour (const size_t v)
 	{
 		pV->addNeighbour(v);
 	};
-	void delNeighbour (const int v)
+	void delNeighbour (const size_t v)
 	{
 		pV->delNeighbour(v);
 	};
-	const bool isConnect(const int v)
+	const bool isConnect(const size_t v)
 	{
 		return pV->isConnect(v);
 	};
