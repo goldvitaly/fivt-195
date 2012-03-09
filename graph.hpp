@@ -7,125 +7,65 @@
 #include <cassert>
 #include <cstdlib>
 #include <typeinfo>
+#include <memory>
 
 #include "incidence.hpp"
 #include "macro.hpp"
 
-
-/**
- * @brief	Data structure representing an unoriented graphs
- */
-class Graph
+class graph
 {
 private:
-	std::vector<Incidence*> incident;
-
+	std::vector<std::unique_ptr<incidence> > vertices;
 public:
-	Graph()
-	{
-	}
+	graph() {}
+	~graph() {}
 	
-	~Graph()
-	{
-		for (auto it: incident)
-			delete it;
-	}
+	size_t size() const;
+	void clear();
 	
-	///@todo add const
-	Incidence& operator[] (size_t v)
-	{
-		return *incident[v];
-	}
+	void add_vertex(incidence*);
+	const incidence& operator[] (size_t) const;
 	
-	template<typename T>
-	void add_vertex()
-	{
-		incident.push_back(new T);
-	}
-	void add_edge(size_t from, size_t to)
-	{
-		m_assert(from < incident.size() && to < incident.size(), vertex number out of bound);
-		incident[from]->add_edge(to);
-	}
-	void add_undirected_edge(size_t from, size_t to)
-	{
-		add_edge(from, to);
-		add_edge(to, from);
-	}
-	void delete_edge(size_t from, size_t to)
-	{
-		m_assert(from < incident.size() && to < incident.size(), vertex number out of bound);
-		incident[from]->delete_edge(to);
-	}
-	void delete_undirected_edge(size_t from, size_t to)
-	{
-		delete_edge(from, to);
-		delete_edge(to, from);
-	}
+	void add_edge(size_t, size_t);
+	void delete_edge(size_t, size_t);
+	void add_unoriented_edge(size_t, size_t);
+	void delete_unoriented_edge(size_t, size_t);
 };
 
-class IncidenceVector: public Incidence
+size_t graph::size() const
 {
-private:
-	std::vector<size_t> incident;
-
-public:
-	void add_edge(size_t to)
-	{
-		incident.push_back(to);
-	}
-	void delete_edge(size_t to)
-	{
-		incident.resize(std::remove(incident.begin(), incident.end(), to) - incident.begin());
-	}
-	bool check_edge(size_t to) const
-	{
-		return find(incident.begin(), incident.end(), to) != incident.end();
-	}
-	
-	~IncidenceVector()
-	{
-	}
-	
-	class VectorIterator_base: public Iterator_base
-	{
-	private:
-		std::vector<size_t>::iterator iterator;
-		
-	public:
-		#warning todo
-		///TODO make all iterators constant
-		VectorIterator_base (std::vector<size_t>::iterator iterator_)
-		{
-			iterator = iterator_;
-		}
-		
-		size_t operator* ()
-		{
-			return *iterator;
-		}
-		VectorIterator_base& operator++ ()
-		{
-			++iterator;
-			return *this;
-		}
-		bool operator != (const Iterator_base& it) const
-		{
-			//std::cerr << typeid(it).name() << std::endl;
-			return false;
-			//return dynamic_cast<const VectorIterator_base&>(it).iterator != iterator;
-		}
-		~VectorIterator_base() {}
-	};
-	
-	Iterator begin()
-	{
-		return Iterator(new VectorIterator_base(std::begin(incident)));
-	}
-	Iterator end()
-	{
-		return Iterator(new VectorIterator_base(std::end(incident)));
-	}
-};
-
+	return vertices.size();
+}
+void graph::clear()
+{
+	vertices.clear();
+}
+void graph::add_vertex(incidence* t)
+{
+	vertices.push_back(std::unique_ptr<incidence>(t));
+}
+const incidence& graph::operator[] (size_t v) const
+{
+	return *vertices[v];
+}
+void graph::add_edge(size_t from, size_t to)
+{
+	m_assert(from < size() && to < size(), vertex number out of bound);
+	vertices[from]->add_edge(to);
+}
+void graph::add_unoriented_edge(size_t ver1, size_t ver2)
+{
+	add_edge(ver1, ver2);
+	add_edge(ver2, ver1);
+}
+void graph::delete_edge(size_t from, size_t to)
+{
+	m_assert(from < size() && to < size(), vertex number out of bound);
+	vertices[from]->delete_edge(to);
+}
+void graph::delete_unoriented_edge(size_t ver1, size_t ver2)
+{
+	delete_edge(ver1, ver2);
+	delete_edge(ver2, ver1);
+}
 #endif
