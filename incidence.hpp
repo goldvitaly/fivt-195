@@ -27,14 +27,16 @@ private:
 	std::unique_ptr<iterator_base> it;
 
 public:
+	iterator(): it(nullptr) {}
 	explicit iterator(iterator_base* it_): it(it_) {}
 	iterator(const iterator&);
 	
+	iterator& operator= (const iterator& it_);
+	
 	size_t operator* () const;
 	bool operator!= (const iterator&) const;
+	bool operator== (const iterator&) const;
 	iterator& operator++ ();
-	
-	decltype(it.get()) get() {return it.get();}
 };
 class incidence::iterator_base
 {
@@ -47,21 +49,36 @@ public:
 	virtual iterator_base& operator++ () = 0;
 };
 
-incidence::iterator::iterator(const incidence::iterator& it_): it(it_.it->copy())
+#define iter incidence::iterator
+
+iter::iterator(const iter& it_): it(it_.it ? it_.it->copy() : nullptr)
 {
 }
-size_t incidence::iterator::operator* () const
+iter& iter::operator= (const iter& it_)
 {
+	it = std::unique_ptr<incidence::iterator_base>(it_.it ? it_.it->copy() : nullptr); // why iter::iterator(const iter&) is not enough?
+	return *this;
+}
+size_t iter::operator* () const
+{
+	m_assert(it, cannot derefernce nullptr);
 	return **it;
 }
-bool incidence::iterator::operator!= (const iterator& it_) const
+bool iter::operator!= (const iter& it_) const
 {
-	return (*it) != (*it_.it);
+	return (!it ^ !it_.it) || (it && it_.it && (*it) != (*it_.it));
 }
-incidence::iterator& incidence::iterator::operator++ ()
+bool iter::operator== (const iter& it_) const
 {
+	return !operator!=(it_);
+}
+iter& iter::operator++ ()
+{
+	m_assert(it, cannot increment nullptr);
 	++(*it);
 	return *this;
 }
+
+#undef iter
 
 #endif
