@@ -41,39 +41,38 @@ private:
 template<class TypeNameVer, class StructVer>
 class Graph {
 public:
-    void add_vertex(const TypeNameVer& nameVer, const StructVer& structVer = StructVer())
+    void add_vertex(const TypeNameVer& nameVer, StructVer* structVer = new StructVer())
     {
         check_exist(nameVer, false);
+        graphInv.insert(std::make_pair(nameVer, structVer));
         graph.insert(std::make_pair(nameVer, structVer));
-    }
-    void delete_vertex(const TypeNameVer& nameVer)
-    {
-        check_exist(nameVer, true);
-        graph.erase(nameVer);
     }
     void add_edge(const TypeNameVer& outVer, const TypeNameVer& inVer)
     {
         check_exist(outVer, true);
         check_exist(inVer, true);
-        graph[outVer].add_neighbour(inVer);
+        graph[outVer]->add_neighbour(inVer);
+        graphInv[inVer]->add_neighbour(outVer);
     }
     void delete_edge(const TypeNameVer& outVer, const TypeNameVer& inVer)
     {
         check_exist(outVer, true);
         check_exist(inVer, true);
-        graph[outVer].delete_neighbour(inVer);
+        graph[outVer]->delete_neighbour(inVer);
+        graphInv[inVer]->delete_neighbour(outVer);
     }
     std::vector<TypeNameVer> list_neighbour(const TypeNameVer& nameVer)
     {
         check_exist(nameVer, true);
-        return graph[nameVer].list_neighbour();
+        return graph[nameVer]->list_neighbour();
     }
     size_t size() const
     {
         return graph.size();
     }
 private:
-    std::map <TypeNameVer, StructVer> graph;
+    std::map<TypeNameVer, StructVer*> graph;
+    std::map<TypeNameVer, StructVer*> graphInv;
     void check_exist(const TypeNameVer& nameVer, bool suppos) const
     {
         bool activity = (graph.find(nameVer) != graph.end());

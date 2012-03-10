@@ -6,7 +6,6 @@
 #include "graph.h"
 #include <ctime>
 
-
 template<class TypeNameVer>
 class MyVertex : public Vertex<TypeNameVer> {
 public:
@@ -20,9 +19,7 @@ public:
     }
     std::vector<TypeNameVer> list_neighbour() const
     {
-        std::vector<TypeNameVer> Vec;
-        Vec.resize(neighbours.size());
-        std::copy(neighbours.begin(), neighbours.end(), Vec.begin());
+        std::vector<TypeNameVer> Vec(neighbours);
         return Vec;
     }
     size_t degree() const
@@ -37,11 +34,16 @@ private:
     std::vector<TypeNameVer> neighbours;
 };
 
-void make_graph(Graph<int, Vertex<int> >& graph, int numVer)
+void make_random_graph(Graph<int, Vertex<int> >& graph, int numVer)
 {
     srand(time(NULL));
     for(int i = 0; i < numVer; i++)
-        graph.add_vertex(i, MyVertex<int>());
+    {
+        if(i%2 == 0)
+            graph.add_vertex(i, new MyVertex<int>());
+        else
+            graph.add_vertex(i, new Vertex<int>());
+    }
     for(int i = 0; i < numVer; i++)
     {
         int in_ver = rand() % 100;
@@ -68,7 +70,7 @@ int main()
 {
     Graph<int, Vertex<int> > graph;
     int numVer = 100;
-    make_graph(graph, numVer);
+    make_random_graph(graph, numVer);
 
     std::vector<int> mark;
     mark.resize(numVer);
