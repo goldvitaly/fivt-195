@@ -3,36 +3,10 @@
 #include <vector>
 #include <set>
 #include <algorithm>
-#include "graph.h"
 #include <ctime>
 
-template<class TypeNameVer>
-class MyVertex : public Vertex<TypeNameVer> {
-public:
-    void add_neighbour(const TypeNameVer& nameVer)
-    {
-        neighbours.push_back(nameVer);
-    }
-    void delete_neighbour(const TypeNameVer& nameVer)
-    {
-        neighbours.erase(find(neighbours.begin(), neighbours.end(), nameVer));
-    }
-    std::vector<TypeNameVer> list_neighbour() const
-    {
-        std::vector<TypeNameVer> Vec(neighbours);
-        return Vec;
-    }
-    size_t degree() const
-    {
-        return neighbours.size();
-    }
-    ~MyVertex()
-    {
-        neighbours.clear();
-    }
-private:
-    std::vector<TypeNameVer> neighbours;
-};
+#include "graph.h"
+#include "MyVertex.h"
 
 void make_random_graph(Graph<int, Vertex<int> >& graph, int numVer)
 {
@@ -46,37 +20,50 @@ void make_random_graph(Graph<int, Vertex<int> >& graph, int numVer)
     }
     for(int i = 0; i < numVer; i++)
     {
-        int in_ver = rand() % 100;
-        int out_ver = rand() % 100;
+        int in_ver = rand() % numVer;
+        int out_ver = rand() % numVer;
         graph.add_edge(out_ver, in_ver);
     }
 }
 
+template<class TypeNameVer>
+class IsWhite: public UnaryFunc<TypeNameVer>
+{
+    std::vector<int>* mark;
+    Graph<int, Vertex<int> >* graph;
+public:
+    IsWhite(Graph<int, Vertex<int> >* graph_, std::vector<int>* mark_)
+    {
+        graph = graph_;
+        mark = mark_;
+    }
+    void operator()(TypeNameVer ver)
+    {
+        if((*mark)[ver] == 0)
+        {
+            dfs(ver, *graph, * mark);
+        }
+    }
+};
+
 void dfs(int vertex, Graph<int, Vertex<int> >& graph, std::vector<int>& mark)
 {
     mark[vertex] = 1;
-    std::vector<int> neighbours;
-    neighbours = graph.list_neighbour(vertex);
-    for(size_t i = 0; i < neighbours.size(); i++)
-    {
-        if(mark[neighbours[i]] != 1)
-        {
-            dfs(neighbours[i], graph, mark);
-        }
-    }
+    IsWhite<int> isWhite(&graph, &mark);
+    graph.for_each_neighbour(vertex, isWhite);
 }
 
 int main()
 {
     Graph<int, Vertex<int> > graph;
-    int numVer = 100;
+    const int numVer = 100;
     make_random_graph(graph, numVer);
 
     std::vector<int> mark;
     mark.resize(numVer);
-    dfs(1, graph, mark);
-    std::cout << "component of 1:" << std::endl;
-    for(int i = 1; i <= numVer; i++)
+    dfs(0, graph, mark);
+    std::cout << "component of 0:" << std::endl;
+    for(int i = 0; i < numVer; i++)
     {
         if(mark[i])
         {
