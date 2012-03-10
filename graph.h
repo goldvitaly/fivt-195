@@ -88,6 +88,15 @@ public:
     {
         return graph.size();
     }
+    ~Graph()
+    {
+        typename std::map<TypeNameVer, StructVer*>::iterator it = graph.begin();
+        while(it != graph.end())
+        {
+            delete it->second;
+            it++;
+        }
+    }
 private:
     std::map<TypeNameVer, StructVer*> graph;
     void check_exist(const TypeNameVer& nameVer, bool suppos) const
