@@ -5,8 +5,11 @@
 #include <algorithm>
 #include <ctime>
 
+
 #include "graph.h"
-#include "MyVertex.h"
+#include "VertexVec.h"
+#include "VertexSet.h"
+
 
 void make_random_graph(Graph<int, Vertex<int> >& graph, int numVer)
 {
@@ -14,9 +17,9 @@ void make_random_graph(Graph<int, Vertex<int> >& graph, int numVer)
     for(int i = 0; i < numVer; i++)
     {
         if(i%2 == 0)
-            graph.add_vertex(i, new MyVertex<int>());
+            graph.add_vertex(i, new VertexVec<int>());
         else
-            graph.add_vertex(i, new Vertex<int>());
+            graph.add_vertex(i, new VertexSet<int>());
     }
     for(int i = 0; i < numVer; i++)
     {

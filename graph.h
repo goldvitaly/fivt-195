@@ -12,46 +12,19 @@ class UnaryFunc
 {
 public:
     virtual void operator()(T elem) = 0;
+private:
 };
 
 template<class TypeNameVer>
 class Vertex {
 public:
-    virtual void add_neighbour(const TypeNameVer& nameVer)
-    {
-        neighbours.insert(nameVer);
-    }
-    virtual void delete_neighbour(const TypeNameVer& nameVer)
-    {
-        neighbours.erase(nameVer);
-    }
-    virtual std::vector<TypeNameVer> list_neighbour() const
-    {
-        std::vector<TypeNameVer> Vec;
-        Vec.resize(neighbours.size());
-        std::copy(neighbours.begin(), neighbours.end(), Vec.begin());
-        return Vec;
-    }
-    virtual void for_each_neighbour(UnaryFunc<TypeNameVer>& unaryFunc)
-    {
-        typename std::set<TypeNameVer>::iterator it_begin = neighbours.begin();
-        typename std::set<TypeNameVer>::iterator it_end = neighbours.end();
-        while(it_begin != it_end)
-        {
-            unaryFunc(*(it_begin));
-            it_begin++;
-        }
-    }
-    virtual size_t degree() const
-    {
-        return neighbours.size();
-    }
-    virtual ~Vertex<TypeNameVer>()
-    {
-        neighbours.clear();
-    }
+    virtual void add_neighbour(const TypeNameVer& nameVer) = 0;
+    virtual void delete_neighbour(const TypeNameVer& nameVer) = 0;
+    virtual std::vector<TypeNameVer> list_neighbour() const = 0;
+    virtual void for_each_neighbour(UnaryFunc<TypeNameVer>& unaryFunc) = 0;
+    virtual size_t degree() const = 0;
+    virtual ~Vertex(){}
 private:
-    std::set<TypeNameVer> neighbours;
 };
 
 
