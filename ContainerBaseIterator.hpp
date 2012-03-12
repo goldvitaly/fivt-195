@@ -3,7 +3,6 @@
 
 #include "Incidents.hpp"
 #include <cassert>
-#include <iostream>
 template <typename T>
 class ContainerBaseIterator : public Incidents::BaseIterator {
 	public:
@@ -16,7 +15,6 @@ class ContainerBaseIterator : public Incidents::BaseIterator {
 		}
 		virtual bool operator != (const Incidents::BaseIterator& base) const {
 			try{
-				std::cout<<"ex";
 				const ContainerBaseIterator& second = dynamic_cast<const ContainerBaseIterator&>(base);
 				return iter != second.iter;
 			}

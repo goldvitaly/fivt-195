@@ -39,4 +39,3 @@ private:
 	std::vector<size_t> incidents;
 };
 #endif /* VECTORINCIDENTS_HPP */
-

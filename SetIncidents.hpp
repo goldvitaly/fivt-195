@@ -1,6 +1,7 @@
 #ifndef SETINCIDENTS_HPP
 #define SETINCIDENTS_HPP
 #include <set>
+#include "ContainerBaseIterator.hpp"
 class SetIncidents : public Incidents {
 public:
 	SetIncidents(){}
