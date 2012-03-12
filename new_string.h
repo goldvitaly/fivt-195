@@ -9,7 +9,6 @@ struct string
 };
 
 #define string struct string
-//#define pstring string*
 
 string new_string ()
 {
@@ -29,33 +28,32 @@ string new_sized_string (size_t size)
 	return s;
 }
 
-void delete_string (string s)
+void delete_string (string *s)
 {
-	if (s.a != NULL) free(s.a);
+	s->size = s->asize = 0;
+	if (s->a != NULL) free(s->a);
 }
 
 string copy_string (string s)
 {
 	string r = new_sized_string(s.size);
 	strcpy(r.a, s.a);
+	r.size = s.size;
 	return r;
 }
 
-void string_resize (string *s, size_t size, char c)
+void string_resize (string *s, size_t new_size)
 {
-	if (size < s->size)
+	if (new_size < s->size)
 	{
-		s->size = size;
-		s->a[size] = '\0';
+		s->size = new_size;
+		s->a[new_size] = '\0';
 	}
 	else
 	{
-		s->asize = size + 1;
+		s->asize = new_size + 1;
 		s->a = realloc(s->a, s->asize);
-		
-		size_t i;
-		for (i = s->size; i < s->asize; ++i)
-			s->a[i] = '\0';
+		s->a[s->size] = '\0';
 	}
 }
 
@@ -65,6 +63,7 @@ string string_conc (string s1, string s2)
 	
 	strcpy(r.a, s1.a);
 	strcpy(r.a + s1.size, s2.a);
+	r.size = s1.size + s2.size;
 	
 	return r;
 }
