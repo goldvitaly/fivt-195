@@ -95,3 +95,18 @@ void string_push_back (string *s, char c)
 	s->a[s->size - 1] = c;
 	s->a[s->size] = '\0';
 }
+
+string string_substr (string s, size_t begin, size_t num)
+{
+	string r = new_string();
+	
+	if (begin >= s.size) return r;
+	if (num > s.size - begin) num = s.size - begin;
+	
+	string_resize(&r, num);
+
+	size_t i;
+	for (i = 0; i < num; ++i)
+		r.a[i] = s.a[i + begin];
+	return r;
+}
