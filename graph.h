@@ -20,6 +20,7 @@ class Vertex {
 public:
     virtual void add_neighbour(const TypeNameVer& nameVer) = 0;
     virtual void delete_neighbour(const TypeNameVer& nameVer) = 0;
+    virtual bool exist_neighbour(const TypeNameVer& nameVer) = 0;
     virtual std::vector<TypeNameVer> list_neighbour() const = 0;
     virtual void for_each_neighbour(UnaryFunc<TypeNameVer>& unaryFunc) = 0;
     virtual size_t degree() const = 0;
@@ -35,6 +36,18 @@ public:
     {
         check_exist(nameVer, false);
         graph.insert(std::make_pair(nameVer, structVer));
+    }
+    void delete_vertex(const TypeNameVer& nameVer)
+    {
+        check_exist(nameVer, true);
+        typename std::map<TypeNameVer, StructVer*>::iterator it;
+        for(it = graph.begin(); it != graph.end(); it++)
+        {
+            if(it->second->exist_neighbour(nameVer))
+                it->second->delete_neighbour(nameVer);
+        }
+        delete graph[nameVer];
+        graph.erase(nameVer);
     }
     void add_edge(const TypeNameVer& outVer, const TypeNameVer& inVer)
     {

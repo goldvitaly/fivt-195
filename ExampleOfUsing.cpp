@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <ctime>
 
-
 #include "graph.h"
 #include "VertexVec.h"
 #include "VertexSet.h"

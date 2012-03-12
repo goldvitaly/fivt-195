@@ -15,6 +15,10 @@ public:
     {
         neighbours.erase(find(neighbours.begin(), neighbours.end(), nameVer));
     }
+    bool exist_neighbour(const TypeNameVer& nameVer)
+    {
+        return (find(neighbours.begin(), neighbours.end(), nameVer) != neighbours.end());
+    }
     std::vector<TypeNameVer> list_neighbour() const
     {
         std::vector<TypeNameVer> Vec(neighbours);
