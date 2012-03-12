@@ -2,6 +2,7 @@
 #define CONTAINERBASEITERATOR_HPP
 
 #include "Incidents.hpp"
+#include <cassert>
 
 template <typename T>
 class ContainerBaseIterator : public Incidents::BaseIterator {
@@ -19,7 +20,7 @@ class ContainerBaseIterator : public Incidents::BaseIterator {
 				return iter != second.iter;
 			}
 			catch(std::bad_cast){
-				return false;
+				assert(false);
 			}
 		}
 	private:
