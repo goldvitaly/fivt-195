@@ -31,6 +31,16 @@ public:
 	size_t vertexCount() const {
 		return incidents.size();
 	}
+	Graph(){}
+	Graph (Graph&& g){
+		incidents = std::move(g.incidents);
+	}
+	Graph& operator=(Graph&& g){
+		incidents = std::move(g.incidents);
+		return *this;
+	}
+	Graph(const Graph&) = delete;
+	Graph& operator=(const Graph&) = delete;
 };
 #endif /* GRAPH_HPP */
 
