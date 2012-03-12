@@ -28,7 +28,7 @@ public:
 		return *incidents[from];
 	}
 	
-	size_t vertexCount() const {
+	size_t size() const {
 		return incidents.size();
 	}
 	Graph(){}
