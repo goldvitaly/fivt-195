@@ -4,38 +4,17 @@
 #include "Incidents.hpp"
 #include <typeinfo>
 #include <algorithm>
+#include "ContainerBaseIterator.hpp"
 class VectorIncidents : public Incidents {
 public:
-	class BaseIterator : public Incidents::BaseIterator {
-	public:
-		explicit BaseIterator(const std::vector<size_t>::const_iterator& iter): iter(iter){}
-		virtual void operator ++ () {
-			++iter;
-		}
-		virtual size_t operator * () const {
-			return *iter;
-		}
-		virtual bool operator != (const Incidents::BaseIterator& base) const {
-			try{
-				const BaseIterator& second = dynamic_cast<const BaseIterator&>(base);
-				return iter != second.iter;
-			}
-			catch(std::bad_cast){
-				return false;
-			}
-		}
-	private:
-		std::vector<size_t>::const_iterator iter;
-	};
-
 	VectorIncidents(){}
 	explicit VectorIncidents(const std::vector<size_t>& v): incidents(v) {}
 	
 	virtual Iterator begin() const{
-		return Iterator(new BaseIterator(incidents.begin()));
+		return Iterator(new ContainerBaseIterator<std::vector<size_t>>(incidents.begin()));
 	}
 	virtual Iterator end() const{
-		return Iterator(new BaseIterator(incidents.end()));
+		return Iterator(new ContainerBaseIterator<std::vector<size_t>>(incidents.end()));
 	}
 	
 	size_t size() const {
