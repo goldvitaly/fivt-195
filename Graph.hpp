@@ -16,6 +16,7 @@
 #define GRAPH_HPP 
 
 #include <vector>
+#include <stdexcept>
 
 #include "IncidentType.hpp"
 
@@ -24,35 +25,35 @@
 class Graph
 {
  public:
-  std::vector<IncidentType*> edge;
+  std::vector<IncidentType*> vertex;
 
   Graph()
   {
      
   }
 
-  void AddVertex(IncidentType* incident_type)
+  void addVertex(IncidentType* incident_type)
   {
-    edge.push_back(incident_type);
+    vertex.push_back(incident_type);
   }
-  void AddEdge(int source, int destination)
+  void addEdge(int source, int destination)
   {
-    if (edge.size() < std::max(source, destination))
-      throw; // XXX: Throw OutOfRangeException
-      edge.resize(std::max(source, destination));
-    edge[source]->AddEdge(destination);
+    if (vertex.size() < std::max(source, destination))
+      throw new std::exception;
+    vertex.resize(std::max(source, destination));
+    vertex[source]->AddEdge(destination);
   }
-  void RemoveEdge(int source, int destination)
+  void removeEdge(int source, int destination)
   {
-    if (edge.size() < std::max(source, destination))
+    if (vertex.size() < std::max(source, destination))
       return;
-    edge[source]->RemoveEdge(destination);
+    vertex[source]->RemoveEdge(destination);
   }
-  bool IsConnected(int source, int destination)
+  bool isConnected(int source, int destination)
   {
-    if (edge.size() < std::max(source, destination))
+    if (vertex.size() < std::max(source, destination))
       return 0;
-    return edge[source]->IsConnectedTo(destination);
+    return vertex[source]->IsConnectedTo(destination);
   }
   
  private:

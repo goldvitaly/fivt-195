@@ -24,30 +24,65 @@
 class IncidentType
 {
  public:
-  void   AddEdge(int destination);
-  void   RemoveEdge(int destination);
-  bool   IsConnectedTo(int destination);
-  size_t EdgeCount();
+  class Iterator;
+  
+  virtual void     AddEdge(int destination)       = 0;
+  virtual void     RemoveEdge(int destination)    = 0;
+  virtual bool     IsConnectedTo(int destination) = 0;
+  virtual size_t   EdgeCount() = 0;
+  virtual Iterator begin()     = 0;
+  virtual Iterator end()       = 0;
 
-  class iterator
+  class BaseIterator
   {
-   /*public:
-    iterator()
-    {
-      pointer = NULL;
-    }
-    iterator(IncidentType* ptr)
-    {
-      pointer = ptr;
-    }
-    operator
-   private:    
-    IncidentType* pointer;*/
+   public:
+    virtual bool operator ==(BaseIterator& it)  = 0;
+    virtual bool operator !=(BaseIterator& it)  = 0;
+    virtual size_t        operator *()   = 0;
+    virtual BaseIterator& operator ++()  = 0;
+    virtual ~BaseIterator()              = 0;
   };
+  
+  class Iterator
+  {
+   public:
+    BaseIterator* iterator; // unique_ptr<BaseIterator>
+
+    Iterator(BaseIterator* base_iterator)
+    {
+      iterator = base_iterator;
+    }
+    ~Iterator()
+    {
+      delete iterator;
+    }
+    size_t operator *()
+    {
+      return **iterator;
+    }
+    Iterator operator ++()
+    {
+      printf("Iterator increment\n");
+      ++(*iterator);
+      return iterator;
+    }
+    bool operator ==(Iterator it)
+    {
+      return *iterator == *it.iterator;
+    }
+    bool operator !=(Iterator it)
+    {
+      return *iterator != *it.iterator;
+    }
+  };
+
  private:
   
 }; // IncidentType
 
+IncidentType::BaseIterator::~BaseIterator() {}
+
+/*
 class SetIncident : public IncidentType
 {
  public: 
@@ -72,8 +107,9 @@ class SetIncident : public IncidentType
  private:
   std::set<int> incident_;
 }; // SetIncidence
+*/
 
-class ListIncident : public IncidentType
+class VectorIncident : public IncidentType
 {
  public: 
   void AddEdge(int destination)
@@ -94,12 +130,66 @@ class ListIncident : public IncidentType
   {
     return incident_.size();
   }
-  class iterator : public std::vector<int>::iterator, public IncidentType::iterator {};
+  Iterator begin()
+  {
+    return Iterator(new VectorBaseIterator(incident_.begin()));
+  }
+  Iterator end()
+  {
+    return Iterator(new VectorBaseIterator(incident_.end()));
+  }
+  
+  class VectorBaseIterator : public BaseIterator
+  {
+   public:
+    std::vector<int>::iterator vector_iterator;
+
+    VectorBaseIterator(std::vector<int>::iterator it)
+    {
+      vector_iterator = it;
+    }
+    size_t operator *()
+    {
+      return *vector_iterator;
+    }
+    VectorBaseIterator& operator ++()
+    {
+      printf("VectorBaseIterator increment\n");
+      vector_iterator++;
+      return *this;
+    }
+    bool operator ==(BaseIterator& it)
+    {
+      VectorBaseIterator& v_it = dynamic_cast<VectorBaseIterator&> (it);
+      return vector_iterator == v_it.vector_iterator;
+    }
+    bool operator !=(BaseIterator& it)
+    {
+      printf("Calling Comparator\n");
+      VectorBaseIterator& v_it = dynamic_cast<VectorBaseIterator&> (it);
+      printf("dynamic_cast no problems :) \n");
+      if (vector_iterator != v_it.vector_iterator)
+      {
+        printf("They are different!\n");
+        return 1;
+      }
+      else
+      {
+        printf("They are equal!\n");
+        return 0;
+      }
+      //return vector_iterator != v_it.vector_iterator;
+    }
+    ~VectorBaseIterator()
+    {
+    }
+  };
 
  private:
   std::vector<int> incident_;
 }; // ListIncidence
 
+/*
 class BitsIncident : public IncidentType
 {
  public: 
@@ -170,5 +260,6 @@ class BitsIncident : public IncidentType
  private:
   std::vector<bool> incident_;
 }; // BitsIncidence
+*/
 
 #endif /* INCIDENTTYPE_HPP */
