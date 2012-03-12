@@ -16,7 +16,7 @@ public:
 	public:
 		Pointer it;
 		//reaches ownership
-		explicit Iterator(BaseIterator* iter):it(Pointer(iter)){}
+		explicit Iterator(BaseIterator* iter): it(Pointer(iter)){}
 		void operator ++ (){
 			++(*it);
 		}

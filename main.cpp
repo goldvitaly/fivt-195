@@ -1,10 +1,9 @@
-#include <cstdlib>
-#include <iostream>
-
 #include "Graph.hpp"
 #include "Incidents.hpp"
-#include "VectorIncidents.hpp"
 #include "SetIncidents.hpp"
+#include "VectorIncidents.hpp"
+#include <cstdlib>
+#include <iostream>
 
 using namespace std;
 int main(int argc, char** argv) {

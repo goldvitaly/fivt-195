@@ -1,7 +1,7 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
-#include <vector>
 #include "Incidents.hpp"
+#include <vector>
 
 class Graph{
 	typedef std::unique_ptr<Incidents> Pointer;

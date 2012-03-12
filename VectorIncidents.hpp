@@ -1,10 +1,11 @@
 #ifndef VECTORINCIDENTS_HPP
 #define VECTORINCIDENTS_HPP
-#include <vector>
-#include "Incidents.hpp"
-#include <typeinfo>
-#include <algorithm>
 #include "ContainerBaseIterator.hpp"
+#include "Incidents.hpp"
+#include <algorithm>
+#include <typeinfo>
+#include <vector>
+
 class VectorIncidents : public Incidents {
 public:
 	VectorIncidents(){}
