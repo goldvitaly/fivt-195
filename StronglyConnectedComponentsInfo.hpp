@@ -6,9 +6,10 @@ public:
 	StronglyConnectedComponentsInfo(size_t componentCount, const std::vector<size_t>& vertex2component):
 		components(componentCount),data(vertex2component){}
 	std::vector<std::vector<size_t>> getAllComponents(){
-		std::vector<std::vector<size_t>> ret;
-		for(size_t i = 0; i < data.size(); ++i)
+		std::vector<std::vector<size_t>> ret(components);
+		for(size_t i = 0; i < data.size(); ++i){
 			ret[data[i]].push_back(i);
+		}
 		return ret;
 	}
 	
@@ -32,7 +33,7 @@ public:
 		return components;
 	}
 private:
-	int components;
+	size_t components;
 	std::vector<size_t> data;
 };
 

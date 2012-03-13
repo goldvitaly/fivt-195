@@ -21,7 +21,15 @@ int main(int argc, char** argv) {
 	graph.addEdge(0, 1);
 	StronglyConnectedComponentsInfo scc (StronglyConnectedComponents(graph).getComponents());
 	
-	std::cout<<scc.getComponentsCount()<<' ';
+	std::cout<<scc.getComponentsCount()<<endl;
+	
+	auto components = scc.getAllComponents();
+	for(auto component: components){
+		for(auto vertex: component){
+			cout<<vertex<<' ';
+		}
+		cout<<endl;
+	}
 
 	return 0;
 }
