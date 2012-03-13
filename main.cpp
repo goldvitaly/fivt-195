@@ -1,7 +1,9 @@
 #include "Graph.hpp"
 #include "Incidents.hpp"
 #include "SetIncidents.hpp"
+#include "StronglyConnectedComponents.hpp"
 #include "VectorIncidents.hpp"
+#include "StronglyConnectedComponentsInfo.hpp"
 #include <cstdlib>
 #include <iostream>
 
@@ -11,15 +13,16 @@ int main(int argc, char** argv) {
 	for(int i = 0; i < 5; ++i){
 		graph.addVertex(new SetIncidents());
 	}
+	graph.addEdge(3, 4);
+	graph.addEdge(4, 3);
 	graph.addEdge(1, 4);
-	graph.addEdge(2, 4);
-	graph.addEdge(0, 3);
-	graph.addEdge(2, 1);
-	graph.addEdge(2, 3);
+	graph.addEdge(1, 2);
+	graph.addEdge(2, 0);
+	graph.addEdge(0, 1);
+	StronglyConnectedComponentsInfo scc (StronglyConnectedComponents(graph).getComponents());
+	
+	std::cout<<scc.getComponentsCount()<<' ';
 
-	for(auto vertex_id: graph.getIncidents(2)){
-		cout << vertex_id << ' ';
-	}
 	return 0;
 }
 
