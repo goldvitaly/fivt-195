@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <utility>
 #include <memory>
+#include <iterator>
 
 /*
 	Class for graph storaging. 
@@ -20,28 +21,27 @@ class Graph
 {
 	private:
 		class IteratorWrapper;
-		size_t size_;
 	public:
 		typedef IteratorWrapper iterator;		
-		void add_edge(unsigned int from, unsigned int to)
-		{
-			(*this)[from].add(to);
-		};
-		void del_edge(unsigned int from, unsigned int to) 
-		{
-			(*this)[from].del(to);
-		};
-		size_t size() const { return size_; };
+		void add_edge(unsigned int from, unsigned int to) { this->get(from).add(to); };
+		void del_edge(unsigned int from, unsigned int to) { this->get(from).del(to); };
+		bool has_edge(unsigned int from, unsigned int to) { this->get(from).has(to); };
+		size_t size() const { return vertices.size(); };
 		explicit Graph(unsigned int);
-		template <class VertexChooser, class Iterator>
-		explicit Graph(VertexChooser vc, Iterator begin, Iterator end) // Expected degree of vertices
+		template <class VertexChooser> Graph(unsigned int size, VertexChooser vertex_chooser): vertices(size, NULL)
 		{
-			size_ = 0;
-			for (Iterator it = begin; it != end; it ++) size_ ++;
-			vertices.resize(size_);
+			for (int i = 0; i < vertices.size(); i ++)
+				vertices[i] = vertex_chooser(-1, size);
+		}
+		template <class VertexChooser, class Iterator> 
+			Graph(VertexChooser vertex_chooser, Iterator begin, Iterator end) // Expected degree of vertices
+		{
+			int size = 0;
+			for (Iterator it = begin; it != end; it ++) size ++;
+			vertices.resize(size);
 			int i = 0;
 			for (Iterator it = begin; it != end; it ++, i ++)
-				vertices[i] = vc(*it, size_);
+				vertices[i] = vertex_chooser(*it, size);
 		};
 		class Vertex
 		{
@@ -54,10 +54,7 @@ class Graph
 				virtual bool has(unsigned int) const = 0;
 				virtual ~Vertex() {};
 		};
-		Vertex& operator [](unsigned int vertex) const
-		{
-			return *vertices[vertex];			
-		};
+		const Vertex& operator [](unsigned int vertex) const { return *vertices[vertex]; };
 		class Iterator
 		{
 			public:
@@ -74,24 +71,23 @@ class Graph
 				delete vertices[i];
 		};
 	private:
+		Vertex& get(unsigned int vertex) { return *vertices[vertex]; };
 		std::vector < Vertex* > vertices;
 		class IteratorWrapper
 		{
 			private:
 				std::unique_ptr<Iterator> pointer_to_iterator;
 			public:
-				unsigned int operator * ()
-				{
-					return pointer_to_iterator->get();
-				}
-				IteratorWrapper& operator ++ ()
-				{
-					pointer_to_iterator->next();
-				}
-				IteratorWrapper& operator ++ (int)
-				{
-					pointer_to_iterator->next();
-				};
+				// typedefs for enabling iterator_traits for this iterator
+				typedef std::forward_iterator_tag iterator_category;
+				typedef unsigned int value_type;
+				typedef ptrdiff_t difference_type;
+				typedef unsigned int& reference;
+				typedef unsigned int* pointer;
+				
+				unsigned int operator * () { return pointer_to_iterator->get(); }
+				IteratorWrapper& operator ++ ()	{ pointer_to_iterator->next(); }
+				IteratorWrapper& operator ++ (int) { pointer_to_iterator->next(); }
 //				IteratorWrapper& operator -- ()
 //				{
 //					pointer_to_iterator->prev();
@@ -108,23 +104,14 @@ class Graph
 						return false;
 					return *pointer_to_iterator == *it.pointer_to_iterator;
 				}
-				bool operator != (const IteratorWrapper& it)
-				{
-					return !(*this == it);
-				}
-				IteratorWrapper(const IteratorWrapper& it)
-				{
-					*this = it;
-				}
-				IteratorWrapper(Iterator* pointer): pointer_to_iterator(pointer)
-				{
-
-				};
-				virtual ~IteratorWrapper()
-				{
-				};
+				bool operator != (const IteratorWrapper& it) { return !(*this == it); }
+				IteratorWrapper(const IteratorWrapper& it) { *this = it; }
+				IteratorWrapper(Iterator* pointer): pointer_to_iterator(pointer) {};
+				virtual ~IteratorWrapper() {};
 		};
 };
+
+
 
 #include "vertices.hpp"
 
