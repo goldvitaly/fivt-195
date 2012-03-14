@@ -25,7 +25,7 @@ namespace graph
 				std::vector<uint>& coloring;
 		      public:
 				colorer(const Graph& g, std::vector<uint>& coloring):
-					g(g), state(g.size(), 0), coloring(coloring), minlink(g.size(), 0), index(g.size(), 0)
+					g(g), state(g.size(), 0), minlink(g.size(), 0), index(g.size(), 0), coloring(coloring)
 				{
 					current_index = current_component = 0;
 				};
@@ -46,7 +46,7 @@ namespace graph
 								minlink[vertex] = std::min(minlink[vertex], index[neighbor]);
 					if (index[vertex] == minlink[vertex])
 					{
-						int current_vertex;
+						unsigned int current_vertex;
 						do
 						{
 							current_vertex = stack.top();
@@ -60,7 +60,7 @@ namespace graph
 				};
 			};
 			colorer c(g, coloring);
-			for (int vertex = 0; vertex < g.size(); ++ vertex)
+			for (size_t vertex = 0; vertex < g.size(); ++ vertex)
 				c.connect(vertex);
 			return coloring;
 		};

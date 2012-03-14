@@ -30,7 +30,7 @@ class Graph
 		explicit Graph(unsigned int);
 		template <class VertexChooser> Graph(unsigned int size, VertexChooser vertex_chooser): vertices(size, NULL)
 		{
-			for (int i = 0; i < vertices.size(); i ++)
+			for (size_t i = 0; i < vertices.size(); i ++)
 				vertices[i] = vertex_chooser(-1, size);
 		}
 		template <class VertexChooser, class Iterator> 
@@ -67,7 +67,7 @@ class Graph
 		};
 		virtual ~Graph()
 		{
-			for (int i = 0; i < vertices.size(); i ++)
+			for (size_t i = 0; i < vertices.size(); i ++)
 				delete vertices[i];
 		};
 	private:
@@ -86,8 +86,8 @@ class Graph
 				typedef unsigned int* pointer;
 				
 				unsigned int operator * () { return pointer_to_iterator->get(); }
-				IteratorWrapper& operator ++ ()	{ pointer_to_iterator->next(); }
-				IteratorWrapper& operator ++ (int) { pointer_to_iterator->next(); }
+				IteratorWrapper& operator ++ ()	{ pointer_to_iterator->next(); return *this; }
+				IteratorWrapper& operator ++ (int) { pointer_to_iterator->next(); return *this; }
 //				IteratorWrapper& operator -- ()
 //				{
 //					pointer_to_iterator->prev();
@@ -95,6 +95,7 @@ class Graph
 				IteratorWrapper& operator = (const IteratorWrapper& it)
 				{
 					pointer_to_iterator.reset(it.pointer_to_iterator->copy());
+					return *this;
 				}
 				bool operator == (const IteratorWrapper& it)
 				{
