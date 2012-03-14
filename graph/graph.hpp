@@ -25,7 +25,7 @@ class Graph
 		typedef IteratorWrapper iterator;		
 		void add_edge(unsigned int from, unsigned int to) { this->get(from).add(to); };
 		void del_edge(unsigned int from, unsigned int to) { this->get(from).del(to); };
-		bool has_edge(unsigned int from, unsigned int to) { this->get(from).has(to); };
+		bool has_edge(unsigned int from, unsigned int to) { return this->get(from).has(to); };
 		size_t size() const { return vertices.size(); };
 		explicit Graph(unsigned int);
 		template <class VertexChooser> Graph(unsigned int size, VertexChooser vertex_chooser): vertices(size, NULL)

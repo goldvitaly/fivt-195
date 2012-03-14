@@ -67,7 +67,7 @@ namespace graph
 			}; 
 			bool has(unsigned int vertex) const
 			{
-				std::find(data.begin(), data.end(), vertex) != data.begin(); 
+				return std::find(data.begin(), data.end(), vertex) != data.end(); 
 			}
 			void del(unsigned int vertex)
 			{
@@ -132,7 +132,8 @@ namespace graph
 	};
 };
 
-Graph::Graph(unsigned int vertex_count): vertices(vertex_count, NULL), size_(vertex_count)
+
+Graph::Graph(unsigned int vertex_count): vertices(vertex_count, NULL)
 {
 	for (unsigned int i = 0; i < vertices.size(); i ++)
 		vertices[i] = new graph::VertexWithSortedVector();

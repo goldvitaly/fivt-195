@@ -18,31 +18,32 @@ namespace graph
 				const Graph& g;
 				uint current_index;
 				uint current_component;			
-				std::vector<char> used;
+				std::vector<char> state;
 				std::stack <uint> stack;
 				std::vector<uint> minlink;	
 				std::vector<uint> index;
 				std::vector<uint>& coloring;
 		      public:
 				colorer(const Graph& g, std::vector<uint>& coloring):
-					g(g), used(g.size(), 0), coloring(coloring), minlink(g.size(), 0), index(g.size(), 0)
+					g(g), state(g.size(), 0), coloring(coloring), minlink(g.size(), 0), index(g.size(), 0)
 				{
 					current_index = current_component = 0;
 				};
 				void connect(uint vertex)
 				{
-					if (used[vertex]) return;
-					used[vertex] = 1;
+					if (state[vertex]) return;
+					state[vertex] = 1;
 					minlink[vertex] = index[vertex] = current_index ++;
 					stack.push(vertex);
 					for (uint neighbor: g[vertex])
-						if (!used[neighbor])
+						if (!state[neighbor])
 						{
 							connect(neighbor);
 							minlink[vertex] = std::min(minlink[vertex], minlink[neighbor]);														
 						}
 						else
-							minlink[vertex] = std::min(minlink[vertex], index[neighbor]);
+							if (state[neighbor] == 1)
+								minlink[vertex] = std::min(minlink[vertex], index[neighbor]);
 					if (index[vertex] == minlink[vertex])
 					{
 						int current_vertex;
@@ -50,6 +51,7 @@ namespace graph
 						{
 							current_vertex = stack.top();
 							stack.pop();
+							state[current_vertex] = 2;
 							coloring[current_vertex] = current_component;
 						}
 						while (current_vertex != vertex);
