@@ -20,8 +20,6 @@
 
 #include "IncidentType.hpp"
 
-//60
-
 class Graph
 {
  public:
@@ -34,26 +32,31 @@ class Graph
 
   void addVertex(IncidentType* incident_type)
   {
+    printf("Adding vertex %d\n", vertex.size());
     vertex.push_back(incident_type);
   }
   void addEdge(int source, int destination)
   {
+    printf("Adding edge %d %d\n", source, destination);
     if (vertex.size() < std::max(source, destination))
       throw new std::exception;
-    vertex.resize(std::max(source, destination));
-    vertex[source]->AddEdge(destination);
+    vertex[source]->addEdge(destination);
   }
   void removeEdge(int source, int destination)
   {
     if (vertex.size() < std::max(source, destination))
-      return;
-    vertex[source]->RemoveEdge(destination);
+      throw new std::exception;
+    vertex[source]->removeEdge(destination);
   }
-  bool isConnected(int source, int destination)
+  bool isConnected(int source, int destination) const
   {
     if (vertex.size() < std::max(source, destination))
-      return 0;
-    return vertex[source]->IsConnectedTo(destination);
+      throw new std::exception;
+    return vertex[source]->isConnectedTo(destination);
+  }
+
+  ~Graph()
+  {
   }
   
  private:
