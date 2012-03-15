@@ -8,8 +8,8 @@
 #include <iterator>
 
 /*
-	Class for graph storaging. 
-	Vertexes are numbered with unsigned ints. 
+	Class for graph storing. 
+	Vertexes are numbered using unsigned ints. 
 */
 
 namespace graph
