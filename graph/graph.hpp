@@ -51,7 +51,7 @@ class Graph
 				virtual void next() = 0;
 //				virtual void prev() = 0;
 				virtual unsigned int get() const = 0;
-				virtual Iterator* copy() const = 0;
+				virtual Iterator* clone() const = 0;
 				virtual ~Iterator() {};
 				virtual bool operator == (const Iterator& it) const = 0;
 		};
@@ -79,7 +79,7 @@ class Graph
 //				}			
 				IteratorWrapper& operator = (const IteratorWrapper& it)
 				{
-					pointer_to_iterator.reset(it.pointer_to_iterator->copy());
+					pointer_to_iterator.reset(it.pointer_to_iterator->clone());
 					return *this;
 				}
 				bool operator == (const IteratorWrapper& it)

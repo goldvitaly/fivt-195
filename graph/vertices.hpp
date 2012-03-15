@@ -38,7 +38,7 @@ namespace graph
 							return false;
 						}
 					}
-					Graph::Iterator* copy() const
+					Graph::Iterator* clone() const
 					{
 						return new iterator(iterator_to_element);
 					}
