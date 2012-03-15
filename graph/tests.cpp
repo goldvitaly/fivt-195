@@ -132,7 +132,7 @@ char strongly_connection_test(int vertex_number, int requests)
 				return result;
 			};
 		public:
-			char operator () (const std::vector<unsigned int>& a, const std::vector<unsigned int>& b)
+			bool operator () (const std::vector<unsigned int>& a, const std::vector<unsigned int>& b)
 			{
 				return renumerate(a) == renumerate(b);
 			};

@@ -28,21 +28,11 @@ class Graph
 		bool has_edge(unsigned int from, unsigned int to) { return this->get(from).has(to); };
 		size_t size() const { return vertices.size(); };
 		explicit Graph(unsigned int);
-		template <class VertexChooser> Graph(unsigned int size, VertexChooser vertex_chooser): vertices(size, NULL)
+		template <class VertexChooser> Graph(unsigned int size, VertexChooser vertex_chooser): vertices(size)
 		{
 			for (size_t i = 0; i < vertices.size(); i ++)
-				vertices[i] = vertex_chooser(-1, size);
+				vertices[i].reset(vertex_chooser(i, size));
 		}
-		template <class VertexChooser, class Iterator> 
-			Graph(VertexChooser vertex_chooser, Iterator begin, Iterator end) // Expected degree of vertices
-		{
-			int size = 0;
-			for (Iterator it = begin; it != end; it ++) size ++;
-			vertices.resize(size);
-			int i = 0;
-			for (Iterator it = begin; it != end; it ++, i ++)
-				vertices[i] = vertex_chooser(*it, size);
-		};
 		class Vertex
 		{
 			public:
@@ -65,14 +55,9 @@ class Graph
 				virtual ~Iterator() {};
 				virtual bool operator == (const Iterator& it) const = 0;
 		};
-		virtual ~Graph()
-		{
-			for (size_t i = 0; i < vertices.size(); i ++)
-				delete vertices[i];
-		};
 	private:
 		Vertex& get(unsigned int vertex) { return *vertices[vertex]; };
-		std::vector < Vertex* > vertices;
+		std::vector < std::unique_ptr <Vertex> > vertices;
 		class IteratorWrapper
 		{
 			private:
@@ -108,7 +93,7 @@ class Graph
 				bool operator != (const IteratorWrapper& it) { return !(*this == it); }
 				IteratorWrapper(const IteratorWrapper& it) { *this = it; }
 				IteratorWrapper(Iterator* pointer): pointer_to_iterator(pointer) {};
-				virtual ~IteratorWrapper() {};
+				~IteratorWrapper() {};
 		};
 };
 

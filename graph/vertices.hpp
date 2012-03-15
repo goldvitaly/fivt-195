@@ -125,7 +125,7 @@ namespace graph
 	class DefaultVertexChooser
 	{
 		public:
-			Graph::Vertex* operator() (unsigned int degree, unsigned int number_of_vertices)
+			Graph::Vertex* operator() (unsigned int vertex_number, unsigned int number_of_vertices)
 			{
 				return new VertexWithUnsortedVector();
 			}
@@ -133,10 +133,10 @@ namespace graph
 };
 
 
-Graph::Graph(unsigned int vertex_count): vertices(vertex_count, NULL)
+Graph::Graph(unsigned int vertex_count): vertices(vertex_count)
 {
 	for (unsigned int i = 0; i < vertices.size(); i ++)
-		vertices[i] = new graph::VertexWithSortedVector();
+		vertices[i].reset(new graph::VertexWithUnsortedVector());
 };
 
 #endif
