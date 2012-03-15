@@ -31,15 +31,15 @@ class IncidentType
   virtual void     removeEdge(int destination) = 0;
   virtual bool     isConnectedTo(int destination) const = 0;
   virtual size_t   edgeCount() const = 0;
-  virtual Iterator begin() = 0;
-  virtual Iterator end()   = 0;
+  virtual Iterator begin() const = 0;
+  virtual Iterator end()   const = 0;
 
   class BaseIterator
   {
    public:
-    virtual bool operator ==(BaseIterator& it) = 0;
-    virtual bool operator !=(BaseIterator& it) = 0;
-    virtual size_t        operator *()   = 0;
+    virtual bool operator ==(BaseIterator& it) const = 0;
+    virtual bool operator !=(BaseIterator& it) const = 0;
+    virtual size_t        operator *() const   = 0;
     virtual BaseIterator& operator ++()  = 0;
     virtual ~BaseIterator();
   };
@@ -49,31 +49,31 @@ class IncidentType
    public:
     explicit Iterator(BaseIterator* base_iterator)
     {
-      iterator = std::unique_ptr<BaseIterator>(base_iterator);
+      iterator_ = std::unique_ptr<BaseIterator>(base_iterator);
+    }
+    size_t operator *() const
+    {
+      return **iterator_;
+    }
+    Iterator& operator ++()
+    {
+      ++(*iterator_);
+      return *this;
+    }
+    bool operator ==(Iterator it) const
+    {
+      return *iterator_ == *it.iterator_;
+    }
+    bool operator !=(Iterator it) const
+    {
+      return *iterator_ != *it.iterator_;
     }
     ~Iterator()
     {
     }
-    size_t operator *()
-    {
-      return **iterator;
-    }
-    Iterator& operator ++()
-    {
-      ++(*iterator);
-      return *this;
-    }
-    bool operator ==(Iterator it)
-    {
-      return *iterator == *it.iterator;
-    }
-    bool operator !=(Iterator it)
-    {
-      return *iterator != *it.iterator;
-    }
 
    private:
-    std::unique_ptr<BaseIterator> iterator;
+    std::unique_ptr<BaseIterator> iterator_;
 
   };
 
@@ -102,22 +102,22 @@ class SetIncident : public IncidentType
   {
     return incident_.size();
   }
-  Iterator begin()
+  Iterator begin() const
   {
     return Iterator(new SetBaseIterator(incident_.begin()));
   }
-  Iterator end()
+  Iterator end() const
   {
     return Iterator(new SetBaseIterator(incident_.end()));
   }
   class SetBaseIterator : public BaseIterator
   {
    public:
-    explicit SetBaseIterator(std::set<int>::iterator it)
+    explicit SetBaseIterator(std::set<int>::const_iterator it)
     {
       set_iterator = it;
     }
-    size_t operator *()
+    size_t operator *() const
     {
       return *set_iterator;
     }
@@ -126,12 +126,12 @@ class SetIncident : public IncidentType
       set_iterator++;
       return *this;
     }
-    bool operator ==(BaseIterator& it)
+    bool operator ==(BaseIterator& it) const
     {
       SetBaseIterator& s_it = dynamic_cast<SetBaseIterator&> (it);
       return (set_iterator == s_it.set_iterator);
     }
-    bool operator !=(BaseIterator& it)
+    bool operator !=(BaseIterator& it) const
     {
       return !(*this == it);
     }
@@ -140,7 +140,7 @@ class SetIncident : public IncidentType
     }
 
    private:
-    std::set<int>::iterator set_iterator;
+    std::set<int>::const_iterator set_iterator;
 
   };
 
@@ -169,11 +169,11 @@ class VectorIncident : public IncidentType
   {
     return incident_.size();
   }
-  Iterator begin()
+  Iterator begin() const
   {
     return Iterator(new VectorBaseIterator(incident_.begin()));
   }
-  Iterator end()
+  Iterator end() const
   {
     return Iterator(new VectorBaseIterator(incident_.end()));
   }
@@ -181,11 +181,11 @@ class VectorIncident : public IncidentType
   class VectorBaseIterator : public BaseIterator
   {
    public:
-    explicit VectorBaseIterator(std::vector<int>::iterator it)
+    explicit VectorBaseIterator(std::vector<int>::const_iterator it)
     {
       vector_iterator = it;
     }
-    size_t operator *()
+    size_t operator *() const
     {
       return *vector_iterator;
     }
@@ -194,12 +194,12 @@ class VectorIncident : public IncidentType
       vector_iterator++;
       return *this;
     }
-    bool operator ==(BaseIterator& it)
+    bool operator ==(BaseIterator& it) const
     {
       VectorBaseIterator& v_it = dynamic_cast<VectorBaseIterator&> (it);
       return (vector_iterator == v_it.vector_iterator);
     }
-    bool operator !=(BaseIterator& it)
+    bool operator !=(BaseIterator& it) const
     {
       return !(*this == it);
     }
@@ -208,7 +208,7 @@ class VectorIncident : public IncidentType
     }
 
    private:
-    std::vector<int>::iterator vector_iterator;
+    std::vector<int>::const_iterator vector_iterator;
     
   };
 
@@ -241,13 +241,13 @@ class BitmaskIncident : public IncidentType
     return count(incident_.begin(), incident_.end(), 1);
   }
 
-  Iterator begin()
+  Iterator begin() const
   {
     BitmaskBaseIterator* it = new BitmaskBaseIterator(-1, &incident_);
     ++(*it);
     return Iterator(it);
   }
-  Iterator end()
+  Iterator end() const
   {
     return Iterator(new BitmaskBaseIterator(incident_.size(), &incident_));
   }
@@ -255,13 +255,13 @@ class BitmaskIncident : public IncidentType
   class BitmaskBaseIterator : public BaseIterator
   {
    public:
-    explicit BitmaskBaseIterator(int index, std::vector<bool>* incident)
+    explicit BitmaskBaseIterator(int index, const std::vector<bool>* incident)
     {
       iterator_ = index;
       incident_ = incident;
     }
 
-    size_t operator *()
+    size_t operator *() const
     {
       return iterator_;
     }
@@ -275,12 +275,12 @@ class BitmaskIncident : public IncidentType
           iterator_++;
       return *this;
     }
-    bool operator ==(BaseIterator& it)
+    bool operator ==(BaseIterator& it) const
     {
       BitmaskBaseIterator& b_it = dynamic_cast<BitmaskBaseIterator&> (it);
       return (iterator_ == b_it.iterator_);
     }
-    bool operator !=(BaseIterator& it)
+    bool operator !=(BaseIterator& it) const
     {
       return !(*this == it);
     }
@@ -290,7 +290,7 @@ class BitmaskIncident : public IncidentType
 
    private:
     int iterator_;
-    std::vector<bool>* incident_;
+    const std::vector<bool>* incident_;
 
   };
 

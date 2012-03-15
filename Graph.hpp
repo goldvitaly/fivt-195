@@ -32,12 +32,12 @@ class Graph
 
   void addVertex(IncidentType* incident_type)
   {
-    printf("Adding vertex %d\n", vertex.size());
+    //printf("Adding vertex %d\n", vertex.size());
     vertex.push_back(incident_type);
   }
   void addEdge(int source, int destination)
   {
-    printf("Adding edge %d %d\n", source, destination);
+    //printf("Adding edge %d %d\n", source, destination);
     if (vertex.size() < std::max(source, destination))
       throw new std::exception;
     vertex[source]->addEdge(destination);
@@ -53,6 +53,10 @@ class Graph
     if (vertex.size() < std::max(source, destination))
       throw new std::exception;
     return vertex[source]->isConnectedTo(destination);
+  }
+  size_t vertexCount() const
+  {
+    return vertex.size();
   }
 
   ~Graph()
