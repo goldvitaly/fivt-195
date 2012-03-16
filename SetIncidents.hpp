@@ -10,10 +10,10 @@ public:
 	explicit SetIncidents(const std::set<size_t>& v): incidents(v) {}
 	
 	virtual Iterator begin() const{
-		return Iterator(new ContainerBaseIterator<std::set<size_t>>(incidents.begin()));
+		return Iterator(std::unique_ptr<BaseIterator>(new BaseIterator(incidents.begin())));
 	}
 	virtual Iterator end() const{
-		return Iterator(new ContainerBaseIterator<std::set<size_t>>(incidents.end()));
+		return Iterator(std::unique_ptr<BaseIterator>(new BaseIterator(incidents.end())));
 	}
 	
 	size_t size() const {
@@ -33,6 +33,7 @@ public:
 	}
 	
 private:
+	typedef ContainerBaseIterator<std::set<size_t>> BaseIterator;
 	std::set<size_t> incidents;
 };
 

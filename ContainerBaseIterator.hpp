@@ -23,6 +23,7 @@ class ContainerBaseIterator : public Incidents::BaseIterator {
 			}
 		}
 	private:
+		
 		typename T::const_iterator iter;
 };
 
