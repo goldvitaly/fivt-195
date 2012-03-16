@@ -5,12 +5,13 @@
 #include <cassert>
 template <typename T>
 class ContainerBaseIterator : public Incidents::BaseIterator {
+	typedef typename T::const_iterator Iterator;
 	public:
 		explicit ContainerBaseIterator(const typename T::const_iterator& iter): iter(iter){}
 		virtual void operator ++ () {
 			++iter;
 		}
-		virtual size_t operator * () const {
+		virtual typename std::iterator_traits<Iterator>::value_type operator * () const {
 			return *iter;
 		}
 		virtual bool operator != (const Incidents::BaseIterator& base) const {
@@ -23,8 +24,7 @@ class ContainerBaseIterator : public Incidents::BaseIterator {
 			}
 		}
 	private:
-		
-		typename T::const_iterator iter;
+		Iterator iter;
 };
 
 #endif /* CONTAINERBASEITERATOR_HPP */
