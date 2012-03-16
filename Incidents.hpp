@@ -15,7 +15,7 @@ public:
 		typedef std::unique_ptr<BaseIterator> Pointer;
 	public:
 		Pointer it;
-		//reaches ownership
+		
 		explicit Iterator(Pointer iter): it(std::move(iter)){}
 		void operator ++ (){
 			++(*it);
