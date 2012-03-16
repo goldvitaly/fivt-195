@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <typeinfo>
-#include "graph_impl.hpp"
+#include "graphimpl.hpp"
 #include <vector>
 #include <algorithm>
 #include <iterator>

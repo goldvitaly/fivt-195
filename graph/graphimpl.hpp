@@ -33,7 +33,17 @@ class Graph
 				vertices[i].reset(vertex_chooser(i, size));
 		}
 		explicit Graph(const Graph& G) = delete;
-		Graph& operator = (const Graph&) = delete;
+//		{
+//			vertices.resize(G.size());
+//			for (size_t i = 0; i < G.size(); i ++)
+//				vertices[i].reset(G.vertices[i].clone());
+//		}
+		Graph& operator = (const Graph& rhs) = delete;
+//		{
+//			vertices.resize(rhs.size());
+//			for (size_t i = 0; i < G.size(); i ++)
+//				vertices[i].reset(G.vertices[i]->clone());
+//		};
 		virtual ~Graph() {}; 
 		class Vertex
 		{
