@@ -34,7 +34,7 @@ public:
 		return vertex2component[vertexID];
 	}
 	
-	size_t getComponentsCount(){
+	size_t getComponentsNumber(){
 		return components;
 	}
 private:

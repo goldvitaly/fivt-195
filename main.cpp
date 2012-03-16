@@ -21,7 +21,7 @@ int main() {
 	graph.addEdge(0, 1);
 	StronglyConnectedComponentsInfo scc (StronglyConnectedComponents(graph).getComponents());
 	
-	std::cout<<scc.getComponentsCount()<<endl;
+	std::cout<<scc.getComponentsNumber()<<endl;
 	
 	auto components = scc.allComponents();
 	for(auto component: components){
