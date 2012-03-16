@@ -9,7 +9,7 @@ namespace graph
 {
 namespace algorithm
 {
-	std::vector<unsigned int> calculate_strongly_connected_components_coloring(const Graph& g)
+	extern std::vector<unsigned int> calculate_strongly_connected_components_coloring(const Graph& g)
 	{
 		typedef unsigned int uint;
 		std::vector<uint> coloring(g.size(), 0);
