@@ -8,7 +8,7 @@
 #include <iostream>
 
 using namespace std;
-int main(int argc, char** argv) {
+int main() {
 	Graph graph;
 	for(int i = 0; i < 5; ++i){
 		graph.addVertex(new SetIncidents());
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 	
 	std::cout<<scc.getComponentsCount()<<endl;
 	
-	auto components = scc.getAllComponents();
+	auto components = scc.allComponents();
 	for(auto component: components){
 		for(auto vertex: component){
 			cout<<vertex<<' ';
