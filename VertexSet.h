@@ -3,9 +3,10 @@
 
 #include "graph.h"
 
-template<class TypeNameVer>
-class VertexSet : public Vertex <TypeNameVer>
+
+class VertexSet : public Vertex
 {
+    typedef unsigned int TypeNameVer;
 public:
     void add_neighbour(const TypeNameVer& nameVer)
     {
@@ -26,10 +27,10 @@ public:
         std::copy(neighbours.begin(), neighbours.end(), Vec.begin());
         return Vec;
     }
-    void for_each_neighbour(UnaryFunc<TypeNameVer>& unaryFunc)
+    void for_each_neighbour(UnaryFunc& unaryFunc) const
     {
-        typename std::set<TypeNameVer>::iterator it_begin = neighbours.begin();
-        typename std::set<TypeNameVer>::iterator it_end = neighbours.end();
+        std::set<TypeNameVer>::iterator it_begin = neighbours.begin();
+        std::set<TypeNameVer>::iterator it_end = neighbours.end();
         while(it_begin != it_end)
         {
             unaryFunc(*(it_begin));
@@ -40,7 +41,7 @@ public:
     {
         return neighbours.size();
     }
-    ~VertexSet<TypeNameVer>()
+    ~VertexSet()
     {
         neighbours.clear();
     }

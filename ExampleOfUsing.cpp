@@ -10,15 +10,15 @@
 #include "VertexSet.h"
 #include "AlgTarStrConComp.h"
 
-void make_random_graph(Graph<int, Vertex<int> >& graph, int numVer)
+void make_random_graph(Graph<Vertex>& graph, int numVer)
 {
     srand(time(NULL));
     for(int i = 0; i < numVer; i++)
     {
         if(i%2 == 0)
-            graph.add_vertex(i, new VertexVec<int>());
+            graph.add_vertex(i, new VertexVec());
         else
-            graph.add_vertex(i, new VertexSet<int>());
+            graph.add_vertex(i, new VertexSet());
     }
     for(int i = 0; i < 2*numVer; i++)
     {
@@ -27,14 +27,15 @@ void make_random_graph(Graph<int, Vertex<int> >& graph, int numVer)
         graph.add_edge(out_ver, in_ver);
     }
 }
+
 int main()
 {
-    Graph<int, Vertex<int> > graph;
+    Graph<Vertex> graph;
     const int numVer = 10;
     make_random_graph(graph, numVer);
 
-    AlgTarStrConComp<int> algTar(graph);
-    std::vector<std::vector<int> > strConCom = algTar.str_con_com();
+    AlgTarStrConComp algTar(graph);
+    std::vector<std::vector<unsigned int> > strConCom = algTar.str_con_com();
 
     for(int i = 0; i < (int)strConCom.size(); i++)
     {

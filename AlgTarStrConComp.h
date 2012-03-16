@@ -6,13 +6,17 @@
 #include <vector>
 #include <iostream>
 
-template<class TypeNameVer>
 class AlgTarStrConComp
 {
+typedef unsigned int TypeNameVer;
 public:
-    AlgTarStrConComp(Graph<TypeNameVer, Vertex<TypeNameVer> >& graph_)
-    : graph(graph_), runDFS(this)
+    explicit AlgTarStrConComp(const Graph<Vertex>& graph_)
+    : graph(graph_), runDFS(*this)
     {
+        mark.resize(graph.size(), 0);
+        index.resize(graph.size(), 0);
+        lowIndex.resize(graph.size(), 0);
+        index.resize(graph.size(), 0);
         curInd = 0;
     }
     std::vector<std::vector<TypeNameVer> > str_con_com()
@@ -21,45 +25,49 @@ public:
         return components;
     }
 private:
-    Graph<TypeNameVer, Vertex<TypeNameVer> >& graph;
-    std::map<TypeNameVer, int> mark;
-    std::map<TypeNameVer, int> index;
-    std::map<TypeNameVer, int> lowIndex;
+    const Graph<Vertex>& graph;
+    std::vector<int> mark;
+    std::vector<int> index;
+    std::vector<int> lowIndex;
     std::vector<TypeNameVer> stack;
     std::vector<std::vector<TypeNameVer> > components;
     int curInd;
-    class RunDFS : public UnaryFunc<TypeNameVer>
+    class RunDFS : public UnaryFunc
     {
-        AlgTarStrConComp<TypeNameVer>* Alg2;
+        typedef unsigned int TypeNameVer;
+        AlgTarStrConComp& algTar;
     public:
-        RunDFS(AlgTarStrConComp<TypeNameVer>* Alg2_) : Alg2(Alg2_)
-        {}
-        void operator()(TypeNameVer vertex)
+        RunDFS(AlgTarStrConComp& algTar_) : algTar(algTar_)
         {
-            if(Alg2->mark[vertex] == 0)
-                Alg2->dfs(vertex);
         }
-    } runDFS;
-    class UpdateIndex: public UnaryFunc<TypeNameVer>
+        void operator()(const TypeNameVer& vertex)
+        {
+            if(algTar.mark[vertex] == 0)
+                algTar.dfs(vertex);
+        }
+    };
+    RunDFS runDFS;
+    class UpdateIndex: public UnaryFunc
     {
-        AlgTarStrConComp<TypeNameVer>* algTar;
+        typedef unsigned int TypeNameVer;
+        AlgTarStrConComp& algTar;
         const TypeNameVer& root;
     public:
-        UpdateIndex(AlgTarStrConComp<TypeNameVer>* algTar_, const TypeNameVer& root_)
-        : root(root_)
+        UpdateIndex(AlgTarStrConComp& algTar_, const TypeNameVer& root_)
+        : algTar(algTar_) , root(root_)
         {
-            algTar = algTar_;
+
         }
-        void operator()(TypeNameVer vertex)
+        void operator()(const TypeNameVer& vertex)
         {
-            if(algTar->mark[vertex] == 0)
+            if(algTar.mark[vertex] == 0)
             {
-                algTar->dfs(vertex);
-                algTar->lowIndex[root] = std::min(algTar->lowIndex[root], algTar->lowIndex[vertex]);
+                algTar.dfs(vertex);
+                algTar.lowIndex[root] = std::min(algTar.lowIndex[root], algTar.lowIndex[vertex]);
             }
-            else if(algTar->mark[vertex] == 1)
+            else if(algTar.mark[vertex] == 1)
             {
-                algTar->lowIndex[root] = std::min(algTar->lowIndex[root], algTar->index[vertex]);
+                algTar.lowIndex[root] = std::min(algTar.lowIndex[root], algTar.index[vertex]);
             }
         }
     };
@@ -70,7 +78,7 @@ private:
         lowIndex[vertex] = curInd;
         curInd++;
         stack.push_back(vertex);
-        UpdateIndex updateIndex(this, vertex);
+        UpdateIndex updateIndex(*this, vertex);
         graph.for_each_neighbour(vertex, updateIndex);
         if(index[vertex] == lowIndex[vertex])
         {

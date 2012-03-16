@@ -7,47 +7,50 @@
 #include <set>
 #include <algorithm>
 
-template<class T>
 class UnaryFunc
 {
+    typedef unsigned int TypeNameVer;
 public:
-    virtual void operator()(T elem) = 0;
+    virtual void operator()(const TypeNameVer& elem){};
 private:
 };
 
-template<class TypeNameVer>
 class Vertex {
+    typedef unsigned int TypeNameVer;
 public:
     virtual void add_neighbour(const TypeNameVer& nameVer) = 0;
     virtual void delete_neighbour(const TypeNameVer& nameVer) = 0;
     virtual bool exist_neighbour(const TypeNameVer& nameVer) = 0;
     virtual std::vector<TypeNameVer> list_neighbour() const = 0;
-    virtual void for_each_neighbour(UnaryFunc<TypeNameVer>& unaryFunc) = 0;
+    virtual void for_each_neighbour(UnaryFunc& unaryFunc) const = 0;
     virtual size_t degree() const = 0;
     virtual ~Vertex(){}
 private:
 };
 
 
-template<class TypeNameVer, class StructVer>
+template<class StructVer>
 class Graph {
+    typedef unsigned int TypeNameVer;
 public:
     void add_vertex(const TypeNameVer& nameVer, StructVer* structVer = new StructVer())
     {
         check_exist(nameVer, false);
-        graph.insert(std::make_pair(nameVer, structVer));
+        if(graph.size() < nameVer + 1)
+            graph.resize(nameVer + 1);
+        graph[nameVer] = structVer;
     }
     void delete_vertex(const TypeNameVer& nameVer)
     {
         check_exist(nameVer, true);
-        typename std::map<TypeNameVer, StructVer*>::iterator it;
+        typename std::vector<TypeNameVer, StructVer*>::iterator it;
         for(it = graph.begin(); it != graph.end(); it++)
         {
-            if(it->second->exist_neighbour(nameVer))
-                it->second->delete_neighbour(nameVer);
+            if(it->exist_neighbour(nameVer))
+                it->delete_neighbour(nameVer);
         }
         delete graph[nameVer];
-        graph.erase(nameVer);
+        graph[nameVer] = 0;
     }
     void add_edge(const TypeNameVer& outVer, const TypeNameVer& inVer)
     {
@@ -66,7 +69,17 @@ public:
         check_exist(nameVer, true);
         return graph[nameVer]->list_neighbour();
     }
-    void for_each_neighbour(const TypeNameVer& nameVer, UnaryFunc<TypeNameVer>& unaryFunc)
+    void for_each_vertex(UnaryFunc& unaryFunc) const
+    {
+        for(size_t i = 0; i < graph.size(); i++)
+        {
+            if(graph[i] != 0)
+            {
+                unaryFunc(i);
+            }
+        }
+    }
+    void for_each_neighbour(const TypeNameVer& nameVer, UnaryFunc& unaryFunc) const
     {
         graph[nameVer]->for_each_neighbour(unaryFunc);
     }
@@ -74,20 +87,30 @@ public:
     {
         return graph.size();
     }
+    size_t real_size() const
+    {
+        size_t size = 0;
+        for(size_t i = 0; i < graph.size(); i++)
+        {
+            if(graph[i] != 0)
+                size++;
+        }
+        return size;
+    }
     ~Graph()
     {
-        typename std::map<TypeNameVer, StructVer*>::iterator it = graph.begin();
+        typename std::vector<StructVer*>::iterator it = graph.begin();
         while(it != graph.end())
         {
-            delete it->second;
+            delete *it;
             it++;
         }
     }
 private:
-    std::map<TypeNameVer, StructVer*> graph;
+    std::vector<StructVer*> graph;
     void check_exist(const TypeNameVer& nameVer, bool suppos) const
     {
-        bool activity = (graph.find(nameVer) != graph.end());
+        bool activity = (graph.size() > nameVer && graph[nameVer] != 0);
         if(activity != suppos)
         {
             std::cerr << "Error" << std::endl;

@@ -3,9 +3,9 @@
 
 #include "graph.h"
 
-
-template<class TypeNameVer>
-class VertexVec : public Vertex<TypeNameVer> {
+class VertexVec : public Vertex
+{
+    typedef unsigned int TypeNameVer;
 public:
     void add_neighbour(const TypeNameVer& nameVer)
     {
@@ -24,15 +24,10 @@ public:
         std::vector<TypeNameVer> Vec(neighbours);
         return Vec;
     }
-    void for_each_neighbour(UnaryFunc<TypeNameVer>& unaryFunc)
+    void for_each_neighbour(UnaryFunc& unaryFunc) const
     {
-        typename std::vector<TypeNameVer>::iterator it_begin = neighbours.begin();
-        typename std::vector<TypeNameVer>::iterator it_end = neighbours.end();
-        while(it_begin != it_end)
-        {
-            unaryFunc(*(it_begin));
-            it_begin++;
-        }
+        for(size_t i = 0; i < neighbours.size(); i++)
+            unaryFunc(neighbours[i]);
     }
     size_t degree() const
     {
