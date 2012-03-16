@@ -32,6 +32,8 @@ class Graph
 			for (size_t i = 0; i < vertices.size(); i ++)
 				vertices[i].reset(vertex_chooser(i, size));
 		}
+		explicit Graph(const Graph& G) = delete;
+		Graph& operator = (const Graph&) = delete;
 		virtual ~Graph() {}; 
 		class Vertex
 		{
