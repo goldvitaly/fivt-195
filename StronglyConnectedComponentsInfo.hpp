@@ -3,8 +3,8 @@
 
 class StronglyConnectedComponentsInfo {
 public:
-	StronglyConnectedComponentsInfo(size_t componentCount, const std::vector<size_t>& vertex2component):
-		components(componentCount),vertex2component(vertex2component){}
+	StronglyConnectedComponentsInfo(size_t componentsNumber, const std::vector<size_t>& vertex2component):
+		components(componentsNumber),vertex2component(vertex2component){}
 	/*
 	 Complexity: O(n) where n is number of vertices
 	 */
