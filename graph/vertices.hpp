@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <typeinfo>
-#include "graph.hpp"
+#include "graph_impl.hpp"
 #include <vector>
 #include <algorithm>
 #include <iterator>
@@ -12,12 +12,12 @@
 namespace graph
 {
 	template <class Container>
-	class VertexWithSTLContainer: public Graph::Vertex
+	class VertexWithSTLContainer: public graph::impl::Graph::Vertex
 	{
 		protected:
 			Container data;
 		public:
-			class iterator: public Graph::Iterator
+			class iterator: public graph::impl::Graph::Iterator
 			{
 				private:
 					typename Container::const_iterator iterator_to_element;
@@ -26,7 +26,7 @@ namespace graph
 					void next() { iterator_to_element ++; };
 //					void prev() { iterator_to_element --; };
 					unsigned int get() const { return *iterator_to_element; };
-					bool operator == (const Graph::Iterator& it) const
+					bool operator == (const graph::impl::Graph::Iterator& it) const
 					{
 						try
 						{
@@ -38,19 +38,19 @@ namespace graph
 							return false;
 						}
 					}
-					Graph::Iterator* clone() const
+					graph::impl::Graph::Iterator* clone() const
 					{
 						return new iterator(iterator_to_element);
 					}
 			};
 			size_t size() const { return data.size(); };
-			Graph::iterator begin() const
+			graph::impl::Graph::iterator begin() const
 			{
-				return Graph::iterator(new iterator(data.begin()));
+				return graph::impl::Graph::iterator(new iterator(data.begin()));
 			}
-			Graph::iterator end() const
+			graph::impl::Graph::iterator end() const
 			{
-				return Graph::iterator(new iterator(data.end()));
+				return graph::impl::Graph::iterator(new iterator(data.end()));
 			};
 	};
 
@@ -122,21 +122,8 @@ namespace graph
 
 	class VertexWithMultiset: public graph::VertexWithAbstractSet<std::multiset<unsigned int> > {}; 
 
-	class DefaultVertexChooser
-	{
-		public:
-			Graph::Vertex* operator() (unsigned int vertex_number, unsigned int number_of_vertices)
-			{
-				return new VertexWithUnsortedVector();
-			}
-	};
 };
 
 
-Graph::Graph(unsigned int vertex_count): vertices(vertex_count)
-{
-	for (unsigned int i = 0; i < vertices.size(); i ++)
-		vertices[i].reset(new graph::VertexWithUnsortedVector());
-};
 
 #endif

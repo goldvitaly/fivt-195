@@ -26,12 +26,12 @@ char test_graph_realization(int vertex_number, int requests)
 	class VertexChooser
 	{
 	  public:
-		Graph::Vertex* operator() (unsigned int degree, unsigned int vertices)
+		graph::Graph::Vertex* operator() (unsigned int degree, unsigned int vertices)
 		{
 			return new VertexRealization();
 		}		
 	};
-	Graph testing_realization(vertex_number, VertexChooser());
+	graph::Graph testing_realization(vertex_number, VertexChooser());
 	std::vector < std::set <unsigned int> > model_realization(vertex_number);
 	for (int i = 0; i < requests; i ++)
 	{
@@ -63,7 +63,7 @@ char test_graph_realization(int vertex_number, int requests)
 		{
 
 			std::cerr << "Test failed on step " << i << std::endl << "Expected adjacency list: " << model_realization[v] << ", got: " << adjacency_list << std::endl; 
-			for (Graph::iterator it = testing_realization[v].begin(); it != testing_realization[v].end(); it ++)
+			for (graph::Graph::iterator it = testing_realization[v].begin(); it != testing_realization[v].end(); it ++)
 				std::cerr << v << " ";
 			std::cerr << std::endl;
 			return 0;
@@ -79,7 +79,7 @@ char strongly_connection_test(int vertex_number, int requests)
 	class NaiveSolver
 	{
 		public:
-			static void dfs(unsigned int current_vertex, std::vector<char>& used, const Graph& g)
+			static void dfs(unsigned int current_vertex, std::vector<char>& used, const graph::Graph& g)
 			{
 				if (used[current_vertex]) return;
 				used[current_vertex] = 1;
@@ -87,7 +87,7 @@ char strongly_connection_test(int vertex_number, int requests)
 					if (!used[next_vertex])
 						dfs(next_vertex, used, g);
 			}
-			static std::vector<unsigned int> solve(const Graph& g)
+			static std::vector<unsigned int> solve(const graph::Graph& g)
 			{
 				int vertex_number = g.size();
 				std::vector<unsigned int> coloring(vertex_number, 0);
@@ -137,7 +137,7 @@ char strongly_connection_test(int vertex_number, int requests)
 				return renumerate(a) == renumerate(b);
 			};
 	};
-	Graph g(vertex_number);
+	graph::Graph g(vertex_number);
 	for (int step = 0; step < requests; step ++)
 	{
 		int u = rand() % vertex_number;

@@ -1,5 +1,5 @@
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef GRAPH_IMPLEMENTATION_H
+#define GRAPH_IMPLEMENTATION_H
 
 #include <vector>
 #include <stddef.h>
@@ -14,8 +14,8 @@
 
 namespace graph
 {
-	class DefaultVertexChooser;
-};
+namespace impl
+{
 
 class Graph
 {
@@ -27,12 +27,12 @@ class Graph
 		void del_edge(unsigned int from, unsigned int to) { this->get(from).del(to); };
 		bool has_edge(unsigned int from, unsigned int to) { return this->get(from).has(to); };
 		size_t size() const { return vertices.size(); };
-		explicit Graph(unsigned int);
-		template <class VertexChooser> Graph(unsigned int size, VertexChooser vertex_chooser): vertices(size)
+		template <class VertexChooser> Graph(unsigned int size, VertexChooser vertex_chooser = VertexChooser()): vertices(size)
 		{
 			for (size_t i = 0; i < vertices.size(); i ++)
 				vertices[i].reset(vertex_chooser(i, size));
 		}
+		virtual ~Graph() {}; 
 		class Vertex
 		{
 			public:
@@ -55,9 +55,10 @@ class Graph
 				virtual ~Iterator() {};
 				virtual bool operator == (const Iterator& it) const = 0;
 		};
-	private:
+	protected:
 		Vertex& get(unsigned int vertex) { return *vertices[vertex]; };
 		std::vector < std::unique_ptr <Vertex> > vertices;
+	private:
 		class IteratorWrapper
 		{
 			private:
@@ -98,7 +99,8 @@ class Graph
 };
 
 
+}; // namespace impl
+}; // namespace graph
 
-#include "vertices.hpp"
 
 #endif //GRAPH_H
