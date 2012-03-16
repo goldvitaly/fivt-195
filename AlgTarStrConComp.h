@@ -84,7 +84,6 @@ private:
         {
             make_component(vertex);
         }
-        mark[vertex] = 2;
     }
     void make_component(const TypeNameVer& vertex)
     {
@@ -93,9 +92,11 @@ private:
         int curSizeStack = stack.size();
         while(stack[curSizeStack - 1] != vertex)
         {
+            mark[stack[curSizeStack - 1]] = 2;
             components[sizeComp - 1].push_back(stack[curSizeStack - 1]);
             curSizeStack--;
         }
+        mark[stack[curSizeStack - 1]] = 2;
         components[sizeComp - 1].push_back(stack[curSizeStack - 1]);
         stack.resize(curSizeStack - 1);
     }
