@@ -32,18 +32,16 @@ class Graph
 			for (size_t i = 0; i < vertices.size(); i ++)
 				vertices[i].reset(vertex_chooser(i, size));
 		}
-		explicit Graph(const Graph& G) = delete;
-//		{
-//			vertices.resize(G.size());
-//			for (size_t i = 0; i < G.size(); i ++)
-//				vertices[i].reset(G.vertices[i].clone());
-//		}
-		Graph& operator = (const Graph& rhs) = delete;
-//		{
-//			vertices.resize(rhs.size());
-//			for (size_t i = 0; i < G.size(); i ++)
-//				vertices[i].reset(G.vertices[i]->clone());
-//		};
+		Graph& operator = (const Graph& rhs)
+		{
+			vertices.resize(rhs.size());
+			for (size_t i = 0; i < rhs.size(); i ++)
+				vertices[i].reset(rhs.vertices[i]->clone());
+		}
+		explicit Graph(const Graph& G)
+		{
+			*this = G;
+		}
 		virtual ~Graph() {}; 
 		class Vertex
 		{
@@ -54,6 +52,7 @@ class Graph
 				virtual void add(unsigned int) = 0;
 				virtual void del(unsigned int) = 0;
 				virtual bool has(unsigned int) const = 0;
+				virtual Vertex* clone() const = 0;
 				virtual ~Vertex() {};
 		};
 		const Vertex& operator [](unsigned int vertex) const { return *vertices[vertex]; };

@@ -61,6 +61,7 @@ namespace graph
 	class VertexWithUnsortedVector: public VertexWithAbstractVector 
 	{
 		public:
+			graph::impl::Graph::Vertex* clone() const { return new graph::VertexWithUnsortedVector(*this); };
 			void add(unsigned int vertex) 
 			{
 				data.push_back(vertex); 
@@ -80,6 +81,7 @@ namespace graph
 	class VertexWithSortedVector: public VertexWithAbstractVector 
 	{		
 		public:
+			graph::impl::Graph::Vertex* clone() const { return new graph::VertexWithSortedVector(*this); };
 			void add(unsigned int vertex) 
 			{
 				data.insert(std::upper_bound(data.begin(), data.end(), vertex), vertex);
@@ -118,9 +120,17 @@ namespace graph
 			};
 	};
 
-	class VertexWithSet: 	  public graph::VertexWithAbstractSet<std::set<unsigned int> > {};
+	class VertexWithSet: 	  public graph::VertexWithAbstractSet<std::set<unsigned int> > 
+	{
+		public:
+			graph::impl::Graph::Vertex* clone() const { return new graph::VertexWithSet(*this); };
+	};
 
-	class VertexWithMultiset: public graph::VertexWithAbstractSet<std::multiset<unsigned int> > {}; 
+	class VertexWithMultiset: public graph::VertexWithAbstractSet<std::multiset<unsigned int> > 
+	{
+		public:
+			graph::impl::Graph::Vertex* clone() const { return new graph::VertexWithMultiset(*this); };
+	}; 
 
 };
 
