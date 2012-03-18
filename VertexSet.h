@@ -2,7 +2,9 @@
 #define VERTEXSET_H_INCLUDED
 
 #include "graph.h"
-
+#include "set"
+#include "algorithm"
+#include "vector"
 
 class VertexSet : public Vertex
 {
@@ -22,28 +24,23 @@ public:
     }
     std::vector<TypeNameVer> list_neighbour() const
     {
-        std::vector<TypeNameVer> Vec;
-        Vec.resize(neighbours.size());
-        std::copy(neighbours.begin(), neighbours.end(), Vec.begin());
-        return Vec;
+        std::vector<TypeNameVer> neighboursCopy;
+        neighboursCopy.resize(neighbours.size());
+        std::copy(neighbours.begin(), neighbours.end(), neighboursCopy.begin());
+        return neighboursCopy;
     }
     void for_each_neighbour(UnaryFunc& unaryFunc) const
     {
-        std::set<TypeNameVer>::iterator it_begin = neighbours.begin();
-        std::set<TypeNameVer>::iterator it_end = neighbours.end();
-        while(it_begin != it_end)
+        std::set<TypeNameVer>::iterator it = neighbours.begin();
+        while(it != neighbours.end())
         {
-            unaryFunc(*(it_begin));
-            it_begin++;
+            unaryFunc(*it);
+            it++;
         }
     }
     size_t degree() const
     {
         return neighbours.size();
-    }
-    ~VertexSet()
-    {
-        neighbours.clear();
     }
 private:
     std::set<TypeNameVer> neighbours;

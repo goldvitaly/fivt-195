@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <ctime>
 
+#include "ctime"
 #include "graph.h"
 #include "VertexVec.h"
 #include "VertexSet.h"
@@ -17,11 +18,11 @@ void make_random_graph(Graph<Vertex>& graph, int numVer)
     for(int i = 0; i < numVer; i++)
     {
         if(i%2 == 0)
-            graph.add_vertex(i, new VertexVec());
+            graph.add_vertex(i, new VertexVector());
         else
             graph.add_vertex(i, new VertexSet());
     }
-    for(int i = 0; i < 3*numVer; i++)
+    for(int i = 0; i < 2*numVer; i++)
     {
         int in_ver = rand() % numVer;
         int out_ver = rand() % numVer;
@@ -29,7 +30,7 @@ void make_random_graph(Graph<Vertex>& graph, int numVer)
     }
 }
 
-void sortVectorOfVector(std::vector<std::vector<unsigned int> >& Vec)
+void sort(std::vector<std::vector<unsigned int> >& Vec)
 {
     for(size_t i = 0; i < Vec.size(); i++)
     {
@@ -38,18 +39,16 @@ void sortVectorOfVector(std::vector<std::vector<unsigned int> >& Vec)
     sort(Vec.begin(), Vec.end());
 }
 
-bool equiv(std::vector<std::vector<unsigned int> >& strConCom, std::vector<std::vector<unsigned int> >& strConCom2)
+void print(std::vector<std::vector<unsigned int> >& vector)
 {
-    if(strConCom.size() != strConCom2.size())
-        return false;
-    for(size_t i = 0; i < strConCom.size(); i++)
+    for(int i = 0; i < (int)vector.size(); i++)
     {
-        if(strConCom[i] != strConCom2[i])
-        {
-            return false;
-        }
+        std::cout << "component " << i + 1 << " : ";
+        for(int j = 0; j < (int)vector[i].size(); j++)
+            std::cout << vector[i][j] << " ";
+        std::cout << std::endl;
     }
-    return true;
+    std::cout << std::endl;
 }
 
 int main()
@@ -60,31 +59,18 @@ int main()
         const int numVer = 5;
         make_random_graph(graph, numVer);
 
-        AlgTarStrConComp algTar(graph);
-        std::vector<std::vector<unsigned int> > strConCom = algTar.str_con_com();
-
+        StronglyConnectedComp algTar(graph);
+        std::vector<std::vector<unsigned int> > ansAlgTar = algTar.listComponents();
         SlowAlg slowAlg(graph);
-        std::vector<std::vector<unsigned int> > strConCom2 = slowAlg.str_con_com();
+        std::vector<std::vector<unsigned int> > ansSlowAlg = slowAlg.listComponents();
 
-        sortVectorOfVector(strConCom);
-        sortVectorOfVector(strConCom2);
-        if(equiv(strConCom, strConCom2) == false)
+        sort(ansAlgTar);
+        sort(ansSlowAlg);
+
+        if(ansAlgTar != ansSlowAlg)
         {
-            for(int i = 0; i < (int)strConCom.size(); i++)
-            {
-                std::cout << "component " << i + 1 << " : ";
-                for(int j = 0; j < (int)strConCom[i].size(); j++)
-                    std::cout << strConCom[i][j] << " ";
-                std::cout << std::endl;
-            }
-            std::cout << std::endl;
-            for(int i = 0; i < (int)strConCom2.size(); i++)
-            {
-                std::cout << "component " << i + 1 << " : ";
-                for(int j = 0; j < (int)strConCom2[i].size(); j++)
-                    std::cout << strConCom2[i][j] << " ";
-                std::cout << std::endl;
-            }
+            print(ansAlgTar);
+            print(ansSlowAlg);
             return 0;
         }
     }

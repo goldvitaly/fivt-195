@@ -1,9 +1,11 @@
-#ifndef VERTEXVEC_H_INCLUDED
-#define VERTEXVEC_H_INCLUDED
+#ifndef VERTEXVECTOR_H_INCLUDED
+#define VERTEXVECTOR_H_INCLUDED
 
 #include "graph.h"
+#include "vector"
+#include "algorithm"
 
-class VertexVec : public Vertex
+class VertexVector : public Vertex
 {
     typedef unsigned int TypeNameVer;
 public:
@@ -21,8 +23,8 @@ public:
     }
     std::vector<TypeNameVer> list_neighbour() const
     {
-        std::vector<TypeNameVer> Vec(neighbours);
-        return Vec;
+        std::vector<TypeNameVer> neighboursCopy(neighbours);
+        return neighboursCopy;
     }
     void for_each_neighbour(UnaryFunc& unaryFunc) const
     {
@@ -33,13 +35,9 @@ public:
     {
         return neighbours.size();
     }
-    ~VertexVec()
-    {
-        neighbours.clear();
-    }
 private:
     std::vector<TypeNameVer> neighbours;
 };
 
 
-#endif // VERTEXVEC_H_INCLUDED
+#endif // VERTEXVECTOR_H_INCLUDED

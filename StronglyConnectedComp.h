@@ -1,25 +1,25 @@
-#ifndef ALGTARSTRCONCOMP_H_INCLUDED
-#define ALGTARSTRCONCOMP_H_INCLUDED
+#ifndef STRONGLYCONNECTEDCOMP_H_INCLUDED
+#define STRONGLYCONNECTEDCOMP_H_INCLUDED
 
 #include "graph.h"
 #include <map>
 #include <vector>
 #include <iostream>
 
-class AlgTarStrConComp
+class StronglyConnectedComp
 {
 typedef unsigned int TypeNameVer;
 public:
-    explicit AlgTarStrConComp(const Graph<Vertex>& graph_)
+    explicit StronglyConnectedComp(const Graph<Vertex>& graph_)
     : graph(graph_), runDFS(*this)
     {
-        mark.resize(graph.size(), 0);
-        index.resize(graph.size(), 0);
-        lowIndex.resize(graph.size(), 0);
-        index.resize(graph.size(), 0);
+        mark.resize(graph.size());
+        index.resize(graph.size());
+        lowIndex.resize(graph.size());
+        index.resize(graph.size());
         curInd = 0;
     }
-    std::vector<std::vector<TypeNameVer> > str_con_com()
+    std::vector<std::vector<TypeNameVer> > listComponents()
     {
         graph.for_each_vertex(runDFS);
         return components;
@@ -35,9 +35,9 @@ private:
     class RunDFS : public UnaryFunc
     {
         typedef unsigned int TypeNameVer;
-        AlgTarStrConComp& algTar;
+        StronglyConnectedComp& algTar;
     public:
-        RunDFS(AlgTarStrConComp& algTar_) : algTar(algTar_)
+        RunDFS(StronglyConnectedComp& algTar_) : algTar(algTar_)
         {
         }
         void operator()(const TypeNameVer& vertex)
@@ -50,10 +50,10 @@ private:
     class UpdateIndex: public UnaryFunc
     {
         typedef unsigned int TypeNameVer;
-        AlgTarStrConComp& algTar;
+        StronglyConnectedComp& algTar;
         const TypeNameVer& root;
     public:
-        UpdateIndex(AlgTarStrConComp& algTar_, const TypeNameVer& root_)
+        UpdateIndex(StronglyConnectedComp& algTar_, const TypeNameVer& root_)
         : algTar(algTar_) , root(root_)
         {
 
@@ -85,7 +85,7 @@ private:
             make_component(vertex);
         }
     }
-    void make_component(const TypeNameVer& vertex)
+    void make_component(const TypeNameVer& vertex) /// научитьс€б рать послений элемент из вектора
     {
         components.resize(components.size() + 1);
         const int sizeComp = components.size();
@@ -103,4 +103,4 @@ private:
 };
 
 
-#endif // ALGTARSTRCONCOMP_H_INCLUDED
+#endif // STRONGLYCONNECTEDCOMP_H_INCLUDED

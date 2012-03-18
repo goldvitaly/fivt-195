@@ -9,11 +9,12 @@ class SlowAlg{
     typedef unsigned int TypeNameVer;
 public:
     explicit SlowAlg(const Graph<Vertex>& graph_)
-    : graph(graph_), mark(graph.size(), std::vector<TypeNameVer>(graph.size())), runFirstDFS(*this)
+    : graph(graph_), mark(graph.size(), std::vector<TypeNameVer>(graph.size())),
+     runFirstDFS(*this)
     {
 
     }
-    std::vector<std::vector<TypeNameVer> > str_con_com()
+    std::vector<std::vector<TypeNameVer> > listComponents()
     {
         graph.for_each_vertex(runFirstDFS);
         count_components();
@@ -30,7 +31,7 @@ private:
         TypeNameVer startVertex;
         bool firstDFS;
     public:
-        RunDFS(SlowAlg& slowAlg_, bool firstDFS_ = true, TypeNameVer startVertex_ = 0)
+        explicit RunDFS(SlowAlg& slowAlg_, bool firstDFS_ = true, TypeNameVer startVertex_ = 0)
          : slowAlg(slowAlg_)
         {
             startVertex = startVertex_;
