@@ -7,10 +7,13 @@
 
 #include "ctime"
 #include "graph.h"
-#include "VertexVec.h"
+#include "VertexVector.h"
 #include "VertexSet.h"
-#include "AlgTarStrConComp.h"
+#include "StronglyConnectedComp.h"
 #include "SlowAlg.h"
+#include "utility"
+
+typedef unsigned int TypeNameVer;
 
 void make_random_graph(Graph<Vertex>& graph, int numVer)
 {
@@ -30,7 +33,7 @@ void make_random_graph(Graph<Vertex>& graph, int numVer)
     }
 }
 
-void sort(std::vector<std::vector<unsigned int> >& Vec)
+void sort(std::vector<std::vector<TypeNameVer> >& Vec)
 {
     for(size_t i = 0; i < Vec.size(); i++)
     {
@@ -39,7 +42,7 @@ void sort(std::vector<std::vector<unsigned int> >& Vec)
     sort(Vec.begin(), Vec.end());
 }
 
-void print(std::vector<std::vector<unsigned int> >& vector)
+void print(std::vector<std::vector<TypeNameVer> >& vector)
 {
     for(int i = 0; i < (int)vector.size(); i++)
     {
@@ -51,29 +54,72 @@ void print(std::vector<std::vector<unsigned int> >& vector)
     std::cout << std::endl;
 }
 
-int main()
+
+void test(Graph<Vertex>& graph)
+{
+    StronglyConnectedComp algTar(graph);
+    std::vector<std::vector<TypeNameVer> > ansAlgTar = algTar.listComponents();
+    SlowAlg slowAlg(graph);
+    std::vector<std::vector<TypeNameVer> > ansSlowAlg = slowAlg.listComponents();
+    sort(ansAlgTar);
+    sort(ansSlowAlg);
+
+    if(ansAlgTar != ansSlowAlg)
+    {
+        std::cerr << "Wrong" << std::endl;
+        print(ansAlgTar);
+        print(ansSlowAlg);
+        exit(1);
+    }
+}
+
+void testAllGraphs(int numVer = 3)
+{
+    std::vector<std::pair<TypeNameVer, TypeNameVer> > listEdge;
+    for(int i = 0; i < numVer; i++)
+    {
+        for(int j = 0; j < numVer; j++)
+        {
+            if(i != j)
+                listEdge.push_back(std::make_pair(i, j));
+        }
+    }
+    for(long long i = 0; i < (1LL<<listEdge.size()); i++)
+    {
+        long long mask = i;
+        Graph<Vertex> graph;
+        for(int j = 0; j < numVer; j++)
+            graph.add_vertex(j, new VertexVector);
+        int pos = 0;
+        while(mask != 0)
+        {
+            if(mask&1)
+                graph.add_edge(listEdge[pos].first, listEdge[pos].second);
+            pos++;
+            mask >>=1;
+        }
+        test(graph);
+    }
+}
+
+void testRandomGraphs(int numVer = 3)
 {
     for(int trial = 0; trial < 1000; trial++)
     {
         Graph<Vertex> graph;
-        const int numVer = 5;
         make_random_graph(graph, numVer);
-
-        StronglyConnectedComp algTar(graph);
-        std::vector<std::vector<unsigned int> > ansAlgTar = algTar.listComponents();
-        SlowAlg slowAlg(graph);
-        std::vector<std::vector<unsigned int> > ansSlowAlg = slowAlg.listComponents();
-
-        sort(ansAlgTar);
-        sort(ansSlowAlg);
-
-        if(ansAlgTar != ansSlowAlg)
-        {
-            print(ansAlgTar);
-            print(ansSlowAlg);
-            return 0;
-        }
+        test(graph);
     }
-    std::cout << "Ok" << std::endl;
+}
+
+int main()
+{
+    testRandomGraphs();
+    std::cout << "testRandomGraphs Ok" << std::endl;
+    for(int i = 1; i < 5; i++)
+    {
+        testAllGraphs(i);
+        std::cout << "testAllgraphs " << i << " Ok" << std::endl;
+    }
     return 0;
 }
