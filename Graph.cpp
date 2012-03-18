@@ -12,7 +12,7 @@ int main ()
 	G.AddIncident(2, 4);
 	G.AddIncident(4, 2);
 
-    GraphAlgorithm ga;
+    	GraphAlgorithm ga;
 	std::vector<size_t> ord = ga.FindStronglyConnectedComponents(G);
 	
 	for (size_t i = 0; i < ord.size(); ++i)
