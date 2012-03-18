@@ -85,21 +85,19 @@ private:
             make_component(vertex);
         }
     }
-    void make_component(const TypeNameVer& vertex) /// научитьс€б рать послений элемент из вектора
+    void make_component(const TypeNameVer& vertex)
     {
         components.resize(components.size() + 1);
-        const int sizeComp = components.size();
-        int curSizeStack = stack.size();
-        while(stack[curSizeStack - 1] != vertex)
+        std::vector<TypeNameVer>&  newComponent = components.back();
+        TypeNameVer lastVertex;
+        do
         {
-            mark[stack[curSizeStack - 1]] = 2;
-            components[sizeComp - 1].push_back(stack[curSizeStack - 1]);
-            curSizeStack--;
-        }
-        mark[stack[curSizeStack - 1]] = 2;
-        components[sizeComp - 1].push_back(stack[curSizeStack - 1]);
-        stack.resize(curSizeStack - 1);
-    }
+            lastVertex = stack.back();
+            mark[lastVertex] = 2;
+            newComponent.push_back(lastVertex);
+            stack.pop_back();
+        } while(lastVertex != vertex);
+   }
 };
 
 

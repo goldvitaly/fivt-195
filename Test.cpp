@@ -46,12 +46,12 @@ void print(std::vector<std::vector<TypeNameVer> >& vector)
 {
     for(int i = 0; i < (int)vector.size(); i++)
     {
-        std::cout << "component " << i + 1 << " : ";
+        std::cerr << "component " << i + 1 << " : ";
         for(int j = 0; j < (int)vector[i].size(); j++)
-            std::cout << vector[i][j] << " ";
-        std::cout << std::endl;
+            std::cerr << vector[i][j] << " ";
+        std::cerr << std::endl;
     }
-    std::cout << std::endl;
+    std::cerr << std::endl;
 }
 
 
@@ -114,12 +114,12 @@ void testRandomGraphs(int numVer = 3)
 
 int main()
 {
-    testRandomGraphs();
-    std::cout << "testRandomGraphs Ok" << std::endl;
+    testRandomGraphs(10);
+    std::cerr << "testRandomGraphs 10 Ok" << std::endl;
     for(int i = 1; i < 5; i++)
     {
         testAllGraphs(i);
-        std::cout << "testAllgraphs " << i << " Ok" << std::endl;
+        std::cerr << "testAllgraphs " << i << " Ok" << std::endl;
     }
     return 0;
 }
