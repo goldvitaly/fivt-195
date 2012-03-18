@@ -8,86 +8,14 @@
 
 using namespace std;
 
-/*
-class pGraph
-{
-private:
-	vector<pVertex *> graph;
-public:
-	void addEdge(const int from, const int to)
-	{
-		graph[from]->addNeighbour(to);
-	}
-	void addUnDirEdge(const int from, const int to)
-	{
-		addEdge(from, to);
-		addEdge(to, from);
-	}
-	void delEdge(const int from, const int to)
-	{
-		graph[from]->delNeighbour(to);
-	}
-	void delUnDirEdge(const int from, const int to)
-	{
-		delEdge(from, to);
-		delEdge(to, from);
-	}
-	void addVertex(const int v, const string &type = "int")
-	{
-		if (v >= graph.size())
-			graph.resize(v + 1);
-		if (graph[v] == NULL)
-		{	
-			if (type == "bool")
-			{
-				graph[v] = new Vvectorbool;
-			}
-			else
-			if (type == "int")
-			{
-				graph[v] = new Vvectorint;
-			}	
-			else
-			if (type == "set")
-			{
-				graph[v] = new Vset;
-			}			
-			else
-			if (type == "map")
-			{
-				graph[v] = new Vmap;
-			}
-			else
-			if (type == "list")
-			{
-				graph[v] = new Vlist;
-			}
-		}
-	}
-	void delVertex(const int v)
-	{
-		graph[v]->clear();
-	}
-	const size_t numVertices()
-	{
-		return graph.size();
-	}
-	void resize(const int n)
-	{
-		graph.resize(n);
-		for (int i = graph.size(); i < n; i++)
-			addVertex(i);
-	}
-};
-*/
 class Graph
 {
 private:
-	vector<Vertex> graph;
+	vector< unique_ptr<pVertex> > graph;
 public:
 	void addEdge(const int from, const int to)
 	{
-		graph[from].addNeighbour(to);
+		(*graph[from]).addNeighbour(to);
 	};
 	void addUnDirEdge(const int from, const int to)
 	{
@@ -96,16 +24,16 @@ public:
 	};
 	void delEdge(const int from, const int to)
 	{
-		graph[from].delNeighbour(to);
+		(*graph[from]).delNeighbour(to);
 	};
 	void delUnDirEdge(const int from, const int to)
 	{
 		delEdge(from, to);
 		delEdge(to, from);
 	};
-	void addVertex(const string &type = "int")
+	void addVertex(const unique_ptr<pVertex> &newElem)
 	{
-		graph.push_back(type);
+		graph.emplace_back(newElem);
 	};
 	const size_t numVertex()
 	{
@@ -115,15 +43,21 @@ public:
 	{
 		if (n > graph.size())
 		{	
-			graph.resize(n);
+			for (int i = graph.size(); i < n; i++)
+			{
+				pVertex* Y = new Vvectorbool;
+				unique_ptr<pVertex> X(Y);
+				addVertex(X);
+			}
 		}
 		else
 		{
 			for (int i = n; i < graph.size(); i++)
 				for (int j = 0; j < n; j++)
-					if (graph[j].isConnect(i))
-						graph[j].delNeighbour(i);
-			graph.resize(n);
+					if ((*graph[j]).isConnect(i))
+						(*graph[j]).delNeighbour(i);
+			for (; n != graph.size();)
+				graph.pop_back();
 		}
 	};
 };
