@@ -1,76 +1,276 @@
+#pragma once
+
 #include <vector>
-#include <map>
+#include <cassert>
+#include <iostream>
+#include <algorithm>
 
-template<typename IdType>
-class Vertex
+namespace graph
+{
+
+class NodeIterator
 {
 	public:
-		typedef IdType vertex_id_t;
-		
-		Vertex() {}
-		Vertex(IdType& vertexId) { id = vertexId; }
-		IdType& getId() { return id; }
-		
-	private:
-		IdType id;
+		virtual NodeIterator& operator++() = 0;
+		virtual NodeIterator& operator--() = 0;
+		virtual unsigned operator*() const = 0;
+		virtual bool operator==(const NodeIterator& it) const = 0;
+		virtual bool operator!=(const NodeIterator& it) const = 0;
 };
 
-template<typename IdType, typename DataType>
-class DataVertex : public Vertex<IdType>
+class IteratorWrapper
 {
 	public:
-		DataVertex(IdType& vertexId, DataType& vertexData) : Vertex<IdType>(vertexId) { data = vertexData; }
-		DataType getData() { return data; }
-	
+		IteratorWrapper(NodeIterator* it)
+		{
+			base = it;
+		}
+		
+		~IteratorWrapper()
+		{
+			delete base;
+		}
+		
+		IteratorWrapper& operator++()
+		{
+			++(*base);
+			return *this;
+		}
+		
+		IteratorWrapper& operator--()
+		{
+			--(*base);
+			return *this;
+		}
+		
+		unsigned operator*() const
+		{
+			return **base;
+		}
+		
+		bool operator==(const IteratorWrapper& iw) const
+		{
+			return *base == *iw.base;
+		}
+		
+		bool operator!=(const IteratorWrapper& iw) const
+		{
+			return *base != *iw.base;
+		}
+		
 	private:
-		DataType data;
+		NodeIterator* base;
 };
 
-template<typename VertexType, typename EdgeDataType>
+class Node
+{
+	public:
+		virtual void linkTo(unsigned v) = 0;
+		virtual bool isConnected(unsigned v) const = 0;
+		virtual const std::vector<unsigned> getFriends() const = 0;
+		virtual IteratorWrapper begin() const = 0;
+		virtual IteratorWrapper end() const = 0;
+};
+
+class ListNodeIterator : public NodeIterator
+{
+	public:
+		ListNodeIterator(std::vector<unsigned>::const_iterator it)
+		{
+			base = it;
+		}
+		
+		virtual ListNodeIterator& operator++()
+		{
+			++base;
+			return *this;
+		}
+		
+		virtual ListNodeIterator& operator--()
+		{
+			--base;
+			return *this;
+		}
+		
+		virtual unsigned operator*() const
+		{
+			return *base;
+		}
+		
+		virtual bool operator==(const NodeIterator& it) const
+		{
+			return base == ((ListNodeIterator&)it).base;
+		}
+		
+		virtual bool operator!=(const NodeIterator& it) const
+		{
+			return base != ((ListNodeIterator&)it).base;
+		}
+		
+	private:
+		std::vector<unsigned>::const_iterator base;
+};
+
+class ListNode : public Node
+{
+	public:
+		virtual void linkTo(unsigned v)
+		{
+			friends.push_back(v);
+		}
+		
+		virtual bool isConnected(unsigned v) const
+		{
+			return std::find(friends.begin(), friends.end(), v) != friends.end();
+		}
+		
+		virtual const std::vector<unsigned> getFriends() const
+		{
+			return friends;
+		}
+		
+		virtual IteratorWrapper begin() const
+		{
+			return IteratorWrapper(new ListNodeIterator(friends.begin()));
+		}
+		
+		virtual IteratorWrapper end() const
+		{
+			return IteratorWrapper(new ListNodeIterator(friends.end()));
+		}
+		
+		
+	private:
+		std::vector<unsigned> friends;
+};
+
+class TableNodeIterator : public NodeIterator
+{
+	typedef std::vector<bool>::const_iterator v_iter;
+	public:
+		TableNodeIterator(v_iter it, v_iter vbegin, v_iter vend)
+		{
+			base = it;
+			begin = vbegin;
+			end = vend;
+			for(;base != end && !(*base); ++base);
+		}
+		
+		virtual TableNodeIterator& operator++()
+		{
+			++base;
+			for(;base != end && !(*base); ++base);
+			return *this;
+		}
+		
+		virtual TableNodeIterator& operator--()
+		{
+			--base;
+			for(;base != begin && !(*base); --base);
+			return *this;
+		}
+		
+		virtual unsigned operator*() const
+		{
+			return base - begin;
+		}
+		
+		virtual bool operator==(const NodeIterator& it) const
+		{
+			return base == ((TableNodeIterator&)it).base;
+		}
+		
+		virtual bool operator!=(const NodeIterator& it) const
+		{
+			return base != ((TableNodeIterator&)it).base;
+		}
+		
+	private:
+		v_iter base, begin, end;
+};
+
+class TableNode : public Node
+{
+	public:
+		virtual void linkTo(unsigned v)
+		{
+			if(friends.size() <= v)
+				friends.resize(v + 1);
+			friends[v] = true;
+		}
+		
+		virtual bool isConnected(unsigned v) const
+		{
+			if(friends.size() <= v)
+				return false;
+			return friends[v];
+		}
+		
+		virtual const std::vector<unsigned> getFriends() const
+		{
+			std::vector<unsigned> ret;
+			std::vector<bool>::const_iterator it;
+			for(it = friends.begin(); it < friends.end(); it++)
+				if(*it)
+					ret.push_back(*it);
+			return ret;
+		}
+		
+		virtual IteratorWrapper begin() const
+		{
+			return IteratorWrapper(new TableNodeIterator(friends.begin(), friends.begin(), friends.end()));
+		}
+		
+		virtual IteratorWrapper end() const
+		{
+			return IteratorWrapper(new TableNodeIterator(friends.end(), friends.begin(), friends.end()));
+		}
+		
+	private:
+		std::vector<bool> friends;
+};
+
 class Graph
 {
 	public:
-		typedef typename VertexType::vertex_id_t vertex_id_t;
-		typedef typename std::map<vertex_id_t, std::vector<std::pair<vertex_id_t, EdgeDataType > > > links_map_t;
-		typedef typename std::vector<std::pair<vertex_id_t, EdgeDataType > > links_list_t;
-		typedef typename links_list_t::iterator links_iterator_t;
-		typedef typename links_map_t::iterator links_map_iterator_t;
+		unsigned add(Node* node)
+		{
+			nodes.push_back(node);
+			return nodes.size() - 1;
+		}
 		
-		void addVertex(VertexType& vertex);
-		void link(vertex_id_t& vertex1, vertex_id_t& vertex2, EdgeDataType edgeData);
-		links_list_t getLinksList(vertex_id_t& vertex);
-		links_iterator_t getLinksIterator(vertex_id_t& vertex);
-		void removeVertex(vertex_id_t& vertex);
+		void connect(unsigned v1, unsigned v2)
+		{
+			nodes[v1]->linkTo(v2);
+		}
+		
+		bool areConnected(unsigned v1, unsigned v2) const
+		{
+			return nodes[v1]->isConnected(v2);
+		}
+		
+		std::vector<unsigned> getFriends(unsigned v) const
+		{
+			return nodes[v]->getFriends();
+		}
+		
+		IteratorWrapper begin(unsigned v) const
+		{
+			return nodes[v]->begin();
+		}
+		
+		IteratorWrapper end(unsigned v) const
+		{
+			return nodes[v]->end();
+		}
+		
+		size_t getSize() const
+		{
+			return nodes.size();
+		}
 		
 	private:
-		std::vector<VertexType> vertices;
-		std::map<vertex_id_t, std::vector<std::pair<vertex_id_t, EdgeDataType > > > links;
+		std::vector<Node*> nodes;
 };
 
-template<typename VertexType, typename EdgeDataType>
-void Graph<VertexType, EdgeDataType>::addVertex(VertexType& vertex)
-{
-	vertices.push_back(vertex);
-	links[vertex.getId()] = std::vector<std::pair<vertex_id_t, EdgeDataType > >();
-}
-
-template<typename VertexType, typename EdgeDataType>
-void Graph<VertexType, EdgeDataType>::link(vertex_id_t& vertex1, vertex_id_t& vertex2, EdgeDataType edgeData)
-{
-	links_map_iterator_t it = links.find(vertex1);
-	std::pair<vertex_id_t&, EdgeDataType> ins(vertex2, edgeData);
-	it->second.push_back(ins);
-}
-
-template<typename VertexType, typename EdgeDataType>
-typename Graph<VertexType, EdgeDataType>::links_list_t Graph<VertexType, EdgeDataType>::getLinksList(vertex_id_t& vertex)
-{
-	links_map_iterator_t it = links.find(vertex);
-	return it->second;
-}
-
-template<typename VertexType, typename EdgeDataType>
-typename Graph<VertexType, EdgeDataType>::links_iterator_t Graph<VertexType, EdgeDataType>::getLinksIterator(vertex_id_t& vertex)
-{
-	return getLinksList(vertex);
 }
