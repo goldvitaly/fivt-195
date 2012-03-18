@@ -1,33 +1,32 @@
 #include "graph.h"
 #include <map>
+#include <vector>
+#include <algorithm>
+
 using namespace std;
 
 
-Graph <int> a;
-int res, n, x, m;
-
-//здесь решение задачи из архива codeforces 115A
-
-void dfs(Graph<int>::Node* u, int col)
-{
-    u -> color_  = col;
-    for(map<Graph<int>::Node*, int>::iterator it = u -> out_edges_.begin(); it != u -> out_edges_.end(); it++)
-        if(it -> first -> color_ == 0)  dfs(it -> first, col + 1);
-    res = max(res, col);
-}
-int main()
+int n, m, val;
+Graph<int> g;
+int main(int argc, char** args) //simple program getting number of components in non-oriented graph...
 {
     cin >> n;
-    for(int i = 1; i <= n; i++)
-        a.add_node(i, 0);
-    for(int i = 1; i <= n; i++)
+    for(int i = 0; i < n; i++)
+    {
+        g.add_node(i, new SetNode<int>(i));
+    }
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
         {
-            cin >> x;
-            if(x != -1)   a.add_edge(x, i);
+            cin >> val;
+            if(val)
+                g.add_edge(i, j);
         }
-    for(int i = 1; i <= n; i++)
-        if(a.find(i) -> num_of_inc_edges() == 0)
-            dfs(a.find(i), 1);
-    cout << res;
+    int ans = 0;
+    g.make_dfs(NULL, &ans);
+    cout << ans;
     return 0;
 }
+
+
+

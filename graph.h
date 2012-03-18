@@ -4,69 +4,112 @@
 #include <set>
 #include <utility>
 #include <map>
+#include "base_graph.h"
+
+
 template <class T>
 class Graph
 {
 public:
-    class Node
+    void add_node(int num, BaseNode* node)
     {
-    private:
-        T value_;
-
-    public:
-        std::map <Node*, int> inc_edges_, out_edges_;  //int - weight of edge
-
-        int color_, time_in_, time_out_;\
-
-        Node(T value = 0)
-        {
-            color_ = 0;
-            value_ = value;
-            time_in_ = 0;
-            time_out_ = 0;
-        }
-
-        size_t num_of_inc_edges() const
-        {
-            return(inc_edges_.size());
-        }
-
-        size_t num_of_out_edges() const
-        {
-            return(out_edges_.size());
-        }
-    };
-
-    std::map<int, Node*> graph_;
-
-    void add_node(int num, T value = 0)
-    {
-        graph_.insert(std::make_pair(num, new Node(value)));
+        graph_.insert(std::make_pair(num, node));
     }
 
-    void add_edge(int from, int to, int weight = 1)
+    void delete_node(int num)
     {
-        graph_.find(from) -> second -> out_edges_.insert(std::make_pair(graph_.find(to) -> second, weight));
-        graph_.find(to) -> second -> inc_edges_.insert(std::make_pair(graph_.find(from) -> second, weight));
+        if(find(num) != graph_.end())
+            graph_.erase(num);
+    }
+
+    void add_edge(int from, int to)
+    {
+        find(from) -> add_edge(to);
+        find(to) -> add_inc_edge(from);
     }
 
 
-    void add_dual_edge(int from, int to, int weight = 1)
+    void add_dual_edge(int from, int to)
     {
-        add_edge(from, to, weight);
-        add_edge(to, from, weight);
+        add_edge(from, to);
+        add_edge(to, from);
     }
 
     void inverse()
     {
-        for(typename std::map<int, Node*>::iterator it = graph_.begin(); it != graph_.end(); it++)
-            it -> second -> inc_edges_.swap(it -> second -> out_edges_);
+        for(typename std::map<int, BaseNode*>::iterator it = graph_.begin(); it != graph_.end(); it++)
+            it -> second -> inverse_edges();
     }
 
-    Node* find(int num)
+    void delete_edge(int from, int to)
+    {
+        find(from) -> second -> delete_edge(find(to));
+        find(to) -> second -> delete_inc_edge(find(from));
+    }
+
+    void delete_dual_edge(int from, int to)
+    {
+        delete_edge(from, to);
+        delete_edge(to, from);
+    }
+
+    size_t size()
+    {
+        return graph_.size();
+    }
+
+    BaseNode* find(int num)
     {
         return(graph_.find(num) -> second);
     }
-};
 
-#endif // GRAPH_H_INCLUDED
+    std::vector<int> get_neighbours(int node_num)
+    {
+        return find(node_num) -> get_neighbours();
+    }
+
+    void clear_flags()
+    {
+        for(typename std::map<int, BaseNode*>::iterator it = graph_.begin(); it != graph_.end(); it++)
+        {
+            it -> second -> flag_for_dfs_ = 0;
+        }
+    }
+
+
+
+    void make_dfs(std::vector<int>* top_sorted = NULL, int* comp = NULL)    //in vector we get top sorted order of nodes
+    {                                                                       //in comp we get number of components in not oriented graph
+        clear_flags();
+        int time = 0;
+        for(typename std::map<int, BaseNode*>::iterator it = graph_.begin(); it != graph_.end(); it++)
+            if(it -> second -> flag_for_dfs_ == false)
+            {
+                time = dfs(it -> first, time, top_sorted);
+                if(comp != NULL)
+                    (*comp)++;
+            }
+    }
+
+
+private:
+
+    int dfs(int node_num, int time, std::vector<int>* top_sorted = NULL)
+    {
+        find(node_num) -> flag_for_dfs_ = 1;
+        find(node_num) -> time_in = time;
+        std::vector<int> neighbours = get_neighbours(node_num);
+        for(int i = 0; i < neighbours.size(); i++)
+            if(!(find(neighbours[i]) -> flag_for_dfs_))
+            {
+                time = dfs(neighbours[i], time + 1, top_sorted);
+            }
+        find(node_num) -> time_out = time;
+        if(top_sorted != NULL)
+            top_sorted -> push_back(node_num);
+        return time;
+    }
+
+    std::map<int, BaseNode*> graph_;
+};
+#endif
