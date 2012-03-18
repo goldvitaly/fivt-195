@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 
 class Incident
@@ -11,6 +10,8 @@ public:
 	virtual size_t Begin          ()              const = 0;
 	virtual size_t Next           (size_t Vertex) const = 0;
 	virtual size_t End            ()              const = 0;
+	
+	virtual ~Incident (){};
 };
 
 class MyIncident : public Incident
@@ -66,15 +67,15 @@ public:
 	{
 		return _a.size();
 	}
+	~MyIncident (){}
 };
 
 class Graph
 {
 private:
-	bool _IsTransposed;
 	std::vector <Incident*> _Inc;
 public:
-	Graph (){_IsTransposed = false;}
+	Graph (){}
 	template <typename IncidentClass> void AddVertex (size_t Vertex)
 	{
 		while (Vertex >= _Inc.size()) _Inc.push_back(new IncidentClass());
@@ -89,18 +90,12 @@ public:
 	}
 	void AddIncident (size_t VertexA, size_t VertexB)
 	{
-		if (_IsTransposed) std::swap(VertexA, VertexB);
 		_Inc[VertexA]->AddIncident(VertexB);
 	}
 	bool CheckIncident (size_t VertexA, size_t VertexB) const
 	{
-		if (_IsTransposed) std::swap(VertexA, VertexB);
 		if (VertexA >= _Inc.size()) return false;
 		return _Inc[VertexA]->CheckIncident(VertexB);
-	}
-	void Transpose ()
-	{
-		_IsTransposed ^= true;
 	}
 	size_t VertexNum () const
 	{
@@ -119,26 +114,61 @@ public:
 	}
 };
 
-void TopSort (const Graph &G, size_t VertexR, std::vector<size_t> &ord, bool ToClean = true)
+class GraphAlgorithm
 {
-	static std::vector<bool> used;
-	
-	if (ToClean) ord.resize(0), used.assign(G.VertexNum(), false);
-	
-	const Incident *Inc = G.GetIncident(VertexR);
-	
-	used[VertexR] = true;
-	for (size_t v = Inc->Begin(); v != Inc->End(); v = Inc->Next(v))
-	{
-		if (!used[v]) TopSort(G, v, ord, false);
-	}
-	
-	ord.push_back(VertexR);
-}
-
-void FindStronglyConnectedComponents (const Graph &G)
-{
-	//if ()
-	std::vector <size_t> comp(G.IncidentNum(), 0);
-	
-}
+private:
+    size_t _Timer, _Color;
+    std::vector<size_t> _Comp, _Tin;
+    std::vector<bool> _Used;
+    std::vector<size_t> _Stack;
+    
+    void FSCC_Dfs (const Graph& G, size_t v)
+    {
+        _Used[v] = true;
+        _Stack.push_back(v);
+        _Tin[v] = _Timer++;
+        
+        bool IsRoot = true;
+        const Incident* inc = G.GetIncident(v);
+        for (size_t u = inc->Begin(); u != inc->End(); u = inc->Next(u))
+        {
+            if (!_Used[u])
+                FSCC_Dfs(G, u);
+            if (_Tin[v] > _Tin[u])
+            {
+                _Tin[v] = _Tin[u];
+                IsRoot = false;
+            }
+        }
+        
+        if (IsRoot)
+        {
+            size_t u;
+            do
+            {
+                u = _Stack.back();
+                _Stack.pop_back();
+                
+                _Comp[u] = _Color;                
+                
+            } while (u != v);
+            _Color++;
+        }
+    }
+public:
+    std::vector<size_t> FindStronglyConnectedComponents (const Graph& G)
+    {
+        _Used.assign(G.VertexNum(), false);
+        _Comp.assign(G.VertexNum(), 0);
+        _Tin.assign(G.VertexNum(), 0);
+        _Stack.clear();
+        _Timer = 0;
+        _Color = 0;
+        
+        for (size_t i = 0; i < G.VertexNum(); ++i)
+            if (!_Used[i])
+                FSCC_Dfs(G, i);
+        
+        return _Comp;
+    }
+};
