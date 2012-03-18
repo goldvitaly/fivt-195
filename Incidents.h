@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
-///ololo
+
 using namespace std;
 
 class ICB
@@ -31,6 +31,7 @@ public:
 	virtual size_t degree() const = 0;
 	virtual void clear() = 0;
 	virtual void incedents (ICB& cb) = 0;
+	virtual ~pVertex () {}
 };
 
 class Vvectorbool : public pVertex
@@ -260,67 +261,4 @@ public:
 		for (auto it = adj.begin(); it != adj.end(); it++)
 			cb(*it);
 	}
-};
-
-
-class Vertex
-{
-private:
-	pVertex * pV;
-public:
-	Vertex (string type = "int") 
-	{
-		if (type == "bool")
-		{
-			pV = new Vvectorbool;
-		}
-		else
-		if (type == "int")
-		{
-			pV = new Vvectorint;
-		}	
-		else
-		if (type == "set")
-		{
-			pV = new Vset;
-		}			
-		else
-		if (type == "map")
-		{
-			pV = new Vmap;
-		}
-		else
-		if (type == "list")
-		{
-			pV = new Vlist;
-		}	
-	}; 
-	~Vertex()
-	{
-		delete pV;
-	};
-	void addNeighbour (const size_t v)
-	{
-		pV->addNeighbour(v);
-	};
-	void delNeighbour (const size_t v)
-	{
-		pV->delNeighbour(v);
-	};
-	const bool isConnect(const size_t v)
-	{
-		return pV->isConnect(v);
-	};
-	const size_t degree()
-	{
-		return pV->degree();
-	};
-	void clear()
-	{
-		pV->clear();
-	};
-	void incedents (ICB& cb)
-	{
-		pV->incedents(cb);
-	};
 };
