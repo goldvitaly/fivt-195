@@ -45,7 +45,7 @@ class IncidenceType
     virtual size_t        operator *() const   = 0;
     virtual BaseIterator& operator ++()  = 0;
     virtual ~BaseIterator();
-  };
+  }; // BaseIterator
   
   class Iterator
   {
@@ -88,7 +88,7 @@ class IncidenceType
    private:
     std::unique_ptr<BaseIterator> iterator_;
 
-  };
+  }; // Iterator
 
  private:
   
@@ -234,7 +234,7 @@ class SetIncidence : public IncidenceType
    private:
     std::set<size_t>::const_iterator set_iterator;
 
-  };
+  }; // SetBaseIterator
 
  private:
   std::set<size_t> incident_;
@@ -318,7 +318,7 @@ class VectorIncidence : public IncidenceType
    private:
     std::vector<size_t>::const_iterator vector_iterator;
     
-  };
+  }; // VectorBaseIterator
 
  private:
   std::vector<size_t> incident_;
@@ -411,7 +411,7 @@ class BitmaskIncidence : public IncidenceType
     int iterator_;
     const std::vector<bool>* incident_;
 
-  };
+  }; // BitmaskBaseIterator
 
  private:
   std::vector<bool> incident_;
