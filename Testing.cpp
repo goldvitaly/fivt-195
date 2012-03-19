@@ -59,7 +59,6 @@ void testStronglyConnectedComponentsAlgorithm(int size)
 {
   Graph graph = GraphAlgorithms::getRandomGraph<VectorIncidence> (size, 4.0 / size, size);
   std::vector<int> component = GraphAlgorithms::getStronglyConnectedComponentsDivision(graph);
-  std::vector<int> dummyPath;
   int vertexNumber = graph.size();
   for(int i = 0; i < vertexNumber; i++)
   {

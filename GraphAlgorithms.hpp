@@ -73,7 +73,7 @@ class GraphAlgorithms
     return 0;
   }
 
-  template<typename IncidenceTypeT>
+  template<typename IncidenceTypeT = VectorIncidence>
   static Graph getRandomGraph(int vertexNumber, double edgeCreationProbability, size_t seed = 42)
   {
     srand(seed);

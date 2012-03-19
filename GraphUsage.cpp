@@ -11,9 +11,10 @@ using namespace std;
 
 int main()
 {
-  Graph G = GraphAlgorithms::getRandomGraph(100, 0.01, 1);
+  Graph G = GraphAlgorithms::getRandomGraph(10, 0.1, 1);
 
   vector<int> component = GraphAlgorithms::getStronglyConnectedComponentsDivision(G);
+  G.setVertexIncidenceType(4, new SetIncidence);
   for(int i = 0; i < component.size(); i++)
   {
     printf("vertex %d lies in %d\n", i, component[i]);

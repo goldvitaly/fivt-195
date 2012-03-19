@@ -55,9 +55,9 @@ class IncidenceType
       iterator_ = std::unique_ptr<BaseIterator>(base_iterator);
     }
 
-    Iterator(const IncidenceType::Iterator& iterator)
+    Iterator(IncidenceType::Iterator&& iterator)
     {
-      iterator_ = std::move( const_cast< std::unique_ptr<BaseIterator>& > (iterator.iterator_) );
+      iterator_ = std::move(iterator.iterator_);
     }
 
     size_t operator *() const
@@ -104,9 +104,9 @@ class VertexIncidenceType
     incident_type_ = std::unique_ptr<IncidenceType> (incident_type);
   }
 
-  explicit VertexIncidenceType(const VertexIncidenceType& vertex_incidence_type)
+  explicit VertexIncidenceType(VertexIncidenceType&& vertex_incidence_type)
   {
-    incident_type_ = std::move( const_cast< std::unique_ptr<IncidenceType>& > (vertex_incidence_type.incident_type_) );
+    incident_type_ = std::move(vertex_incidence_type.incident_type_);
   }
 
   void addEdge(int destination)
@@ -418,4 +418,4 @@ class BitmaskIncidence : public IncidenceType
 
 }; // BitsIncidence
 
-#endif /* INCIDENTTYPE_HPP */
+#endif /* INCIDENCETYPE_HPP */

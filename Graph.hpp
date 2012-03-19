@@ -19,6 +19,7 @@
 #include <stdexcept>
 
 #include "IncidenceType.hpp"
+#include "Utils.hpp"
 
 class Graph
 {
@@ -42,10 +43,20 @@ class Graph
       addVertex(new IncidenceTypeT);
   }
 
+  void setVertexIncidenceType(int vertex_index, IncidenceType* new_incidence)
+  {
+    for(auto to : vertexIncidents[vertex_index])
+    {
+      new_incidence->addEdge(to);
+    }
+    vertexIncidents[vertex_index].clear();
+    vertexIncidents[vertex_index] = std::move(VertexIncidenceType(new_incidence));
+  }
+
   void addEdge(int source, int destination)
   {
     if (isOutOfBound(source) || isOutOfBound(destination))
-      throw new std::exception;
+      throw new std::out_of_range("Try to add bad edge from " + toString(source) + " " + toString(destination));
 
     vertexIncidents[source].addEdge(destination);
   }
@@ -53,7 +64,7 @@ class Graph
   void removeEdge(int source, int destination)
   {
     if (isOutOfBound(source) || isOutOfBound(destination))
-      throw new std::exception;
+      throw new std::out_of_range("Try to remove bad edge from " + toString(source) + " " + toString(destination));
 
     vertexIncidents[source].removeEdge(destination);
   }
@@ -61,7 +72,7 @@ class Graph
   bool hasEdge(int source, int destination) const
   {
     if (isOutOfBound(source) || isOutOfBound(destination))
-      throw new std::exception;
+      throw new std::out_of_range("Try to check bad edge from " + toString(source) + " " + toString(destination));
 
     return vertexIncidents[source].isConnectedTo(destination);
   }
@@ -73,10 +84,8 @@ class Graph
 
   void clear()
   {
-    for(int i = 0; i < vertexIncidents.size(); i++)
-    {
-      vertexIncidents[i].clear();
-    }
+    for(auto& v : vertexIncidents)
+      v.clear();
     vertexIncidents.clear();
   }
 
