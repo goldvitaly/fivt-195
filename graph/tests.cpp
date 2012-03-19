@@ -20,20 +20,14 @@ class Timer
 };
 
 template <class VertexRealization>
-char test_graph_realization(int vertex_number, int requests)
+int test_graph_realization(unsigned int vertex_number, unsigned int requests)
 {	
 	Timer t;
-	class VertexChooser
-	{
-	  public:
-		graph::Graph::Vertex* operator() (unsigned int degree, unsigned int vertices)
-		{
-			return new VertexRealization();
-		}		
-	};
-	graph::Graph testing_realization(vertex_number, VertexChooser());
+	graph::impl::Graph testing_realization(vertex_number);
+	for (unsigned int i = 0; i < vertex_number; i ++)
+		testing_realization.reset(i, new VertexRealization());
 	std::vector < std::set <unsigned int> > model_realization(vertex_number);
-	for (int i = 0; i < requests; i ++)
+	for (unsigned int i = 0; i < requests; i ++)
 	{
 		int v = rand() % vertex_number;
 		int u = rand() % vertex_number;

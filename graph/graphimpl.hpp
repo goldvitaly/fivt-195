@@ -26,17 +26,14 @@ class Graph
 		void add_edge(unsigned int from, unsigned int to) { this->get(from).add(to); };
 		void del_edge(unsigned int from, unsigned int to) { this->get(from).del(to); };
 		bool has_edge(unsigned int from, unsigned int to) { return this->get(from).has(to); };
-		size_t size() const { return vertices.size(); };
-		template <class VertexChooser> Graph(unsigned int size, VertexChooser vertex_chooser = VertexChooser()): vertices(size)
-		{
-			for (size_t i = 0; i < vertices.size(); i ++)
-				vertices[i].reset(vertex_chooser(i, size));
-		}
+		unsigned int size() const { return vertices.size(); };
+		Graph(unsigned int vertex_number): vertices(vertex_number) {};
 		Graph& operator = (const Graph& rhs)
 		{
 			vertices.resize(rhs.size());
-			for (size_t i = 0; i < rhs.size(); i ++)
+			for (unsigned int i = 0; i < rhs.size(); i ++)
 				vertices[i].reset(rhs.vertices[i]->clone());
+			return *this;
 		}
 		explicit Graph(const Graph& G)
 		{
@@ -48,13 +45,22 @@ class Graph
 			public:
 				virtual iterator begin() const = 0;
 				virtual iterator end() const = 0;
-				virtual size_t size() const = 0;
+				virtual unsigned int size() const = 0;
 				virtual void add(unsigned int) = 0;
 				virtual void del(unsigned int) = 0;
 				virtual bool has(unsigned int) const = 0;
 				virtual Vertex* clone() const = 0;
 				virtual ~Vertex() {};
 		};
+		void reset(unsigned int vertex, Vertex* realization)
+		{
+			if (vertices[vertex])
+			{
+				for (iterator it = vertices[vertex]->begin(); it != vertices[vertex]->end(); it ++)
+					realization->add(*it);
+			}
+			vertices[vertex].reset(realization);
+		}
 		const Vertex& operator [](unsigned int vertex) const { return *vertices[vertex]; };
 		class Iterator
 		{
