@@ -10,10 +10,10 @@ public:
 	explicit SetIncidents(const std::set<size_t>& v): incidents(v) {}
 	
 	virtual Iterator begin() const{
-		return Iterator(std::unique_ptr<BaseIterator>(new BaseIterator(incidents.begin())));
+		return Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents.begin())));
 	}
 	virtual Iterator end() const{
-		return Iterator(std::unique_ptr<BaseIterator>(new BaseIterator(incidents.end())));
+		return Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents.end())));
 	}
 	
 	size_t size() const {
