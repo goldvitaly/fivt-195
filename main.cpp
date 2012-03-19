@@ -30,7 +30,7 @@ Graph genGraph(int mask){
 	}
 	return graph;
 }
-bool checkColoringsEqual(Coloring a, Coloring b){
+bool checkColoringsEqual(const Coloring& a, const Coloring& b){
 	assert(a.size()==b.size());
 	map<size_t, set<size_t> > m;
 	for(size_t i = 0; i < a.size(); ++i){
