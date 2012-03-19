@@ -53,7 +53,7 @@ namespace implementation
 		}
 	};
 };
-	inline std::vector<unsigned int> calculate_strongly_connected_components_coloring(const Graph& g)
+	inline std::vector<unsigned int> get_strongly_connected_components_coloring(const Graph& g)
 	{
 		std::vector<unsigned int> coloring(g.size(), 0);
 		implementation::StronglyConnectedComponentsColorer colorer(g.size());

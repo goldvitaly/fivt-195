@@ -141,7 +141,7 @@ char strongly_connection_test(int vertex_number, int requests)
 		else
 			g.del_edge(v, u);
 		std::vector<unsigned int> model_coloring = NaiveSolver::solve(g);
-		std::vector<unsigned int> testing_coloring = graph::algorithm::calculate_strongly_connected_components_coloring(g);
+		std::vector<unsigned int> testing_coloring = graph::algorithm::get_strongly_connected_components_coloring(g);
 		if (!SmartVectorComparator()(model_coloring, testing_coloring))
 		{
 			for (int i = 0; i < vertex_number; i ++)
