@@ -11,14 +11,15 @@
 #include <map>
 using namespace std;
 
+typedef std::unique_ptr<Incidents> PIncidents;
 typedef std::vector<size_t> Coloring;
 
 Graph genGraph(int mask){
 	Graph graph;
-	graph.addVertex(new VectorIncidents());
-	graph.addVertex(new SetIncidents());
-	graph.addVertex(new VectorIncidents());
-	graph.addVertex(new SetIncidents());
+	graph.addVertex(PIncidents(new VectorIncidents()));
+	graph.addVertex(PIncidents(new SetIncidents()));
+	graph.addVertex(PIncidents(new VectorIncidents()));
+	graph.addVertex(PIncidents(new SetIncidents()));
 	for(int i=0; i < 4; ++i){
 		for(int j = 0; j < 4; ++j){
 			int curEdge = 4 * i + j;

@@ -8,8 +8,8 @@ class Graph{
 	std::vector<Pointer> incidents;
 public:
 	//reachs ownership
-	void addVertex(Incidents* vertexIncidents){
-		incidents.push_back(Pointer(vertexIncidents));
+	void addVertex(Pointer vertexIncidents){
+		incidents.push_back(std::move(vertexIncidents));
 	}
 	
 	void addEdge(size_t from, size_t to){
@@ -26,6 +26,10 @@ public:
 	
 	Incidents& getIncidents(size_t from) const {
 		return *incidents[from];
+	}
+	
+	void setIncidents(size_t from, Pointer vertexIncidents){
+		incidents[from] = std::move(vertexIncidents);
 	}
 	
 	size_t size() const {
