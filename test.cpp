@@ -21,19 +21,15 @@ void test1(unsigned vsize)
 	for(unsigned v = 0; v < vsize; ++v)
 	{
 		cout << v << ":" << endl;
-		IteratorWrapper it = g.begin(v);
-		while(it != g.end(v))
-		{
-			cout << "\t" << *it << endl;
-			++it;
-		}
+		for(auto it : g.getNode(v))
+			cout << "\t" << it << endl;
 	}
 	for(unsigned i = 0; i < vsize; ++i)
 		delete nodes[i];
 }
 
 //Count components in non-oriented graph. The answer must be equal to "comps" argument.
-void test2(int vsize, int comps)
+int test2(int vsize, int comps)
 {
 	Graph g;
 	TableNode nodes[vsize];
@@ -47,13 +43,14 @@ void test2(int vsize, int comps)
 			g.connect(v, i);
 			g.connect(i, v);
 		}
-	cout << algo::countComponents(g) << endl;
+	return algo::countComponents(g);
 }
 
 int main()
 {
 	test1(10);
-	for(int i = 1; i <= 15; ++i)
-		test2(15, i);
+	int size2 = 10000;
+	if(test2(size2, size2 / 2) != size2 / 2)
+		cerr << "Test 2 failed!" << endl;
 	return 0;
 }

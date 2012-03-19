@@ -18,9 +18,8 @@ int dfs(const Graph& g, unsigned v, int* colors)
 	if(colors[v] != COLOR_WHITE)
 		return colors[v];
 	colors[v] = COLOR_GREY;
-	IteratorWrapper end = g.end(v);
-	for(IteratorWrapper it = g.begin(v); it != end; ++it)
-		dfs(g, *it, colors);
+	for(auto it : g.getNode(v))
+		dfs(g, it, colors);
 	colors[v] = COLOR_BLACK;
 	return COLOR_WHITE;
 }

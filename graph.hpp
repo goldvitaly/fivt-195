@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 
 namespace graph
 {
@@ -209,10 +210,9 @@ class TableNode : public Node
 		virtual const std::vector<unsigned> getFriends() const
 		{
 			std::vector<unsigned> ret;
-			std::vector<bool>::const_iterator it;
-			for(it = friends.begin(); it < friends.end(); it++)
-				if(*it)
-					ret.push_back(*it);
+			for(auto it : friends)
+				if(it)
+					ret.push_back(it);
 			return ret;
 		}
 		
@@ -247,21 +247,16 @@ class Graph
 		bool areConnected(unsigned v1, unsigned v2) const
 		{
 			return nodes[v1]->isConnected(v2);
-		}
+		}		
 		
 		std::vector<unsigned> getFriends(unsigned v) const
 		{
 			return nodes[v]->getFriends();
 		}
 		
-		IteratorWrapper begin(unsigned v) const
+		const Node& getNode(unsigned v) const
 		{
-			return nodes[v]->begin();
-		}
-		
-		IteratorWrapper end(unsigned v) const
-		{
-			return nodes[v]->end();
+			return *nodes[v];
 		}
 		
 		size_t getSize() const
