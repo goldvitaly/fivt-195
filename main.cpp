@@ -1,5 +1,6 @@
 #include "Graph.hpp"
 #include "Incidents.hpp"
+#include "MatrixIncidents.hpp"
 #include "SetIncidents.hpp"
 #include "StronglyConnectedComponents.hpp"
 #include "TrivialStronglyConnectedComponents.hpp"
@@ -17,7 +18,7 @@ typedef std::vector<size_t> Coloring;
 Graph genGraph(int mask){
 	Graph graph;
 	graph.addVertex(PIncidents(new VectorIncidents()));
-	graph.addVertex(PIncidents(new SetIncidents()));
+	graph.addVertex(PIncidents(new MatrixIncidents(4)));
 	graph.addVertex(PIncidents(new VectorIncidents()));
 	graph.addVertex(PIncidents(new SetIncidents()));
 	for(int i=0; i < 4; ++i){
