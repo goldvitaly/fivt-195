@@ -6,12 +6,15 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <memory>
 
-class UnaryFunc
+class UnaryFunc /// запретить конструктор копирования
 {
     typedef unsigned int TypeNameVer;
 public:
     virtual void operator()(const TypeNameVer& elem){};
+    UnaryFunc(const UnaryFunc&) = delete;
+    UnaryFunc() { };
 private:
 };
 
@@ -36,14 +39,16 @@ public:
     void add_vertex(const TypeNameVer& nameVer, StructVer* structVer = new StructVer())
     {
         check_exist(nameVer, false);
-        if(graph.size() < nameVer + 1)
-            graph.resize(nameVer + 1);
-        graph[nameVer] = structVer;
+        while(graph.size() < nameVer + 1)
+        {
+            graph.push_back(std::unique_ptr<StructVer>());
+        }
+        graph[nameVer].reset(structVer);
     }
     void delete_vertex(const TypeNameVer& nameVer)
     {
         check_exist(nameVer, true);
-        typename std::vector<TypeNameVer, StructVer*>::iterator it;
+        typename std::vector<std::unique_ptr<StructVer> >::iterator it;
         for(it = graph.begin(); it != graph.end(); it++)
         {
             if(it->exist_neighbour(nameVer))
@@ -97,17 +102,8 @@ public:
         }
         return size;
     }
-    ~Graph()
-    {
-        typename std::vector<StructVer*>::iterator it = graph.begin();
-        while(it != graph.end())
-        {
-            delete *it;
-            it++;
-        }
-    }
 private:
-    std::vector<StructVer*> graph;
+    std::vector<std::unique_ptr<StructVer> > graph;
     void check_exist(const TypeNameVer& nameVer, bool suppos) const
     {
         bool activity = (graph.size() > nameVer && graph[nameVer] != 0);
