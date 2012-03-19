@@ -4,21 +4,29 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <fstream>
 
 using namespace std;
 
 class ICB
 {
+private:
+   ICB& operator = (const ICB& cpy);
+   ICB (const ICB& other);
 public:
-	virtual void operator() (size_t v)= 0;
+	ICB() {};
+	virtual void operator() (size_t v) = 0;
 };
 
-class ICBprint : public ICB
+class ICBprint : public ICB 
 {
+private:
+	ofstream* out;
 public:
-	void operator() (size_t v)
+	ICBprint (ofstream & _out) {out = &_out;};
+	void operator() (size_t v) 
 	{
-		cout << v << endl;
+		*out << v << endl;
 	}
 };
 
@@ -34,13 +42,13 @@ public:
 	virtual ~pVertex () {}
 };
 
-class Vvectorbool : public pVertex
+class IncidenceVectorBool : public pVertex
 { 
 private:
 	vector<bool> adj;
 	size_t deg;
 public:
-	Vvectorbool () : deg(0) {};
+	IncidenceVectorBool () : deg(0) {};
 	void addNeighbour (const size_t v)
 	{
 		if (v >= adj.size())
@@ -84,13 +92,13 @@ public:
 	}
 };
 
-class Vvectorint : public pVertex
+class IncidenceVectorInt : public pVertex
 { 
 private:
 	vector<size_t> adj;
 	size_t deg;
 public:
-	Vvectorint (): deg(0) {};
+	IncidenceVectorInt (): deg(0) {};
 	void addNeighbour (const size_t v)
 	{
 		adj[v]++;
@@ -132,7 +140,7 @@ public:
 	}
 };
 
-class Vset : public pVertex
+class IncidenceSet : public pVertex
 {
 private:
 	set<size_t> adj;
@@ -163,14 +171,12 @@ public:
 	}
 	void incedents(ICB& cb)
 	{
-		//for_each (adj.begin(), adj.end(), cb);
-		
 		for (auto it = adj.begin(); it != adj.end(); it++)
 			cb(*it);
 	}
 };
 
-class Vmap : public pVertex
+class IncidenceMap : public pVertex
 {
 private:
 	map<size_t, size_t> adj;
@@ -181,7 +187,7 @@ public:
 	}
 	void delNeighbour (const size_t v)
 	{
-		map<size_t, size_t>:: iterator it; // maybe static?
+		map<size_t, size_t>:: iterator it;
 		it = adj.find(v);
 		if (it == adj.end())
 		{
@@ -212,7 +218,7 @@ public:
 	}
 };
 
-class Vlist : public pVertex
+class IncidenceList : public pVertex
 {
 private:
 	vector<size_t> adj;
@@ -233,18 +239,13 @@ public:
 	}
 	bool isConnect(const size_t v) const  
 	{
-		/*
+		
 		auto it = 
-			find_if(adj.begin(), adj.end(), [] (int x)
+			find_if(adj.begin(), adj.end(), [v] (size_t x) 
 			{
 				return (x == v);
 			});
-		return (it != adj.end());*/
-		
-		for (auto it = adj.begin(); it != adj.end(); it++)
-			if ((*it) == v)
-				return true;
-		return false;
+		return (it != adj.end());
 	}
 	size_t degree() const 
 	{
@@ -256,8 +257,6 @@ public:
 	}
 	void incedents(ICB& cb)
 	{
-		//for_each (adj.begin(), adj.end(), cb);
-		
 		for (auto it = adj.begin(); it != adj.end(); it++)
 			cb(*it);
 	}
