@@ -10,11 +10,10 @@ using namespace algo;
 void test1(unsigned vsize)
 {
 	Graph g;
-	Node* nodes[vsize];
 	for(unsigned i = 0; i < vsize / 2; ++i)
-		g.add(nodes[i] = new TableNode());
+		g.add(new TableNode());
 	for(unsigned i = vsize / 2; i < vsize; ++i)
-		g.add(nodes[i] = new ListNode());
+		g.add(new ListNode());
 	for(unsigned i = 0; i < vsize; ++i)
 		for(unsigned j = i; j < i + 3 && j < vsize; ++j)
 			g.connect(i, j);
@@ -24,17 +23,14 @@ void test1(unsigned vsize)
 		for(auto it : g.getNode(v))
 			cout << "\t" << it << endl;
 	}
-	for(unsigned i = 0; i < vsize; ++i)
-		delete nodes[i];
 }
 
 //Count components in non-oriented graph. The answer must be equal to "comps" argument.
 int test2(int vsize, int comps)
 {
 	Graph g;
-	TableNode nodes[vsize];
 	for(int i = 0; i < vsize; ++i)
-		g.add(nodes + i);
+		g.add(new TableNode());
 	for(int i = 0; i < comps; i++)
 		for(int v = i + comps; v < vsize; v += comps)
 		{

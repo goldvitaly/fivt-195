@@ -24,12 +24,7 @@ class IteratorWrapper
 	public:
 		IteratorWrapper(NodeIterator* it)
 		{
-			base = it;
-		}
-		
-		~IteratorWrapper()
-		{
-			delete base;
+			base = std::unique_ptr<NodeIterator>(it);
 		}
 		
 		IteratorWrapper& operator++()
@@ -60,7 +55,7 @@ class IteratorWrapper
 		}
 		
 	private:
-		NodeIterator* base;
+		std::unique_ptr<NodeIterator> base;
 };
 
 class Node
@@ -235,7 +230,7 @@ class Graph
 	public:
 		unsigned add(Node* node)
 		{
-			nodes.push_back(node);
+			nodes.push_back(std::unique_ptr<Node>(node));
 			return nodes.size() - 1;
 		}
 		
@@ -265,7 +260,7 @@ class Graph
 		}
 		
 	private:
-		std::vector<Node*> nodes;
+		std::vector<std::unique_ptr<Node>> nodes;
 };
 
 }
