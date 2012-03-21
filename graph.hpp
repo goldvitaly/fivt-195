@@ -1,79 +1,13 @@
+#ifndef GRAPH_HPP
+#define GRAPH_HPP
+
 #include <vector>
-
-class Incident
-{
-public:
-	virtual void   AddIncident    (size_t Vertex)       = 0;
-	virtual void   RemoveIncident (size_t Vertex)       = 0;
-	virtual bool   CheckIncident  (size_t Vertex) const = 0;
-	virtual size_t IncidentNum    ()              const = 0;
-	virtual size_t Begin          ()              const = 0;
-	virtual size_t Next           (size_t Vertex) const = 0;
-	virtual size_t End            ()              const = 0;
-
-	virtual ~Incident (){};
-};
-
-class MyIncident : public Incident
-{
-private:
-	size_t _IncidentNum;
-	std::vector <bool> _a;
-public:
-	MyIncident ()
-	{
-		_IncidentNum = 0;
-	}
-	void AddIncident (size_t Vertex)
-	{
-		if (Vertex >= _a.size())
-			_a.resize(Vertex + 1, false);
-		if (!_a[Vertex]) _IncidentNum++;
-		_a[Vertex] = true;
-	}
-	void RemoveIncident (size_t Vertex)
-	{
-		if (Vertex < _a.size())
-		{
-			if (_a[Vertex]) _IncidentNum--;
-			_a[Vertex] = false;
-		}
-	}
-	bool CheckIncident (size_t Vertex) const
-	{
-		if (Vertex >= _a.size())
-			return false;
-		return _a[Vertex];
-	}
-	size_t IncidentNum () const
-	{
-		return _IncidentNum;
-	}
-	size_t Begin () const
-	{
-		for (size_t i = 0; i < _a.size(); ++i)
-			if (_a[i])
-				return i;
-		return End();
-	}
-	size_t Next (size_t Vertex) const
-	{
-		for (size_t i = Vertex + 1; i < _a.size(); ++i)
-			if (_a[i])
-				return i;
-		return End();
-	}
-	size_t End () const
-	{
-		return _a.size();
-	}
-	~MyIncident (){}
-};
+#include <memory>
+#include <utility>
+#include "incident.hpp"
 
 class Graph
 {
-private:
-	std::vector <Incident*> _Inc;
 public:
 	Graph (){}
 	template <typename IncidentClass> void AddVertex (size_t Vertex)
@@ -112,63 +46,8 @@ public:
 	{
 		return _Inc[Vertex];
 	}
+private:
+	std::vector <Incident*> _Inc;
 };
 
-class GraphAlgorithm
-{
-private:
-    size_t _Timer, _Color;
-    std::vector<size_t> _Comp, _Tin;
-    std::vector<bool> _Used;
-    std::vector<size_t> _Stack;
-    
-    void FSCC_Dfs (const Graph& G, size_t v)
-    {
-        _Used[v] = true;
-        _Stack.push_back(v);
-        _Tin[v] = _Timer++;
-        
-        bool IsRoot = true;
-        const Incident* inc = G.GetIncident(v);
-        for (size_t u = inc->Begin(); u != inc->End(); u = inc->Next(u))
-        {
-            if (!_Used[u])
-                FSCC_Dfs(G, u);
-            if (_Tin[v] > _Tin[u])
-            {
-                _Tin[v] = _Tin[u];
-                IsRoot = false;
-            }
-        }
-        
-        if (IsRoot)
-        {
-            size_t u;
-            do
-            {
-                u = _Stack.back();
-                _Stack.pop_back();
-                
-                _Comp[u] = _Color;                
-                
-            } while (u != v);
-            _Color++;
-        }
-    }
-public:
-    std::vector<size_t> FindStronglyConnectedComponents (const Graph& G)
-    {
-        _Used.assign(G.VertexNum(), false);
-        _Comp.assign(G.VertexNum(), 0);
-        _Tin.assign(G.VertexNum(), 0);
-        _Stack.clear();
-        _Timer = 0;
-        _Color = 0;
-        
-        for (size_t i = 0; i < G.VertexNum(); ++i)
-            if (!_Used[i])
-                FSCC_Dfs(G, i);
-        
-        return _Comp;
-    }
-};
+#endif /* GRAPH_HPP */
