@@ -1,5 +1,5 @@
 #include "graph.hpp"
-#include "algo.cpp"
+#include "algo.hpp"
 #include <iostream>
 
 using namespace std;
@@ -30,7 +30,7 @@ int test2(int vsize, int comps)
 {
 	Graph g;
 	for(int i = 0; i < vsize; ++i)
-		g.add(new TableNode());
+		g.add(new ListNode());
 	for(int i = 0; i < comps; i++)
 		for(int v = i + comps; v < vsize; v += comps)
 		{
@@ -39,14 +39,16 @@ int test2(int vsize, int comps)
 			g.connect(v, i);
 			g.connect(i, v);
 		}
-	return algo::countComponents(g);
+	DFSMaker dfser(g);
+	dfser.dfs();
+	return dfser.componentsCount();
 }
 
 int main()
 {
 	test1(10);
-	int size2 = 10000;
-	if(test2(size2, size2 / 2) != size2 / 2)
+	int size2 = 1000000;
+	if(test2(size2, 33) != 33)
 		cerr << "Test 2 failed!" << endl;
 	return 0;
 }

@@ -22,7 +22,7 @@ class NodeIterator
 class IteratorWrapper
 {
 	public:
-		IteratorWrapper(NodeIterator* it)
+		explicit IteratorWrapper(NodeIterator* it)
 		{
 			base = std::unique_ptr<NodeIterator>(it);
 		}
@@ -63,7 +63,7 @@ class Node
 	public:
 		virtual void linkTo(unsigned v) = 0;
 		virtual bool isConnected(unsigned v) const = 0;
-		virtual const std::vector<unsigned> getFriends() const = 0;
+		virtual std::vector<unsigned> getFriends() const = 0;
 		virtual IteratorWrapper begin() const = 0;
 		virtual IteratorWrapper end() const = 0;
 };
@@ -71,7 +71,7 @@ class Node
 class ListNodeIterator : public NodeIterator
 {
 	public:
-		ListNodeIterator(std::vector<unsigned>::const_iterator it)
+		explicit ListNodeIterator(std::vector<unsigned>::const_iterator it)
 		{
 			base = it;
 		}
@@ -120,7 +120,7 @@ class ListNode : public Node
 			return std::find(friends.begin(), friends.end(), v) != friends.end();
 		}
 		
-		virtual const std::vector<unsigned> getFriends() const
+		virtual std::vector<unsigned> getFriends() const
 		{
 			return friends;
 		}
@@ -202,7 +202,7 @@ class TableNode : public Node
 			return friends[v];
 		}
 		
-		virtual const std::vector<unsigned> getFriends() const
+		virtual std::vector<unsigned> getFriends() const
 		{
 			std::vector<unsigned> ret;
 			for(auto it : friends)
@@ -244,17 +244,12 @@ class Graph
 			return nodes[v1]->isConnected(v2);
 		}		
 		
-		std::vector<unsigned> getFriends(unsigned v) const
-		{
-			return nodes[v]->getFriends();
-		}
-		
 		const Node& getNode(unsigned v) const
 		{
 			return *nodes[v];
 		}
 		
-		size_t getSize() const
+		size_t size() const
 		{
 			return nodes.size();
 		}
