@@ -41,11 +41,11 @@ bool areEqual(const Graph& G1, const Graph& G2)
   return 1;
 }
 
-void testGraphClass(int size)
+void testGraphClass(size_t size)
 {
-  Graph graph_with_vector_incidence  = GraphAlgorithms::getRandomGraph<VectorIncidence>  (size, 4.0 / size);
-  Graph graph_with_set_incidence     = GraphAlgorithms::getRandomGraph<SetIncidence>     (size, 4.0 / size);
-  Graph graph_with_bitmask_incidence = GraphAlgorithms::getRandomGraph<BitmaskIncidence> (size, 4.0 / size);
+  Graph graph_with_vector_incidence  = graph_algorithms::getRandomGraph<VectorIncidence>  (size, 4.0 / size);
+  Graph graph_with_set_incidence     = graph_algorithms::getRandomGraph<SetIncidence>     (size, 4.0 / size);
+  Graph graph_with_bitmask_incidence = graph_algorithms::getRandomGraph<BitmaskIncidence> (size, 4.0 / size);
 
   if (!areEqual(graph_with_vector_incidence, graph_with_set_incidence))
     throw std::logic_error("Vector and Set based graphs are not equal. Graph size = " + toString(size));
@@ -55,19 +55,22 @@ void testGraphClass(int size)
 
 }
 
-void testStronglyConnectedComponentsAlgorithm(int size)
+void testStronglyConnectedComponentsAlgorithm(size_t size)
 {
-  Graph graph = GraphAlgorithms::getRandomGraph<VectorIncidence> (size, 4.0 / size, size);
-  std::vector<int> component = GraphAlgorithms::getStronglyConnectedComponentsDivision(graph);
+  Graph graph = graph_algorithms::getRandomGraph<VectorIncidence> (size, 4.0 / size, size);
+  graph_algorithms::StronglyConnectedComponentsFinder finder(graph);
+  std::vector<int> component = finder.getStronglyConnectedComponents();
   int vertexNumber = graph.size();
+  graph_algorithms::ConnectivityChecker checker(graph);
   for(int i = 0; i < vertexNumber; i++)
   {
     for(int j = 0; j < vertexNumber; j++)
     {
       if (component[i] == component[j])
       {
-        if (!GraphAlgorithms::checkConnectivity(i, j, graph) || !GraphAlgorithms::checkConnectivity(j, i, graph))
-          throw std::logic_error("Vertices " + toString(i) + " " + toString(j) + " are not connected. Graph size = " + toString(size));
+        if (!checker.checkConnectivity(i, j) || !checker.checkConnectivity(j, i))
+          throw std::logic_error("Vertices " + toString(i) + " " + toString(j) +
+                                 " are not connected. Graph size = " + toString(size));
       }
     }
   }
@@ -86,13 +89,13 @@ int main()
     std::cout << "Graph class has passed tests" << std::endl;
   }
   {
-    Timer timer("Testing GraphAlgorithm class");
+    Timer timer("Testing Strongly Connected Components Finder");
     timer.start();
     testStronglyConnectedComponentsAlgorithm(1e1);
     testStronglyConnectedComponentsAlgorithm(1e2);
     testStronglyConnectedComponentsAlgorithm(5e2);
     timer.printTime();
-    std::cout << "GraphAlgorithm class has passed tests" << std::endl;
+    std::cout << "Strongly Connected Components Finder has passed tests" << std::endl;
   }
   return 0;
 }

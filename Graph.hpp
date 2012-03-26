@@ -26,9 +26,9 @@ class Graph
  public:
   std::vector<VertexIncidenceType> vertexIncidents;
 
-  bool isOutOfBound(int index) const
+  bool isOutOfBound(size_t index) const
   {
-    return (index < 0 || index >= vertexIncidents.size());
+    return (index >= vertexIncidents.size());
   }
 
   void addVertex(IncidenceType* incidence)
@@ -37,23 +37,26 @@ class Graph
   }
   
   template<typename IncidenceTypeT>
-  void addVertex(int vertexNumber)
+  void addVertices(int vertexNumber)
   {
     for(int i = 0; i < vertexNumber; i++)
       addVertex(new IncidenceTypeT);
   }
 
-  void setVertexIncidenceType(int vertex_index, IncidenceType* new_incidence)
+  void setVertexIncidenceType(size_t vertex, IncidenceType* new_incidence)
   {
-    for(auto to : vertexIncidents[vertex_index])
+    if (isOutOfBound(vertex))
+      throw new std::out_of_range("Try to change wrong vertex " + toString(vertex));
+
+    for(auto to : vertexIncidents[vertex])
     {
       new_incidence->addEdge(to);
     }
-    vertexIncidents[vertex_index].clear();
-    vertexIncidents[vertex_index] = std::move(VertexIncidenceType(new_incidence));
+    vertexIncidents[vertex].clear();
+    vertexIncidents[vertex] = std::move(VertexIncidenceType(new_incidence));
   }
 
-  void addEdge(int source, int destination)
+  void addEdge(size_t source, size_t destination)
   {
     if (isOutOfBound(source) || isOutOfBound(destination))
       throw new std::out_of_range("Try to add bad edge from " + toString(source) + " " + toString(destination));
@@ -61,7 +64,7 @@ class Graph
     vertexIncidents[source].addEdge(destination);
   }
 
-  void removeEdge(int source, int destination)
+  void removeEdge(size_t source, size_t destination)
   {
     if (isOutOfBound(source) || isOutOfBound(destination))
       throw new std::out_of_range("Try to remove bad edge from " + toString(source) + " " + toString(destination));
@@ -69,7 +72,7 @@ class Graph
     vertexIncidents[source].removeEdge(destination);
   }
 
-  bool hasEdge(int source, int destination) const
+  bool hasEdge(size_t source, size_t destination) const
   {
     if (isOutOfBound(source) || isOutOfBound(destination))
       throw new std::out_of_range("Try to check bad edge from " + toString(source) + " " + toString(destination));
@@ -88,6 +91,24 @@ class Graph
       v.clear();
     vertexIncidents.clear();
   }
+
+  /*/Graph transpose()
+  {
+    Graph transposed_graph = this;
+    for (auto& v : transposed_graph.vertexIncidents)
+    {
+      v.clear();
+    }
+    for(int v = 0; v < size(); v++)
+    {
+      for(auto& to : vertexIncidents[v])
+      {
+        transposed_graph.addEdge(v, to);
+      }
+    }
+    return transposed_graph;
+    //return std::move(transposed_graph);
+  }*/
 
   ~Graph()
   {

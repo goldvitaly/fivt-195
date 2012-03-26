@@ -29,10 +29,10 @@ class IncidenceType
  public:
   class Iterator;
   
-  virtual void     addEdge(int destination) = 0;
-  virtual void     removeEdge(int destination) = 0;
+  virtual void     addEdge(size_t destination) = 0;
+  virtual void     removeEdge(size_t destination) = 0;
   virtual void     clear() = 0;
-  virtual bool     isConnectedTo(int destination) const = 0;
+  virtual bool     isConnectedTo(size_t destination) const = 0;
   virtual size_t   degree() const = 0;
   virtual Iterator begin() const = 0;
   virtual Iterator end()   const = 0;
@@ -109,17 +109,13 @@ class VertexIncidenceType
     incident_type_ = std::move(vertex_incidence_type.incident_type_);
   }
 
-  void addEdge(int destination)
+  void addEdge(size_t destination)
   {
-    if (destination < 0)
-      throw std::out_of_range("Illegal vertex index");
     incident_type_->addEdge(destination);
   }
 
-  void removeEdge(int destination)
+  void removeEdge(size_t destination)
   {
-    if (destination < 0)
-      throw std::out_of_range("Illegal vertex index");
     if (destination >= degree())
       return;
     incident_type_->removeEdge(destination);
@@ -130,10 +126,8 @@ class VertexIncidenceType
     incident_type_->clear();
   }
 
-  bool isConnectedTo(int destination) const
+  bool isConnectedTo(size_t destination) const
   {
-    if (destination < 0)
-      throw std::out_of_range("Illegal vertex index");
     if (destination >= degree())
       return 0;
     return incident_type_->isConnectedTo(destination);
@@ -153,6 +147,11 @@ class VertexIncidenceType
   {
     return incident_type_->end();
   }
+
+  std::string getType() const
+  {
+    return typeid(*incident_type_).name();
+  }
   
  private:
   std::unique_ptr<IncidenceType> incident_type_;
@@ -162,12 +161,12 @@ class VertexIncidenceType
 class SetIncidence : public IncidenceType
 {
  public: 
-  void addEdge(int destination)
+  void addEdge(size_t destination)
   {
     incident_.insert(destination);
   }
 
-  void removeEdge(int destination)
+  void removeEdge(size_t destination)
   {
     incident_.erase(destination);
   }
@@ -177,7 +176,7 @@ class SetIncidence : public IncidenceType
     incident_.clear();
   }
 
-  bool isConnectedTo(int destination) const
+  bool isConnectedTo(size_t destination) const
   {
     return (incident_.find(destination) != incident_.end());
   }
@@ -244,12 +243,12 @@ class SetIncidence : public IncidenceType
 class VectorIncidence : public IncidenceType
 {
  public: 
-  void addEdge(int destination)
+  void addEdge(size_t destination)
   {
     incident_.push_back(destination);
   }
 
-  void removeEdge(int destination)
+  void removeEdge(size_t destination)
   {
     std::vector<size_t>::iterator it = find(incident_.begin(), incident_.end(), destination);
     if (it != incident_.end())
@@ -261,7 +260,7 @@ class VectorIncidence : public IncidenceType
     incident_.clear();
   }
 
-  bool isConnectedTo(int destination) const
+  bool isConnectedTo(size_t destination) const
   {
     return (find(incident_.begin(), incident_.end(), destination) != incident_.end());
   }
@@ -328,14 +327,14 @@ class VectorIncidence : public IncidenceType
 class BitmaskIncidence : public IncidenceType
 {
  public: 
-  void addEdge(int destination)
+  void addEdge(size_t destination)
   {
     if (incident_.size() < destination + 1)
       incident_.resize(destination + 1);
     incident_[destination] = 1;
   }
   
-  void removeEdge(int destination)
+  void removeEdge(size_t destination)
   {
     incident_[destination] = 0;
   }
@@ -345,7 +344,7 @@ class BitmaskIncidence : public IncidenceType
     incident_.clear();
   }
 
-  bool isConnectedTo(int destination) const
+  bool isConnectedTo(size_t destination) const
   {
     return incident_[destination];
   }
