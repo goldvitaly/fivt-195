@@ -234,6 +234,14 @@ class Graph
 			return nodes.size() - 1;
 		}
 		
+		unsigned add(Node* node, const std::vector<unsigned>& friends)
+		{
+			nodes.push_back(std::unique_ptr<Node>(node));
+			for(auto v : friends)
+				node->linkTo(v);
+			return nodes.size() - 1;
+		}
+		
 		void connect(unsigned v1, unsigned v2)
 		{
 			nodes[v1]->linkTo(v2);

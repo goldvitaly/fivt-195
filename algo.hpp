@@ -27,10 +27,10 @@ Graph reverse(const Graph& g)
 	return rev;
 }
 
-class DFSMaker
+class GraphSolver
 {
 	public:
-		explicit DFSMaker(const Graph& gr) : g(gr)
+		explicit GraphSolver(const Graph& gr) : g(gr)
 		{
 			components.assign(g.size(), 0);
 			colors.assign(g.size(), COLOR_WHITE);
@@ -75,9 +75,9 @@ class DFSMaker
 		{
 			currentComponent = 0;
 			Graph rev = reverse(g);
-			DFSMaker revDfser(rev);
-			revDfser.dfs();
-			auto& toutRev = revDfser.getOutStack();
+			GraphSolver revSolver(rev);
+			revSolver.dfs();
+			auto& toutRev = revSolver.getOutStack();
 			while(!toutRev.empty())
 			{
 				currentComponent++;

@@ -39,32 +39,39 @@ int test2(int vsize, int comps)
 			g.connect(v, i);
 			g.connect(i, v);
 		}
-	DFSMaker dfser(g);
-	dfser.dfs();
-	return dfser.getComponentsCount();
+	GraphSolver solver(g);
+	solver.dfs();
+	return solver.getComponentsCount();
 }
 
+//Test Kosaraju. V = 6.
 void test3()
 {
 	Graph g;
-	for(int i = 0; i < 6; ++i)\
-		g.add(new ListNode());
-	g.connect(0, 3); g.connect(3, 2); g.connect(2, 0);
-	g.connect(3, 5); g.connect(5, 3);
-	g.connect(2, 4); g.connect(5, 4);
-	DFSMaker dfser(g);
-	dfser.makeKosarajuAlgo();
-	const vector<int>& comps = dfser.getComponents();
+	g.add(new ListNode(), {3});//0
+	g.add(new ListNode());//1
+	g.add(new ListNode(), {0, 4});//2
+	g.add(new ListNode(), {2, 5});//3
+	g.add(new ListNode());//4
+	g.add(new ListNode(), {3, 4});//5
+	GraphSolver solver(g);
+	solver.makeKosarajuAlgo();
+	const vector<int>& comps = solver.getComponents();
 	for(size_t i = 0; i < comps.size(); ++i)
 		cout << i << ":" << comps[i] << endl;
 }
 
 int main()
 {
+	cout << "Test 1 start" << endl;
+	cout << "Test 1 end" << endl;
 	test1(10);
 	int size2 = 1000000;
+	cerr << "Test 2 success" << endl;
 	if(test2(size2, 33) != 33)
-		cerr << "Test 2 failed!" << endl;
+		cerr << "Oh no, test 2 failed!" << endl;
+	cerr << "Test 2 end" << endl;
+	cerr << "Test 3 start" << endl;
 	test3();
 	return 0;
 }
