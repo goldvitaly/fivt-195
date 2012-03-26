@@ -12,15 +12,15 @@
 #include <map>
 using namespace std;
 
-typedef std::unique_ptr<Incidents> PIncidents;
+typedef std::unique_ptr<Incidents<NoWeight> > PIncidents;
 typedef std::vector<size_t> Coloring;
 
-Graph genGraph(int mask){
-	Graph graph;
-	graph.addVertex(PIncidents(new VectorIncidents()));
+Graph<NoWeight> genGraph(int mask){
+	Graph<NoWeight> graph;
+	graph.addVertex(PIncidents(new VectorIncidents<NoWeight>()));
 	graph.addVertex(PIncidents(new MatrixIncidents(4)));
-	graph.addVertex(PIncidents(new VectorIncidents()));
-	graph.addVertex(PIncidents(new SetIncidents()));
+	graph.addVertex(PIncidents(new VectorIncidents<NoWeight>()));
+	graph.addVertex(PIncidents(new SetIncidents<NoWeight>()));
 	for(int i=0; i < 4; ++i){
 		for(int j = 0; j < 4; ++j){
 			int curEdge = 4 * i + j;
@@ -41,7 +41,7 @@ bool checkColoringsEqual(const Coloring& a, const Coloring& b){
 	}
 	return true;
 }
-bool testGraph(const Graph& graph){
+bool testGraph(const Graph<NoWeight>& graph){
 	Coloring received = StronglyConnectedComponents(graph).getComponents().ids();
 	Coloring expected = TrivialStronglyConnectedComponents(graph).getColoring();
 	return checkColoringsEqual(received, expected);
