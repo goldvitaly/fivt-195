@@ -11,8 +11,8 @@ using namespace std;
 class ICB
 {
 private:
-   ICB& operator = (const ICB& cpy);
-   ICB (const ICB& other);
+   //ICB& operator = (const ICB& cpy);
+   //ICB (const ICB& other);
 public:
 	ICB() {};
 	virtual void operator() (size_t v) = 0;
