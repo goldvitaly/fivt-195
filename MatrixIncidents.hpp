@@ -7,7 +7,9 @@
 #include <memory>
 #include <vector>
 class MatrixIncidents : public Incidents<NoWeight>{
-	class BaseIterator : public Incidents<NoWeight>::BaseIterator {
+	typedef Incidents<NoWeight> CurIncidents;
+	typedef CurIncidents::BaseIterator ParentBaseIterator;
+	class BaseIterator : public ParentBaseIterator {
 	public:
 		explicit BaseIterator(const std::vector<bool>& v):v(v) {
 			index = 0;
@@ -24,7 +26,7 @@ class MatrixIncidents : public Incidents<NoWeight>{
 		virtual Vertex<NoWeight> operator * () const {
 			return Vertex<NoWeight>(index);
 		}
-		virtual bool operator != (const Incidents<NoWeight>::BaseIterator& other) const {
+		virtual bool operator != (const ParentBaseIterator& other) const {
 			try{
 				const BaseIterator& second = dynamic_cast<const BaseIterator&>(other);
 				return index != second.index;
@@ -41,10 +43,10 @@ public:
 	explicit MatrixIncidents(size_t number):incidents(number, false){}
 	MatrixIncidents(const std::vector<bool>& incidents):incidents(std::move(incidents)){}
 	virtual Iterator begin() const {
-		return Iterator(std::unique_ptr<Incidents<NoWeight>::BaseIterator>(new BaseIterator(incidents)));
+		return Iterator(std::unique_ptr<ParentBaseIterator>(new BaseIterator(incidents)));
 	}
-	virtual Incidents<NoWeight>::Iterator end() const {
-		return Iterator(std::unique_ptr<Incidents<NoWeight>::BaseIterator>(new BaseIterator(incidents, incidents.size())));
+	virtual Iterator end() const {
+		return Iterator(std::unique_ptr<ParentBaseIterator>(new BaseIterator(incidents, incidents.size())));
 	}
 	virtual size_t size() const {
 		return std::count(incidents.begin(), incidents.end(), true);

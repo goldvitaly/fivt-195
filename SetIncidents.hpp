@@ -6,9 +6,11 @@
 #include <set>
 template<typename Weight>
 class SetIncidents : public Incidents<Weight> {
+	typedef Vertex<Weight> CurVertex;
+	typedef ContainerBaseIterator<std::set<CurVertex> > BaseIterator;
 public:
 	SetIncidents(){}
-	explicit SetIncidents(const std::set<Vertex<Weight> >& v): incidents(v) {}
+	explicit SetIncidents(const std::set<CurVertex>& v): incidents(v) {}
 	
 	virtual typename Incidents<Weight>::Iterator begin() const{
 		return typename Incidents<Weight>::Iterator(std::unique_ptr<typename Incidents<Weight>::BaseIterator>(new BaseIterator(incidents.begin())));
@@ -22,20 +24,19 @@ public:
 	}
 	
 	virtual void addEdge(size_t to, const Weight& weight = Weight()){
-		incidents.insert(Vertex<Weight>(to, weight));
+		incidents.insert(CurVertex(to, weight));
 	}
 	
 	virtual void removeEdge(size_t to){
-		incidents.erase(Vertex<Weight>(to));
+		incidents.erase(CurVertex(to));
 	}
 	
 	virtual bool checkEdge(size_t to) const {
-		return incidents.find(Vertex<Weight>(to)) != incidents.end();
+		return incidents.find(CurVertex(to)) != incidents.end();
 	}
 	
 private:
-	typedef ContainerBaseIterator<std::set<Vertex<Weight> > > BaseIterator;
-	std::set<Vertex<Weight> > incidents;
+	std::set<CurVertex> incidents;
 };
 
 #endif /* SETINCIDENTS_HPP */
