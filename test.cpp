@@ -7,17 +7,17 @@ using namespace graph;
 using namespace algo;
 
 //Create graph with different nodes representation; test it.
-void test1(unsigned vsize)
+void test1(int vsize)
 {
 	Graph g;
-	for(unsigned i = 0; i < vsize / 2; ++i)
+	for(int i = 0; i < vsize / 2; ++i)
 		g.add(new TableNode());
-	for(unsigned i = vsize / 2; i < vsize; ++i)
+	for(int i = vsize / 2; i < vsize; ++i)
 		g.add(new ListNode());
-	for(unsigned i = 0; i < vsize; ++i)
-		for(unsigned j = i; j < i + 3 && j < vsize; ++j)
+	for(int i = 0; i < vsize; ++i)
+		for(int j = i; j < i + 3 && j < vsize; ++j)
 			g.connect(i, j);
-	for(unsigned v = 0; v < vsize; ++v)
+	for(int v = 0; v < vsize; ++v)
 	{
 		cout << v << ":" << endl;
 		for(auto it : g.getNode(v))
@@ -41,7 +41,22 @@ int test2(int vsize, int comps)
 		}
 	DFSMaker dfser(g);
 	dfser.dfs();
-	return dfser.componentsCount();
+	return dfser.getComponentsCount();
+}
+
+void test3()
+{
+	Graph g;
+	for(int i = 0; i < 6; ++i)\
+		g.add(new ListNode());
+	g.connect(0, 3); g.connect(3, 2); g.connect(2, 0);
+	g.connect(3, 5); g.connect(5, 3);
+	g.connect(2, 4); g.connect(5, 4);
+	DFSMaker dfser(g);
+	dfser.makeKosarajuAlgo();
+	const vector<int>& comps = dfser.getComponents();
+	for(size_t i = 0; i < comps.size(); ++i)
+		cout << i << ":" << comps[i] << endl;
 }
 
 int main()
@@ -50,5 +65,6 @@ int main()
 	int size2 = 1000000;
 	if(test2(size2, 33) != 33)
 		cerr << "Test 2 failed!" << endl;
+	test3();
 	return 0;
 }

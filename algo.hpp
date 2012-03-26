@@ -15,54 +15,6 @@ enum
 	COLOR_WHITE, COLOR_GREY, COLOR_BLACK
 };
 
-class DFSMaker
-{
-	public:
-		explicit DFSMaker(const Graph& gr) : g(gr) 
-		{
-			colors.resize(gr.size(), COLOR_WHITE);
-		}
-		
-		int dfs(unsigned v)
-		{
-			if(colors[v] != COLOR_WHITE)
-				return colors[v];
-			colors[v] = COLOR_GREY;
-			for(unsigned u : g.getNode(v))
-				dfs(u);
-			tout.push(v);
-			colors[v] = COLOR_BLACK;
-			return COLOR_WHITE;
-		}
-		
-		void dfs()
-		{
-			components = 0;
-			while(!tout.empty())
-				tout.pop();
-			size_t sz = g.size();
-			for(unsigned v = 0; v < sz; v++)
-				if(dfs(v) == COLOR_WHITE)
-					components++;
-		}
-		
-		int componentsCount() const
-		{
-			return components;
-		}
-		
-		std::stack<unsigned> getOutStack() const
-		{
-			return tout;
-		}
-		
-	private:
-		const Graph& g;
-		std::vector<int> colors;
-		std::stack<unsigned> tout;
-		int components;
-};
-
 Graph reverse(const Graph& g)
 {
 	Graph rev;
@@ -74,6 +26,81 @@ Graph reverse(const Graph& g)
 			rev.connect(u, v);
 	return rev;
 }
+
+class DFSMaker
+{
+	public:
+		explicit DFSMaker(const Graph& gr) : g(gr)
+		{
+			components.assign(g.size(), 0);
+			colors.assign(g.size(), COLOR_WHITE);
+		}
+		
+		int dfs(unsigned v)
+		{
+			if(colors[v] != COLOR_WHITE)
+				return colors[v];
+			components[v] = currentComponent;
+			colors[v] = COLOR_GREY;
+			for(unsigned u : g.getNode(v))
+				dfs(u);
+			tout.push(v);
+			colors[v] = COLOR_BLACK;
+			return COLOR_WHITE;
+		}
+		
+		void dfs()
+		{
+			componentsCount = 0;
+			colors.assign(g.size(), COLOR_WHITE);
+			while(!tout.empty())
+				tout.pop();
+			size_t sz = g.size();
+			for(unsigned v = 0; v < sz; v++)
+				if(dfs(v) == COLOR_WHITE)
+					componentsCount++;
+		}
+		
+		int getComponentsCount() const
+		{
+			return componentsCount;
+		}
+		
+		std::stack<unsigned>& getOutStack()
+		{
+			return tout;
+		}
+		
+		void makeKosarajuAlgo()
+		{
+			currentComponent = 0;
+			Graph rev = reverse(g);
+			DFSMaker revDfser(rev);
+			revDfser.dfs();
+			auto& toutRev = revDfser.getOutStack();
+			while(!toutRev.empty())
+			{
+				currentComponent++;
+				unsigned v = toutRev.top();
+				dfs(v);
+				toutRev.pop();
+			}
+		}
+		
+		const std::vector<int>& getComponents() const
+		{
+			return components;
+		}
+		
+	private:
+		const Graph& g;
+		std::vector<int> colors;
+		std::vector<int> components;
+		std::stack<unsigned> tout;
+		int componentsCount;
+		int currentComponent;
+		
+};
 
 }
 }
