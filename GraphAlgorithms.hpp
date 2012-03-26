@@ -30,132 +30,131 @@
 namespace graph_algorithms
 {
 
-  class StronglyConnectedComponentsFinder
+class StronglyConnectedComponentsFinder
+{
+ public:
+  explicit StronglyConnectedComponentsFinder(const Graph& G):G(G) {}
+
+  std::vector<int> getStronglyConnectedComponents()
   {
-   public:
-    StronglyConnectedComponentsFinder(const Graph& G):G(G) {}
-
-    std::vector<int> getStronglyConnectedComponents()
-    {
-      vertexNumber = G.size();
-      tin.assign(vertexNumber, 0);
-      tup.assign(vertexNumber, 0);
-      isInStack.assign(vertexNumber, 0);
-      component.resize(vertexNumber);
-      curTime = 1;
-      componentCount = 0;
-      for(int i = 0; i < vertexNumber; i++)
-      {
-        if (tin[i] == 0)
-          dfs(i);
-      }
-      tin.clear();
-      tup.clear();
-      isInStack.clear();
-      while (!S.empty())
-        S.pop();
-
-      return component;
-    }
-
-   private:
-    const Graph& G;
-    int curTime;
-    int componentCount;
-    int vertexNumber;
-    std::stack<int> S;
-    std::vector<int> tin;
-    std::vector<int> tup;
-    std::vector<int> component;
-    std::vector<char> isInStack;
-
-    void dfs(size_t v)
-    {
-      S.push(v);
-      isInStack[v] = 1;
-      tin[v] = tup[v] = curTime++;
-      for(auto to : G.vertexIncidents[v])
-      {
-        if (tin[to] == 0)
-        {
-          dfs(to);
-          tup[v] = std::min(tup[v], tup[to]);
-        }
-        else
-          if (isInStack[to])
-            tup[v] = std::min(tup[v], tin[to]);
-      }
-      if (tin[v] == tup[v])
-      {
-        int lastPop = -1;
-        while (!S.empty() && lastPop != v)
-        {
-          component[S.top()] = componentCount;
-          isInStack[S.top()] = 0;
-          lastPop = S.top();
-          S.pop();
-        } 
-        componentCount++;
-      }
-    }
-
-  }; // StronglyConnectedComponentsFinder
-
-  class ConnectivityChecker
-  {
-   public:
-    ConnectivityChecker(const Graph& G):G(G) {}
-
-    bool checkConnectivity(size_t source, size_t destination)
-    {
-      visited.assign(G.size(), 0);
-      bool result = dfs(source, destination);
-      visited.clear();
-      return result;
-    }
-
-   private:
-    const Graph& G;
-    std::vector<char> visited;
-
-    bool dfs(size_t v, size_t destination)
-    {
-      visited[v] = 1;
-      if (v == destination)
-        return true;
-      for(auto to : G.vertexIncidents[v])
-      {
-        if (!visited[to])
-        {
-          if (dfs(to, destination))
-            return true;
-        }
-      }
-      return false;
-    }
-    
-  }; // ConnectivityChecker
-
-  template<typename IncidenceTypeT = VectorIncidence>
-  Graph getRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t seed = 42)
-  {
-    srand(seed);
-    Graph G;
-    G.addVertices<IncidenceTypeT> (vertexNumber);
-
+    int vertexNumber = G.size();
+    tin.assign(vertexNumber, 0);
+    tup.assign(vertexNumber, 0);
+    isInStack.assign(vertexNumber, 0);
+    component.resize(vertexNumber);
+    curTime = 1;
+    componentCount = 0;
     for(int i = 0; i < vertexNumber; i++)
     {
-      for(int j = 0; j < vertexNumber; j++)
+      if (tin[i] == 0)
+        dfs(i);
+    }
+    tin.clear();
+    tup.clear();
+    isInStack.clear();
+    while (!S.empty())
+      S.pop();
+
+    return component;
+  }
+
+ private:
+  const Graph& G;
+  int curTime;
+  int componentCount;
+  std::stack<int> S;
+  std::vector<int> tin;
+  std::vector<int> tup;
+  std::vector<int> component;
+  std::vector<char> isInStack;
+
+  void dfs(size_t v)
+  {
+    S.push(v);
+    isInStack[v] = 1;
+    tin[v] = tup[v] = curTime++;
+    for(auto to : G.vertexIncidents[v])
+    {
+      if (tin[to] == 0)
       {
-        double probability = rand() * 1.0 / RAND_MAX;
-        if (edgeCreationProbability > probability)
-        {
-          G.vertexIncidents[i].addEdge(j);
-        }
+        dfs(to);
+        tup[v] = std::min(tup[v], tup[to]);
+      }
+      else
+        if (isInStack[to])
+          tup[v] = std::min(tup[v], tin[to]);
+    }
+    if (tin[v] == tup[v])
+    {
+      int lastPop = -1;
+      while (!S.empty() && lastPop != v)
+      {
+        component[S.top()] = componentCount;
+        isInStack[S.top()] = 0;
+        lastPop = S.top();
+        S.pop();
+      } 
+      componentCount++;
+    }
+  }
+
+}; // StronglyConnectedComponentsFinder
+
+class ConnectivityChecker
+{
+ public:
+  explicit ConnectivityChecker(const Graph& G):G(G) {}
+
+  bool checkConnectivity(size_t source, size_t destination)
+  {
+    visited.assign(G.size(), 0);
+    bool result = dfs(source, destination);
+    visited.clear();
+    return result;
+  }
+
+ private:
+  const Graph& G;
+  std::vector<char> visited;
+
+  bool dfs(size_t v, size_t destination)
+  {
+    visited[v] = 1;
+    if (v == destination)
+      return true;
+    for(auto to : G.vertexIncidents[v])
+    {
+      if (!visited[to])
+      {
+        if (dfs(to, destination))
+          return true;
       }
     }
-    return G;
+    return false;
   }
+  
+}; // ConnectivityChecker
+
+template<typename IncidenceTypeT = VectorIncidence>
+Graph getRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t seed = 42)
+{
+  srand(seed);
+  Graph G;
+  G.addVertices<IncidenceTypeT> (vertexNumber);
+
+  for(int i = 0; i < vertexNumber; i++)
+  {
+    for(int j = 0; j < vertexNumber; j++)
+    {
+      double probability = rand() * 1.0 / RAND_MAX;
+      if (edgeCreationProbability > probability)
+      {
+        G.vertexIncidents[i].addEdge(j);
+      }
+    }
+  }
+  return G;
+}
 
 } // namespace graph_algorithms
 
