@@ -37,7 +37,7 @@ class MatrixIncidents : public Incidents{
 		size_t index;
 	};
 public:
-	MatrixIncidents(size_t number):incidents(number, false){}
+	explicit MatrixIncidents(size_t number):incidents(number, false){}
 	MatrixIncidents(const std::vector<bool>& incidents):incidents(std::move(incidents)){}
 	virtual Iterator begin() const {
 		return Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents)));
