@@ -3,8 +3,9 @@
 #include "Incidents.hpp"
 #include <vector>
 
+template<typename Weight>
 class Graph{
-	typedef std::unique_ptr<Incidents> IncidentsPointer;
+	typedef std::unique_ptr<Incidents<Weight> > IncidentsPointer;
 	std::vector<IncidentsPointer> incidents;
 public:
 	//reachs ownership
@@ -12,8 +13,8 @@ public:
 		incidents.push_back(std::move(vertexIncidents));
 	}
 	
-	void addEdge(size_t from, size_t to){
-		incidents[from]->addEdge(to);
+	void addEdge(size_t from, size_t to, const Weight& w = Weight()){
+		incidents[from]->addEdge(to, w);
 	}
 	
 	void removeEdge(size_t from, size_t to){
@@ -24,7 +25,7 @@ public:
 		return incidents[from]->checkEdge(to);
 	}
 	
-	Incidents& getIncidents(size_t from) const {
+	Incidents<Weight>& getIncidents(size_t from) const {
 		return *incidents[from];
 	}
 	

@@ -8,7 +8,7 @@
 #include <vector>
 class TrivialStronglyConnectedComponents{
 public:
-	explicit TrivialStronglyConnectedComponents(const Graph& graph): graph(graph) {}
+	explicit TrivialStronglyConnectedComponents(const Graph<NoWeight>& graph): graph(graph) {}
 	std::vector<size_t> getColoring() {
 		int n = graph.size();
 		possible.assign(n,std::vector<char>(n, false));
@@ -32,12 +32,12 @@ private:
 	void dfs(size_t start, size_t v){
 		possible[start][v] = true;
 		for(const auto& next: graph.getIncidents(v)){
-			if(!possible[start][next])
-				dfs(start, next);
+			if(!possible[start][next.id])
+				dfs(start, next.id);
 		}
 	}
 	std::vector<std::vector<char> > possible;
-	const Graph& graph;
+	const Graph<NoWeight>& graph;
 };
 
 #endif /* TRIVIALSTRONGLYCONNECTEDCOMPONENTS_HPP */

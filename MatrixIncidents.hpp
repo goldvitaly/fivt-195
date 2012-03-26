@@ -1,12 +1,13 @@
 #ifndef MATRIXINCIDENTS_HPP
 #define MATRIXINCIDENTS_HPP
 #include "Incidents.hpp"
+#include "Vertex.hpp"
 #include <algorithm>
 #include <cassert>
 #include <memory>
 #include <vector>
-class MatrixIncidents : public Incidents{
-	class BaseIterator : public Incidents::BaseIterator {
+class MatrixIncidents : public Incidents<NoWeight>{
+	class BaseIterator : public Incidents<NoWeight>::BaseIterator {
 	public:
 		explicit BaseIterator(const std::vector<bool>& v):v(v) {
 			index = 0;
@@ -20,10 +21,10 @@ class MatrixIncidents : public Incidents{
 			}
 			while(index < v.size() && v[index]==0);
 		}
-		virtual size_t operator * () const {
-			return index;
+		virtual Vertex<NoWeight> operator * () const {
+			return Vertex<NoWeight>(index);
 		}
-		virtual bool operator != (const Incidents::BaseIterator& other) const {
+		virtual bool operator != (const Incidents<NoWeight>::BaseIterator& other) const {
 			try{
 				const BaseIterator& second = dynamic_cast<const BaseIterator&>(other);
 				return index != second.index;
@@ -40,15 +41,15 @@ public:
 	explicit MatrixIncidents(size_t number):incidents(number, false){}
 	MatrixIncidents(const std::vector<bool>& incidents):incidents(std::move(incidents)){}
 	virtual Iterator begin() const {
-		return Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents)));
+		return Iterator(std::unique_ptr<Incidents<NoWeight>::BaseIterator>(new BaseIterator(incidents)));
 	}
-	virtual Iterator end() const {
-		return Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents, incidents.size())));
+	virtual Incidents<NoWeight>::Iterator end() const {
+		return Iterator(std::unique_ptr<Incidents<NoWeight>::BaseIterator>(new BaseIterator(incidents, incidents.size())));
 	}
 	virtual size_t size() const {
 		return std::count(incidents.begin(), incidents.end(), true);
 	};
-	virtual void addEdge(size_t to) {
+	virtual void addEdge(size_t to, const NoWeight& = NoWeight()) {
 		incidents[to] = true;
 	}
 	virtual void removeEdge(size_t to) {

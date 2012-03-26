@@ -4,37 +4,38 @@
 #include "ContainerBaseIterator.hpp"
 #include "Incidents.hpp"
 #include <set>
-class SetIncidents : public Incidents {
+template<typename Weight>
+class SetIncidents : public Incidents<Weight> {
 public:
 	SetIncidents(){}
-	explicit SetIncidents(const std::set<size_t>& v): incidents(v) {}
+	explicit SetIncidents(const std::set<Vertex<Weight> >& v): incidents(v) {}
 	
-	virtual Iterator begin() const{
-		return Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents.begin())));
+	virtual typename Incidents<Weight>::Iterator begin() const{
+		return typename Incidents<Weight>::Iterator(std::unique_ptr<typename Incidents<Weight>::BaseIterator>(new BaseIterator(incidents.begin())));
 	}
-	virtual Iterator end() const{
-		return Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents.end())));
+	virtual typename Incidents<Weight>::Iterator end() const{
+		return typename Incidents<Weight>::Iterator(std::unique_ptr<typename Incidents<Weight>::BaseIterator>(new BaseIterator(incidents.end())));
 	}
 	
 	size_t size() const {
 		return incidents.size();
 	}
 	
-	virtual void addEdge(size_t to){
-		incidents.insert(to);
+	virtual void addEdge(size_t to, const Weight& weight = Weight()){
+		incidents.insert(Vertex<Weight>(to, weight));
 	}
 	
 	virtual void removeEdge(size_t to){
-		incidents.erase(to);
+		incidents.erase(Vertex<Weight>(to));
 	}
 	
 	virtual bool checkEdge(size_t to) const {
-		return incidents.find(to) != incidents.end();
+		return incidents.find(Vertex<Weight>(to)) != incidents.end();
 	}
 	
 private:
-	typedef ContainerBaseIterator<std::set<size_t>> BaseIterator;
-	std::set<size_t> incidents;
+	typedef ContainerBaseIterator<std::set<Vertex<Weight> > > BaseIterator;
+	std::set<Vertex<Weight> > incidents;
 };
 
 #endif /* SETINCIDENTS_HPP */

@@ -9,7 +9,7 @@
 #include <vector>
 class StronglyConnectedComponents{
 public:
-	explicit StronglyConnectedComponents(const Graph& graph): graph(graph) {}
+	explicit StronglyConnectedComponents(const Graph<NoWeight>& graph): graph(graph) {}
 	StronglyConnectedComponentsInfo getComponents() {
 		size = graph.size();
 		used.assign(size,false);
@@ -30,10 +30,10 @@ private:
 		used[v] = true;
 		byTimeIn.push(v);
 		for(auto vert: graph.getIncidents(v)){
-			if(!used[vert])
-				dfs(vert);
-			if(components[vert] == dummyComponent)
-				mintime[v] = std::min(mintime[v], mintime[vert]);
+			if(!used[vert.id])
+				dfs(vert.id);
+			if(components[vert.id] == dummyComponent)
+				mintime[v] = std::min(mintime[v], mintime[vert.id]);
 		}
 		if(mintime[v] == time){
 			do{
@@ -51,7 +51,7 @@ private:
 	std::vector<size_t> mintime;
 	size_t componentsNumber;
 	std::stack<size_t> byTimeIn;
-	const Graph& graph;
+	const Graph<NoWeight>& graph;
 };
 
 #endif /* STRONGLYCONNECTEDCOMPONENTS_HPP */
