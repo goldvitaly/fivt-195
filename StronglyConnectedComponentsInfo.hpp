@@ -8,7 +8,7 @@ public:
 	/*
 	 Complexity: O(n) where n is number of vertices
 	 */
-	std::vector<std::vector<size_t>> allComponents(){
+	std::vector<std::vector<size_t>> allComponents() const {
 		std::vector<std::vector<size_t>> ret(components);
 		for(size_t i = 0; i < vertex2component.size(); ++i){
 			ret[vertex2component[i]].push_back(i);
@@ -18,7 +18,7 @@ public:
 	/*
 	 Complexity: O(n) where n is number of vertices
 	 */
-	std::vector<size_t> componentByID(size_t componentID){
+	std::vector<size_t> componentByID(size_t componentID) const {
 		std::vector<size_t> ret;
 		for(size_t i = 0; i < vertex2component.size(); ++i)
 			if(componentID == vertex2component[i])
@@ -26,15 +26,15 @@ public:
 		return ret;
 	}
 	
-	std::vector<size_t> ids(){
+	std::vector<size_t> ids() const {
 		return vertex2component;
 	}
 	
-	size_t componentIDByVertex(size_t vertexID){
+	size_t componentIDByVertex(size_t vertexID) const {
 		return vertex2component[vertexID];
 	}
 	
-	size_t getComponentsNumber(){
+	size_t getComponentsNumber() const {
 		return components;
 	}
 private:
