@@ -8,7 +8,7 @@
 class MatrixIncidents : public Incidents{
 	class BaseIterator : public Incidents::BaseIterator {
 	public:
-		BaseIterator(const std::vector<bool>& v):v(v){
+		explicit BaseIterator(const std::vector<bool>& v):v(v) {
 			index = 0;
 			while(index < v.size() && v[index]==0)
 				++index;
