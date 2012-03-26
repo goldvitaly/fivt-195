@@ -33,13 +33,11 @@ Graph genGraph(int mask){
 }
 bool checkColoringsEqual(const Coloring& a, const Coloring& b){
 	assert(a.size()==b.size());
-	map<size_t, set<size_t> > m;
 	for(size_t i = 0; i < a.size(); ++i){
-		m[a[i]].insert(b[i]);
-	}
-	for(auto& s: m){
-		if(s.second.size() != 1)
-			return false;
+		for(size_t j=0; j < b.size(); ++j){
+			if((a[i]==a[j]) != (b[i]==b[j]))
+				return false;
+		}
 	}
 	return true;
 }
