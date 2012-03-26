@@ -4,11 +4,11 @@
 #include <vector>
 
 class Graph{
-	typedef std::unique_ptr<Incidents> Pointer;
-	std::vector<Pointer> incidents;
+	typedef std::unique_ptr<Incidents> IncidentsPointer;
+	std::vector<IncidentsPointer> incidents;
 public:
 	//reachs ownership
-	void addVertex(Pointer vertexIncidents){
+	void addVertex(IncidentsPointer vertexIncidents){
 		incidents.push_back(std::move(vertexIncidents));
 	}
 	
@@ -28,7 +28,7 @@ public:
 		return *incidents[from];
 	}
 	
-	void setIncidents(size_t from, Pointer vertexIncidents){
+	void setIncidents(size_t from, IncidentsPointer vertexIncidents){
 		incidents[from] = std::move(vertexIncidents);
 	}
 	

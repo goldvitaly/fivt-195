@@ -12,11 +12,11 @@ public:
 		virtual ~BaseIterator(){}
 	};
 	class Iterator {
-		typedef std::unique_ptr<BaseIterator> Pointer;
+		typedef std::unique_ptr<BaseIterator> IteratorPointer;
 	public:
-		Pointer it;
+		IteratorPointer it;
 		
-		explicit Iterator(Pointer iter): it(std::move(iter)){}
+		explicit Iterator(IteratorPointer iter): it(std::move(iter)){}
 		void operator ++ (){
 			++(*it);
 		}
