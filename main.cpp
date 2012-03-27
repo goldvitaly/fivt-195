@@ -1,32 +1,21 @@
 #include "graph.h"
+#include "algo_for_graph.h"
+#include "test_for_graph.h"
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <ctime>
 
 using namespace std;
 
 
-int n, m, val;
 Graph<int> g;
-int main(int argc, char** args) //simple program getting number of components in non-oriented graph...
+
+int main(int argc, char** args)
 {
-    cin >> n;
-    for(int i = 0; i < n; i++)
-    {
-        g.add_node(i, new SetNode<int>(i));
-    }
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < n; j++)
-        {
-            cin >> val;
-            if(val)
-                g.add_edge(i, j);
-        }
-    int ans = 0;
-    g.make_dfs(NULL, &ans);
-    cout << ans;
+    srand(time(0));
+    Test_For_Graph<int> test = Test_For_Graph<int>(&g);
+    if(test.run())  cout << "FAIL";
+    else            cout << "OK";
     return 0;
 }
-
-
-
