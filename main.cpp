@@ -10,6 +10,7 @@
 #include <iostream>
 #include <set>
 #include <map>
+#include <memory>
 using namespace std;
 
 typedef std::unique_ptr<Incidents<NoWeight> > PIncidents;
