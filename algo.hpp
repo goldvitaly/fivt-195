@@ -36,15 +36,26 @@ class GraphSolver
 			colors.assign(g.size(), COLOR_WHITE);
 		}
 		
-		int dfs(unsigned v)
+		int dfsSimple(unsigned v)
+		{
+			if(colors[v] != COLOR_WHITE)
+				return colors[v];
+			colors[v] = COLOR_GREY;
+			for(unsigned u : g.getNode(v))
+				dfsSimple(u);
+			colors[v] = COLOR_BLACK;
+			tout.push(v);
+			return COLOR_WHITE;
+		}
+		
+		int dfsKosaraju(unsigned v)
 		{
 			if(colors[v] != COLOR_WHITE)
 				return colors[v];
 			components[v] = currentComponent;
 			colors[v] = COLOR_GREY;
 			for(unsigned u : g.getNode(v))
-				dfs(u);
-			tout.push(v);
+				dfsKosaraju(u);
 			colors[v] = COLOR_BLACK;
 			return COLOR_WHITE;
 		}
@@ -57,7 +68,7 @@ class GraphSolver
 				tout.pop();
 			size_t sz = g.size();
 			for(unsigned v = 0; v < sz; v++)
-				if(dfs(v) == COLOR_WHITE)
+				if(dfsSimple(v) == COLOR_WHITE)
 					componentsCount++;
 		}
 		
@@ -74,6 +85,8 @@ class GraphSolver
 		void makeKosarajuAlgo()
 		{
 			currentComponent = 0;
+			components.assign(g.size(), 0);
+			colors.assign(g.size(), COLOR_WHITE);
 			Graph rev = reverse(g);
 			GraphSolver revSolver(rev);
 			revSolver.dfs();
@@ -82,9 +95,14 @@ class GraphSolver
 			{
 				currentComponent++;
 				unsigned v = toutRev.top();
-				dfs(v);
+				dfsKosaraju(v);
 				toutRev.pop();
 			}
+		}
+		
+		void makeTarjanAlgo()
+		{
+			components.assign(g.size(), 0);
 		}
 		
 		const std::vector<int>& getComponents() const

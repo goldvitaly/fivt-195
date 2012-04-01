@@ -48,12 +48,12 @@ int test2(int vsize, int comps)
 void test3()
 {
 	Graph g;
-	g.add(new ListNode(), {3});//0
-	g.add(new ListNode());//1
-	g.add(new ListNode(), {0, 4});//2
-	g.add(new ListNode(), {2, 5});//3
-	g.add(new ListNode());//4
-	g.add(new ListNode(), {3, 4});//5
+	g.add(new ListNode(), {3});
+	g.add(new ListNode());
+	g.add(new ListNode(), {0, 4});
+	g.add(new ListNode(), {2, 5});
+	g.add(new ListNode());
+	g.add(new ListNode(), {3, 4});
 	GraphSolver solver(g);
 	solver.makeKosarajuAlgo();
 	const vector<int>& comps = solver.getComponents();
@@ -64,8 +64,8 @@ void test3()
 int main()
 {
 	cout << "Test 1 start" << endl;
-	cout << "Test 1 end" << endl;
 	test1(10);
+	cout << "Test 1 end" << endl;
 	int size2 = 1000000;
 	cerr << "Test 2 success" << endl;
 	if(test2(size2, 33) != 33)
@@ -73,5 +73,6 @@ int main()
 	cerr << "Test 2 end" << endl;
 	cerr << "Test 3 start" << endl;
 	test3();
+	cerr << "Test 3 end" << endl;
 	return 0;
 }
