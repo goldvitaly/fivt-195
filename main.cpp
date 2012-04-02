@@ -6,6 +6,7 @@
 #include "TrivialStronglyConnectedComponents.hpp"
 #include "VectorIncidents.hpp"
 #include "StronglyConnectedComponentsInfo.hpp"
+#include "ShortestPath.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <set>
@@ -54,5 +55,10 @@ int main() {
 			exit (1);
 		}
 	}
+	
+	Graph<int> g;
+	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+	ShortestPath<int, int> sp(g);
+	cout<<sp.length(0, 0);
 	return 0;
 }
