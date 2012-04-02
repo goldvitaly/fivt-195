@@ -8,7 +8,8 @@
 template<typename Weight, typename Length = Weight, typename CalcLength = std::plus<Weight> >
 class ShortestPath{
 public:
-	explicit ShortestPath(const Graph<Weight>& graph): graph(graph){}
+	explicit ShortestPath(const Graph<Weight>& graph, const CalcLength& calcLength() = CalcLength())
+		:graph(graph), calcLength(calcLength){}
 	
 	boost::optional<Length> length(size_t from, size_t to) const {
 		std::set<State> queue;
@@ -19,7 +20,7 @@ public:
 			State curState = *queue.begin();
 			
 			for(const Vertex<Weight>& next: graph.getIncidents(curState.id)){
-				Length newLen = CalcLength()(curState.id, next.weight);
+				Length newLen = calcLength(curState.id, next.weight);
 				if(!curLen[next.id]){
 					if(newLen < *curLen[next.id]){
 						queue.erase(State(next.id, *curLen[next.id]));
@@ -49,6 +50,7 @@ private:
 	};
 	
 	const Graph<Weight>& graph;
+	CalcLength calcLength;
 };
 
 #endif /* SHORTESTPATH_HPP */
