@@ -36,6 +36,7 @@ class IncidenceType
   virtual size_t   degree() const = 0;
   virtual Iterator begin() const = 0;
   virtual Iterator end()   const = 0;
+  virtual ~IncidenceType() {}
 
   class BaseIterator
   {
@@ -199,9 +200,8 @@ class SetIncidence : public IncidenceType
   class SetBaseIterator : public BaseIterator
   {
    public:
-    explicit SetBaseIterator(std::set<size_t>::const_iterator it)
+    explicit SetBaseIterator(std::set<size_t>::const_iterator it) : set_iterator(it)
     {
-      set_iterator = it;
     }
 
     size_t operator *() const
@@ -283,9 +283,8 @@ class VectorIncidence : public IncidenceType
   class VectorBaseIterator : public BaseIterator
   {
    public:
-    explicit VectorBaseIterator(std::vector<size_t>::const_iterator it)
+    explicit VectorBaseIterator(std::vector<size_t>::const_iterator it) : vector_iterator(it)
     {
-      vector_iterator = it;
     }
 
     size_t operator *() const
@@ -356,23 +355,22 @@ class BitmaskIncidence : public IncidenceType
 
   Iterator begin() const
   {
-    BitmaskBaseIterator* it = new BitmaskBaseIterator(-1, &incident_);
+    BitmaskBaseIterator* it = new BitmaskBaseIterator(-1, incident_);
     ++(*it);
     return Iterator(it);
   }
 
   Iterator end() const
   {
-    return Iterator(new BitmaskBaseIterator(incident_.size(), &incident_));
+    return Iterator(new BitmaskBaseIterator(incident_.size(), incident_));
   }
 
   class BitmaskBaseIterator : public BaseIterator
   {
    public:
-    explicit BitmaskBaseIterator(int index, const std::vector<bool>* incident)
+    explicit BitmaskBaseIterator(int index, const std::vector<bool>& incident) : incident_(incident), 
+                                                                                 iterator_(index)
     {
-      iterator_ = index;
-      incident_ = incident;
     }
 
     size_t operator *() const
@@ -383,10 +381,10 @@ class BitmaskIncidence : public IncidenceType
     BitmaskBaseIterator& operator++()
     {
       iterator_++;
-      if (iterator_ >= incident_->size())
-        iterator_ = incident_->size();
+      if (iterator_ >= incident_.size())
+        iterator_ = incident_.size();
       else
-        while (iterator_ < incident_->size() && !(incident_->at(iterator_)))
+        while (iterator_ < incident_.size() && !(incident_.at(iterator_)))
           iterator_++;
       return *this;
     }
@@ -408,7 +406,7 @@ class BitmaskIncidence : public IncidenceType
 
    private:
     int iterator_;
-    const std::vector<bool>* incident_;
+    const std::vector<bool>& incident_;
 
   }; // BitmaskBaseIterator
 

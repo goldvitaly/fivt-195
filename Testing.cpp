@@ -27,9 +27,9 @@
 
 bool areEqual(const Graph& G1, const Graph& G2)
 {
-  int len = G1.size();
+  int vertexNumber = G1.size();
   std::unordered_set<size_t> S;
-  for(int i = 0; i < len; i++)
+  for(int i = 0; i < vertexNumber; i++)
   {
     for(auto to : G1.vertexIncidents[i])
       S.insert(to);
