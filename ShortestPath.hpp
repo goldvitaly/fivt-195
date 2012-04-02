@@ -8,7 +8,7 @@
 template<typename Weight, typename Length = Weight, typename CalcLength = std::plus<Weight> >
 class ShortestPath{
 public:
-	explicit ShortestPath(const Graph<Weight>& graph, const CalcLength& calcLength() = CalcLength())
+	explicit ShortestPath(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength())
 		:graph(graph), calcLength(calcLength){}
 	
 	boost::optional<Length> length(size_t from, size_t to) const {
