@@ -12,9 +12,9 @@ class Graph
 {
 public:
 
-    std::vector<BaseNode<T>* > graph_;
+    std::vector<BaseNode*> graph_;
 
-    void add_node(BaseNode<T>* node)
+    void add_node(BaseNode* node)
     {
         graph_.push_back(node);
     }

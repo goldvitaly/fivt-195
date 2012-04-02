@@ -16,8 +16,8 @@ public:
 
     void init_marks()
     {
-        mark_.resize(graph_ -> size());
-        for(int i = 0; i < graph_ -> size(); i++)
+        mark_.resize(graph_->size());
+        for(int i = 0; i < graph_->size(); i++)
             mark_[i] = 0;
     }
 
@@ -32,8 +32,8 @@ public:
             generate_graph();
             Tarjan_algo<T> Tarjan_for_graph_ = Tarjan_algo<T>(graph_);
             Tarjan_for_graph_.run();
-            for(int x = 0; x < graph_ -> size(); x++)
-                for(int y = x + 1; y < graph_ -> size(); y++)
+            for(int x = 0; x < graph_->size(); x++)
+                for(int y = x + 1; y < graph_->size(); y++)
                 {
                     init_marks();
                     dfs(x);
@@ -56,21 +56,21 @@ private:
 
     void generate_graph()
     {
-        graph_ -> graph_.clear();
-        graph_ -> graph_.resize(1 + rand() % 10);
-        for(int i = 0; i < graph_ -> size(); i++)
-            if(i % 2)   graph_ -> graph_[i] = new SetNode<int>(1);
-            else        graph_ -> graph_[i] = new VectorNode<int>(1);
+        graph_->graph_.clear();
+        graph_->graph_.resize(1 + rand() % 10);
+        for(int i = 0; i < graph_->size(); i++)
+            if(i % 2)   graph_->graph_[i] = new SetNode<int>(1);
+            else        graph_->graph_[i] = new VectorNode<int>(1);
         for(int i = 0; i < rand() % 100; i++)
         {
-            graph_ -> add_edge(rand() % graph_ -> size(), rand() % graph_ -> size());
+            graph_->add_edge(rand() % graph_->size(), rand() % graph_->size());
         }
     }
 
     void dfs(int curr_node)
     {
         mark_[curr_node] = 1;
-        for(typename BaseNode<T>::BaseIterator* it = graph_ -> graph_[curr_node] -> begin(); *it != *(graph_ -> graph_[curr_node] -> end()); ++(*it))
+        for(typename BaseNode::BaseIterator* it = graph_->graph_[curr_node]->begin(); *it != *(graph_->graph_[curr_node]->end()); ++(*it))
             if(!mark_[**it])
                 dfs(**it);
     }

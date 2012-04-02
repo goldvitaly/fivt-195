@@ -6,7 +6,6 @@
 #include <set>
 
 
-template <class T>
 class BaseNode
 {
 public:
@@ -22,23 +21,22 @@ public:
         virtual bool operator != (const BaseIterator& it) const = 0;
         virtual int operator * () = 0;
         virtual BaseIterator* operator ++ () = 0;
+        ~BaseIterator(){};
     };
 
     virtual BaseIterator* begin() = 0;
     virtual BaseIterator* end() = 0;
-
-    T value_;
+    virtual ~BaseNode(){};
 };
 
 
 template<class T>
-class SetNode: public BaseNode<T>
+class SetNode: public BaseNode
 {
-    typedef typename BaseNode<T>::BaseIterator Iterator;
 public:
-    SetNode(T value = 0)
+    SetNode(T value)
     {
-        BaseNode<T>::value_ = value;
+        value_ = value;
         edges_.clear();
     }
 
@@ -57,7 +55,7 @@ public:
         return edges_.size();
     }
 
-    class SetIterator:public Iterator
+    class SetIterator:public BaseIterator
     {
     public:
 
@@ -65,13 +63,13 @@ public:
         {
             iterator_ = it;
         }
-        bool operator ==(const Iterator& it) const
+        bool operator ==(const BaseIterator& it) const
         {
             SetIterator set_it = dynamic_cast<const SetIterator&>(it);
             return(set_it.iterator_ == iterator_);
         }
 
-        bool operator !=(const Iterator& it) const
+        bool operator !=(const BaseIterator& it) const
         {
             return(!(*this == it));
         }
@@ -87,33 +85,41 @@ public:
             return this;
         }
 
+        ~SetIterator()
+        {
+        }
     private:
         std::multiset<int>::iterator iterator_;
     };
 
 
-    Iterator* begin()
+    BaseIterator* begin()
     {
         return (new SetIterator(edges_.begin()));
     }
 
-    Iterator* end()
+    BaseIterator* end()
     {
         return (new SetIterator(edges_.end()));
     }
+
+    ~SetNode()
+    {
+        edges_.clear();
+    }
 private:
     std::multiset<int> edges_;
+    T value_;
 };
 
 
 template<class T>
-class VectorNode: public BaseNode<T>
+class VectorNode: public BaseNode
 {
-    typedef typename BaseNode<T>::BaseIterator Iterator;
 public:
     VectorNode(T value = 0)
     {
-        BaseNode<T>::value_ = value;
+        value_ = value;
         edges_.clear();
     }
 
@@ -134,7 +140,7 @@ public:
         return edges_.size();
     }
 
-    class VectorIterator:public Iterator
+    class VectorIterator:public BaseIterator
     {
     public:
 
@@ -143,13 +149,13 @@ public:
             iterator_ = it;
         }
 
-        bool operator ==(const Iterator& it) const
+        bool operator ==(const BaseIterator& it) const
         {
             VectorIterator vector_it = dynamic_cast<const VectorIterator&>(it);
             return(vector_it.iterator_ == iterator_);
         }
 
-        bool operator !=(const Iterator& it) const
+        bool operator !=(const BaseIterator& it) const
         {
             return(!(*this == it));
         }
@@ -165,23 +171,31 @@ public:
             return this;
         }
 
+        ~VectorIterator()
+        {
+        }
     private:
         std::vector<int>::iterator iterator_;
     };
 
 
-    Iterator* begin()
+    BaseIterator* begin()
     {
         return (new VectorIterator(edges_.begin()));
     }
 
-    Iterator* end()
+    BaseIterator* end()
     {
         return (new VectorIterator(edges_.end()));
     }
 
+    ~VectorNode()
+    {
+        edges_.clear();
+    }
 private:
     std::vector<int> edges_;
+    T value_;
 };
 
 #endif // BASE_GRAPH_H_INCLUDED
