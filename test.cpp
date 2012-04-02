@@ -18,15 +18,11 @@ void test1(int vsize)
 		for(int j = i; j < i + 3 && j < vsize; ++j)
 			g.connect(i, j);
 	for(int v = 0; v < vsize; ++v)
-	{
-		cout << v << ":" << endl;
-		for(auto it : g.getNode(v))
-			cout << "\t" << it << endl;
-	}
+		assert(g.getNode(v).getFriends().size() == (unsigned)min(3, vsize - v));
 }
 
 //Count components in non-oriented graph. The answer must be equal to "comps" argument.
-int test2(int vsize, int comps)
+void test2(int vsize, int comps)
 {
 	Graph g;
 	for(int i = 0; i < vsize; ++i)
@@ -41,7 +37,7 @@ int test2(int vsize, int comps)
 		}
 	GraphSolver solver(g);
 	solver.dfs();
-	return solver.getComponentsCount();
+	assert(solver.getComponentsCount() == comps);
 }
 
 //Test Kosaraju. V = 6.
@@ -57,22 +53,48 @@ void test3()
 	GraphSolver solver(g);
 	solver.makeKosarajuAlgo();
 	const vector<int>& comps = solver.getComponents();
-	for(size_t i = 0; i < comps.size(); ++i)
-		cout << i << ":" << comps[i] << endl;
+	assert(comps[0] == comps[2] && comps[0] == comps[3] && comps[0] == comps[5]);
+	assert(comps[1] != comps[0]);
+	assert(comps[4] != comps[0]);
+	assert(comps[1] != comps[4]);
+}
+
+void test4()
+{
+	Graph g;
+	g.add(new ListNode(), {2, 3, 8});
+	g.add(new ListNode(), {7});
+	g.add(new ListNode(), {6});
+	g.add(new ListNode(), {0});
+	g.add(new ListNode());
+	g.add(new ListNode(), {1, 7, 9});
+	g.add(new ListNode(), {0});
+	g.add(new ListNode(), {5});
+	g.add(new ListNode());
+	g.add(new ListNode(), {1});
+	GraphSolver solver(g);
+	solver.makeTarjanAlgo();
+	const vector<int>& comps = solver.getComponents();
+	for(unsigned v = 0; v < g.size(); ++v)
+		cerr << v << ":" << comps[v] << endl;
+	
 }
 
 int main()
 {
-	cout << "Test 1 start" << endl;
+	cerr << "--- Simple tests --- " << endl;
+	cerr << "Test 1 start" << endl;
 	test1(10);
-	cout << "Test 1 end" << endl;
-	int size2 = 1000000;
-	cerr << "Test 2 success" << endl;
-	if(test2(size2, 33) != 33)
-		cerr << "Oh no, test 2 failed!" << endl;
-	cerr << "Test 2 end" << endl;
+	cerr << "Test 1 OK" << endl;
+	cerr << "Test 2 start" << endl;
+	for(int i = 1; i <= 1000000; i *= 10)
+		test2(i, min(33, i));
+	cerr << "Test 2 OK" << endl;
 	cerr << "Test 3 start" << endl;
 	test3();
-	cerr << "Test 3 end" << endl;
+	cerr << "Test 3 OK" << endl;
+	cerr << "Test 4 start" << endl;
+	test4();
+	cerr << "Test 4 OK" << endl;
 	return 0;
 }

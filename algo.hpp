@@ -1,3 +1,5 @@
+//Deprecated.
+
 #pragma once
 
 #include "graph.hpp"
@@ -14,6 +16,8 @@ enum
 {
 	COLOR_WHITE, COLOR_GREY, COLOR_BLACK
 };
+
+const unsigned HUGE_TIME = 2 << 31;
 
 Graph reverse(const Graph& g)
 {
@@ -44,7 +48,7 @@ class GraphSolver
 			for(unsigned u : g.getNode(v))
 				dfsSimple(u);
 			colors[v] = COLOR_BLACK;
-			tout.push(v);
+			outStack.push(v);
 			return COLOR_WHITE;
 		}
 		
@@ -60,12 +64,46 @@ class GraphSolver
 			return COLOR_WHITE;
 		}
 		
+		int dfsTarjan(unsigned v)
+		{
+			if(colors[v] != COLOR_WHITE)
+				return colors[v];
+			tin[v] = time++;
+			stackTarjan.push(v);
+			colors[v] = COLOR_GREY;
+			bool root = true;
+			for(unsigned u : g.getNode(v))
+			{
+				dfsTarjan(u);
+				if(tin[v] > tin[u])
+				{
+					tin[v] = tin[u];
+					root = false;
+				}
+			}
+			if(root)
+			{
+				++currentComponent;
+				unsigned u;
+				do
+				{
+					u = stackTarjan.top();
+					components[u] = currentComponent;
+					tin[u] = HUGE_TIME;
+					stackTarjan.pop();
+				}
+				while(u != v);
+			}
+			colors[v] = COLOR_BLACK;
+			return COLOR_WHITE;
+		}
+		
 		void dfs()
 		{
 			componentsCount = 0;
 			colors.assign(g.size(), COLOR_WHITE);
-			while(!tout.empty())
-				tout.pop();
+			while(!outStack.empty())
+				outStack.pop();
 			size_t sz = g.size();
 			for(unsigned v = 0; v < sz; v++)
 				if(dfsSimple(v) == COLOR_WHITE)
@@ -79,7 +117,7 @@ class GraphSolver
 		
 		std::stack<unsigned>& getOutStack()
 		{
-			return tout;
+			return outStack;
 		}
 		
 		void makeKosarajuAlgo()
@@ -90,19 +128,28 @@ class GraphSolver
 			Graph rev = reverse(g);
 			GraphSolver revSolver(rev);
 			revSolver.dfs();
-			auto& toutRev = revSolver.getOutStack();
-			while(!toutRev.empty())
+			auto& outStackRev = revSolver.getOutStack();
+			while(!outStackRev.empty())
 			{
 				currentComponent++;
-				unsigned v = toutRev.top();
+				unsigned v = outStackRev.top();
 				dfsKosaraju(v);
-				toutRev.pop();
+				outStackRev.pop();
 			}
 		}
 		
 		void makeTarjanAlgo()
 		{
 			components.assign(g.size(), 0);
+			colors.assign(g.size(), COLOR_WHITE);
+			tin.assign(g.size(), 0);
+			time = 0;
+			currentComponent = 0;
+			while(!stackTarjan.empty())
+				stackTarjan.pop();
+			size_t sz = g.size();
+			for(unsigned v = 0; v < sz; v++)
+				dfsTarjan(v);
 		}
 		
 		const std::vector<int>& getComponents() const
@@ -114,10 +161,12 @@ class GraphSolver
 		const Graph& g;
 		std::vector<int> colors;
 		std::vector<int> components;
-		std::stack<unsigned> tout;
+		std::vector<unsigned> tin;
+		std::stack<unsigned> outStack;
+		std::stack<unsigned> stackTarjan;
 		int componentsCount;
 		int currentComponent;
-		
+		unsigned time;
 };
 
 }
