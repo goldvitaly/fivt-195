@@ -17,10 +17,10 @@ public:
 		curLen[from] = Length();
 		queue.insert(State(from, *curLen[from]));
 		while(!queue.empty()){
-			State curState = *queue.begin();
+			const State& curState = *queue.begin();
 			
 			for(const Vertex<Weight>& next: graph.getIncidents(curState.id)){
-				Length newLen = calcLength(curState.id, next.weight);
+				Length newLen = calcLength(curLen[curState.id], next.weight);
 				if(!curLen[next.id]){
 					if(newLen < *curLen[next.id]){
 						queue.erase(State(next.id, *curLen[next.id]));
