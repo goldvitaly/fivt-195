@@ -4,7 +4,7 @@
 #include <set>
 #include <map>
 #include <string>
-#include "GraphAlgo.h"
+#include "Graphalgo.h"
 #include <memory>
 #include <utility>
 
