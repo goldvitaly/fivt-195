@@ -10,23 +10,54 @@ class BaseNode
 {
 public:
 
-    virtual void add_edge(int to) = 0;
-    virtual void delete_edge(int to) = 0;
-    virtual size_t number_of_edges() = 0;
+    virtual void add_edge(size_t to) = 0;
+    virtual void delete_edge(size_t to) = 0;
+    virtual size_t number_of_edges() const = 0;
 
     class BaseIterator
     {
     public:
         virtual bool operator == (const BaseIterator& it) const = 0;
         virtual bool operator != (const BaseIterator& it) const = 0;
-        virtual int operator * () = 0;
-        virtual BaseIterator* operator ++ () = 0;
+        virtual size_t operator * () const = 0;
+        virtual BaseIterator& operator ++ () = 0;
         ~BaseIterator(){};
     };
 
-    virtual BaseIterator* begin() = 0;
-    virtual BaseIterator* end() = 0;
-    virtual ~BaseNode(){};
+
+    class Iterator
+    {
+    public:
+        explicit Iterator(BaseIterator* it)
+        {
+            iterator_ = std::unique_ptr<BaseIterator>(it);
+        }
+        bool operator == (const Iterator& it)
+        {
+            return(*iterator_ == *(it.iterator_));
+        }
+
+        bool operator != (const Iterator& it)
+        {
+            return(*iterator_ != *(it.iterator_));
+        }
+
+        int operator * () const
+        {
+            return **iterator_;
+        }
+
+        Iterator& operator ++()
+        {
+            ++(*iterator_);
+        }
+    private:
+        std::unique_ptr<BaseIterator> iterator_;
+    };
+
+    virtual Iterator begin() = 0;
+    virtual Iterator end() = 0;
+    ~BaseNode(){};
 };
 
 
@@ -34,23 +65,23 @@ template<class T>
 class SetNode: public BaseNode
 {
 public:
-    SetNode(T value)
+    explicit SetNode(const T& value)
     {
         value_ = value;
         edges_.clear();
     }
 
-    void add_edge(int to)
+    void add_edge(size_t to)
     {
         edges_.insert(to);
     }
 
-    void delete_edge(int to)
+    void delete_edge(size_t to)
     {
         edges_.erase(to);
     }
 
-    size_t number_of_edges()
+    size_t number_of_edges() const
     {
         return edges_.size();
     }
@@ -59,7 +90,7 @@ public:
     {
     public:
 
-        SetIterator(std::multiset<int>::iterator it = NULL)
+        SetIterator(std::multiset<size_t>::iterator it = NULL)
         {
             iterator_ = it;
         }
@@ -74,33 +105,33 @@ public:
             return(!(*this == it));
         }
 
-        int operator * ()
+        size_t operator * () const
         {
             return (*iterator_);
         }
 
-        SetIterator* operator ++()
+        SetIterator& operator ++()
         {
             iterator_++;
-            return this;
+            return *this;
         }
 
         ~SetIterator()
         {
         }
     private:
-        std::multiset<int>::iterator iterator_;
+        std::multiset<size_t>::iterator iterator_;
     };
 
 
-    BaseIterator* begin()
+    Iterator begin()
     {
-        return (new SetIterator(edges_.begin()));
+        return Iterator(new SetIterator(edges_.begin()));
     }
 
-    BaseIterator* end()
+    Iterator end()
     {
-        return (new SetIterator(edges_.end()));
+        return Iterator(new SetIterator(edges_.end()));
     }
 
     ~SetNode()
@@ -108,7 +139,7 @@ public:
         edges_.clear();
     }
 private:
-    std::multiset<int> edges_;
+    std::multiset<size_t> edges_;
     T value_;
 };
 
@@ -117,25 +148,25 @@ template<class T>
 class VectorNode: public BaseNode
 {
 public:
-    VectorNode(T value = 0)
+    explicit VectorNode(const T& value = 0)
     {
         value_ = value;
         edges_.clear();
     }
 
-    void add_edge(int to)
+    void add_edge(size_t to)
     {
         edges_.push_back(to);
     }
 
-    void delete_edge(int to)
+    void delete_edge(size_t to)
     {
-        std::vector<int>::iterator it = find(edges_.begin(), edges_.end(), to);
+        std::vector<size_t>::iterator it = find(edges_.begin(), edges_.end(), to);
         if(it != edges_.end())
             edges_.erase(it);
     }
 
-    size_t number_of_edges()
+    size_t number_of_edges() const
     {
         return edges_.size();
     }
@@ -144,7 +175,7 @@ public:
     {
     public:
 
-        VectorIterator(std::vector<int>::iterator it = NULL)
+        explicit VectorIterator(std::vector<size_t>::iterator it = NULL)
         {
             iterator_ = it;
         }
@@ -160,33 +191,33 @@ public:
             return(!(*this == it));
         }
 
-        int operator * ()
+        size_t operator * () const
         {
             return *iterator_;
         }
 
-        VectorIterator* operator ++()
+        VectorIterator& operator ++()
         {
             iterator_++;
-            return this;
+            return *this;
         }
 
         ~VectorIterator()
         {
         }
     private:
-        std::vector<int>::iterator iterator_;
+        std::vector<size_t>::iterator iterator_;
     };
 
 
-    BaseIterator* begin()
+    Iterator begin()
     {
-        return (new VectorIterator(edges_.begin()));
+        return Iterator(new VectorIterator(edges_.begin()));
     }
 
-    BaseIterator* end()
+    Iterator end()
     {
-        return (new VectorIterator(edges_.end()));
+        return Iterator(new VectorIterator(edges_.end()));
     }
 
     ~VectorNode()
@@ -194,7 +225,7 @@ public:
         edges_.clear();
     }
 private:
-    std::vector<int> edges_;
+    std::vector<size_t> edges_;
     T value_;
 };
 

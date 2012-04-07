@@ -12,37 +12,24 @@ class Graph
 {
 public:
 
-    std::vector<BaseNode*> graph_;
+    std::vector<std::unique_ptr<BaseNode> > graph_;
 
     void add_node(BaseNode* node)
     {
-        graph_.push_back(node);
+        graph_.push_back(std::unique_ptr<BaseNode>(node));
     }
 
-    void add_edge(int from, int to)
+    void add_edge(size_t from, size_t to)
     {
         graph_[from] -> add_edge(to);
     }
 
-
-    void add_dual_edge(int from, int to)
-    {
-        add_edge(from, to);
-        add_edge(to, from);
-    }
-
-    void delete_edge(int from, int to)
+    void delete_edge(size_t from, size_t to)
     {
         graph_[from] -> delete_edge(to);
     }
 
-    void delete_dual_edge(int from, int to)
-    {
-        delete_edge(from, to);
-        delete_edge(to, from);
-    }
-
-    size_t size()
+    size_t size() const
     {
         return graph_.size();
     }

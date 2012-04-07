@@ -26,7 +26,6 @@ public:
 
     int run()
     {
-        bool poss_x_to_y, poss_y_to_x;
         for(int i = 0; i < 50000; i++)
         {
             generate_graph();
@@ -35,14 +34,14 @@ public:
             for(int x = 0; x < graph_->size(); x++)
                 for(int y = x + 1; y < graph_->size(); y++)
                 {
+                    bool poss_x_to_y, poss_y_to_x;
                     init_marks();
                     dfs(x);
                     poss_x_to_y = (mark_[y] != 0);
                     init_marks();
                     dfs(y);
                     poss_y_to_x = (mark_[x] != 0);
-                    if((Tarjan_for_graph_.get_color(x) == Tarjan_for_graph_.get_color(y)  &&  (!poss_x_to_y  ||  !poss_y_to_x)) ||
-                       (Tarjan_for_graph_.get_color(x) != Tarjan_for_graph_.get_color(y)  &&  poss_x_to_y  &&  poss_y_to_x))
+                    if((Tarjan_for_graph_.get_color(x) == Tarjan_for_graph_.get_color(y))  !=  (poss_x_to_y  &&  poss_y_to_x))
                         return -1;
                 }
         }
@@ -59,8 +58,8 @@ private:
         graph_->graph_.clear();
         graph_->graph_.resize(1 + rand() % 10);
         for(int i = 0; i < graph_->size(); i++)
-            if(i % 2)   graph_->graph_[i] = new SetNode<int>(1);
-            else        graph_->graph_[i] = new VectorNode<int>(1);
+            if(i % 2)   graph_->graph_[i] = std::unique_ptr<SetNode<int> >(new SetNode<int>(1));
+            else        graph_->graph_[i] = std::unique_ptr<VectorNode<int> >(new VectorNode<int>(1));
         for(int i = 0; i < rand() % 100; i++)
         {
             graph_->add_edge(rand() % graph_->size(), rand() % graph_->size());
@@ -70,9 +69,9 @@ private:
     void dfs(int curr_node)
     {
         mark_[curr_node] = 1;
-        for(typename BaseNode::BaseIterator* it = graph_->graph_[curr_node]->begin(); *it != *(graph_->graph_[curr_node]->end()); ++(*it))
-            if(!mark_[**it])
-                dfs(**it);
+        for(BaseNode::Iterator it = graph_->graph_[curr_node]->begin(); it != graph_->graph_[curr_node]->end(); ++it)
+            if(!mark_[*it])
+                dfs(*it);
     }
 };
 
