@@ -205,11 +205,11 @@ class TableNode : public Node
 		
 		virtual std::vector<unsigned> getFriends() const
 		{
-			std::vector<unsigned> ret;
+			std::vector<unsigned> result;
 			for(auto it : friends)
 				if(it)
-					ret.push_back(it);
-			return ret;
+					result.push_back(it);
+			return result;
 		}
 		
 		virtual IteratorWrapper begin() const

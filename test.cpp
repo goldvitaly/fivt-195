@@ -1,6 +1,7 @@
 #include "graph.hpp"
 #include "dfs.hpp"
 #include "kosaraju.hpp"
+#include "tarjan.hpp"
 
 #include <iostream>
 #include <cstdlib>
@@ -10,6 +11,17 @@
 using namespace std;
 using namespace graph;
 using namespace algo;
+
+void printComps(set<set<unsigned>> comps)
+{
+	for(auto& comp : comps)
+	{
+		for(unsigned v : comp)
+			cout << v << " ";
+		cout << endl;
+	}
+	cout << "---" << endl;
+}
 
 bool testDFS(size_t testSize)
 {
@@ -52,11 +64,25 @@ bool testStrongComps(size_t testSize)
 		g.add(unique_ptr<Node>(new ListNode()));
 	size_t edges = testSize * 3;
 	for(unsigned e = 0; e < edges; ++e)
-		g.connect(rand() % testSize, rand() % testSize);
+	{
+		unsigned u = rand() % testSize;
+		unsigned v = rand() % testSize;
+		g.connect(u, v);
+	}
 	KosarajuMaker kosmaker(g);
-	auto comps = kosmaker.make();
-	cerr << comps.size() << endl;
-	return true;
+	auto comps1 = kosmaker.make();
+	TarjanMaker tarjmaker(g);
+	auto comps2 = tarjmaker.make();
+	if(comps1 != comps2)
+	{
+		cerr << "Strong components test fail: Kosaraju = " << comps1.size() <<
+										     ", Tarjan = " << comps2.size() << endl;
+		/*printComps(comps1);
+		printComps(comps2);*/
+	}
+	else
+		cerr << "Strong components test OK: components = " << comps1.size() << endl;
+	return comps1 == comps2;
 }
 
 int main()
@@ -67,7 +93,7 @@ int main()
 			return -1;
 
 	for(int i = 0; i < 100; ++i)
-		if(!testStrongComps(500))
+		if(!testStrongComps(10000))
 			return -1;
 	return 0;
 }

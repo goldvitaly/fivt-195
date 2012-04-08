@@ -23,6 +23,12 @@ namespace algo
 			{
 				color.assign(g.size(), COLOR_WHITE);
 			}
+
+			void clearStack()
+			{
+				while(!out.empty())
+					out.pop();
+			}
 			
 			int dfs(unsigned v)
 			{
@@ -36,15 +42,16 @@ namespace algo
 				return COLOR_WHITE;
 			}
 			
-			std::stack<unsigned>& make()
+			const std::stack<unsigned>& make()
 			{
 				uncolor();
+				clearStack();
 				for(unsigned v = 0; v < g.size(); ++v)
 					dfs(v);
 				return out;
 			}
 			
-			std::stack<unsigned>& getOutStack()
+			const std::stack<unsigned>& getOutStack()
 			{ return out; }
 			
 		private:

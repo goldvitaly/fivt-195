@@ -18,29 +18,33 @@ namespace algo
 			
 			std::set<std::set<unsigned>> make()
 			{
-				std::set<std::set<unsigned>> ret;
+				result.clear();
 				auto revOut = DFSMaker(rev).make();
 				DFSMaker dfser(g);
 				while(!revOut.empty())
 				{
 					unsigned v = revOut.top();
 					revOut.pop();
-					dfser.dfs(v);
-					auto reached = dfser.getOutStack();
-					std::set<unsigned> component;
-					while(!reached.empty())
+					if(dfser.dfs(v) == COLOR_WHITE)
 					{
-						component.insert(reached.top());
-						reached.pop();
+						auto reached = dfser.getOutStack();
+						std::set<unsigned> component;
+						while(!reached.empty())
+						{
+							component.insert(reached.top());
+							reached.pop();
+						}
+						result.insert(component);
+						dfser.clearStack();
 					}
-					ret.insert(component);
 				}
-				return ret;
+				return result;
 			}
 			
 		private:
 			const Graph& g;
 			Graph rev;
+			std::set<std::set<unsigned>> result;
 	};
 }
 }

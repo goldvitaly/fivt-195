@@ -1,4 +1,4 @@
-CFLAGS = -std=c++0x -O2 -Wall
+CFLAGS = -std=c++0x -Wall -O2
 LFLAGS = 
 test: test.o
 	g++ -o test test.o $(LFLAGS)
