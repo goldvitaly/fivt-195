@@ -20,7 +20,7 @@ public:
         
         for (size_t i = 0; i < G.VertexNum(); ++i)
             if (!_Used[i])
-                FSCC_Dfs(G, i);
+                StronglyConnectedComponentsDFS(G, i);
         
         return _Comp;
     }
@@ -38,7 +38,7 @@ private:
         
         bool IsRoot = true;
         const Incident* inc = G.GetIncident(v);
-        for (size_t u = inc->Begin(); u != inc->End(); u = inc->Next(u))
+        for (auto u : *G.GetIncident(v))
         {
             if (!_Used[u])
                 StronglyConnectedComponentsDFS(G, u);
