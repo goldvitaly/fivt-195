@@ -11,22 +11,25 @@ public:
     class p_iterator 
     {
     public:
-        virtual p_iterator& operator ++ ()                           = 0;
-        virtual size_t      operator *  ()                     const = 0;
-        virtual bool        operator == (const p_iterator &It) const = 0;
-        virtual bool        operator != (const p_iterator &It) const = 0;
-        virtual             ~p_iterator   (){};
+        virtual void operator ++ () = 0;
+        virtual size_t operator * () const = 0;
+        virtual bool operator == (const p_iterator &It) const = 0;
+        virtual bool operator != (const p_iterator &It) const = 0;
+        virtual ~p_iterator (){};
     };
     
     class iterator
     {
     public:
-    
-        iterator (std::unique_ptr<p_iterator> It):_It(std::move(It)){}
         
-        void operator ++ ()
+        std::unique_ptr<p_iterator> _It;
+        
+        explicit iterator (std::unique_ptr<p_iterator> It):_It(std::move(It)){}
+    
+        iterator& operator ++ ()
         {
            ++(*_It);
+           return *this;
         }
         
         size_t operator * () const
@@ -36,42 +39,73 @@ public:
         
         bool operator == (const iterator &It) const
         {
-            return *_It == *It.GetIterator();
+            return *_It == *It._It;
         }
         
         bool operator != (const iterator &It) const
         {
-            return *_It == *It.GetIterator();
+            return *_It != *It._It;
         }
         
-        std::unique_ptr<p_iterator> GetIterator () const
-        {
-            return _It;
-        }
-        
-        ~iterator   (){};
-        
-    private:
-        std::unique_ptr<p_iterator> _It;
+        ~iterator (){};
     };
 
-	virtual void     AddIncident    (size_t Vertex)       = 0;
-	virtual void     RemoveIncident (size_t Vertex)       = 0;
-	virtual bool     CheckIncident  (size_t Vertex) const = 0;
-	virtual size_t   IncidentNum    ()              const = 0;
-	virtual iterator begin          ()              const = 0;
-	virtual iterator end            ()              const = 0;
+	virtual void AddIncident (size_t Vertex) = 0;
+	virtual void RemoveIncident (size_t Vertex) = 0;
+	virtual bool CheckIncident (size_t Vertex) const = 0;
+	virtual size_t IncidentNum () const = 0;
+	virtual iterator begin () const = 0;
+	virtual iterator end () const = 0;
 
 	virtual ~Incident (){};
 };
 
 class VBoolIncident : public Incident
 {
-public:
+public: 
+    class p_iterator : public Incident::p_iterator
+    {
+    public:
+        p_iterator ()
+        {
+            _Index = -1;
+        }
+        p_iterator (const std::vector <bool> &_a, size_t index): _a(_a)
+        {
+            _Index = 0;
+            while (_Index < _a.size() && _Index != index && _a[_Index] == false)
+            {
+                _Index++;
+            }
+        }
+        void operator ++ ()
+        {
+            do
+            {
+                _Index++;
+            } while (_Index != _a.size() && _a[_Index] == false);
+        }
+        size_t operator * () const
+        {
+            return _Index;
+        }
+        bool operator == (const VBoolIncident::p_iterator &It) const
+        {
+            return _Index == It._Index;
+        }
+        bool operator != (const VBoolIncident::p_iterator &It) const
+        {
+            return _Index != It._Index;
+        }
+        ~p_iterator (){};
+    private:
+        const std::vector <bool> _a;
+        size_t _Index;
+    };
 
-    MyIncident ():_IncidentNum(0), _a(){}
+    VBoolIncident ():_IncidentNum(0), _a(){}
     
-	void   AddIncident    (size_t Vertex)
+	virtual void AddIncident (size_t Vertex)
 	{
         if (Vertex >= _a.size())
             _a.resize(Vertex + 1, false);
@@ -79,7 +113,7 @@ public:
         _a[Vertex] = true;
     }
     
-	void  RemoveIncident (size_t Vertex)
+	virtual void RemoveIncident (size_t Vertex)
 	{
         if (Vertex < _a.size())
         {
@@ -88,34 +122,34 @@ public:
         }
     }
     
-	bool CheckIncident (size_t Vertex) const
+	virtual bool CheckIncident (size_t Vertex) const
 	{
         if (Vertex >= _a.size())
             return false;
         return _a[Vertex];
     }
     
-	size_t IncidentNum () const
+	virtual size_t IncidentNum () const
 	{
         return _IncidentNum;
     }
     
-	size_t begin () const
+	virtual iterator begin () const
 	{
-        for (auto i : _a)
-            if (true);
-        return End();
+	    p_iterator* it = new VBoolIncident::p_iterator();//(_a, 0);
+        //return iterator(std::unique_ptr<Incident::p_iterator>(NULL));//new VBoolIncident::p_iterator(_a, 0)));
+               //Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents)));
     }
 
-	size_t end () const;
+	virtual iterator end () const
 	{
-        return _a.size();
+        //return iterator(std::unique_ptr<p_iterator>(new p_iterator(_a, _IncidentNum)));
     }
     
-    ~MyIncident (){}
+    virtual ~VBoolIncident() {}
 private:
-	size_t _IncidentNum;
-	std::vector <bool> _a;
+    size_t _IncidentNum;
+    std::vector <bool> _a;
 };
 
 #endif /* INCIDENT_HPP */
