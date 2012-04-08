@@ -1,8 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <cassert>
-#include <iostream>
 #include <algorithm>
 #include <memory>
 
@@ -17,14 +15,15 @@ class NodeIterator
 		virtual unsigned operator*() const = 0;
 		virtual bool operator==(const NodeIterator& it) const = 0;
 		virtual bool operator!=(const NodeIterator& it) const = 0;
+		virtual ~NodeIterator() {}
 };
 
 class IteratorWrapper
 {
 	public:
-		explicit IteratorWrapper(NodeIterator* it)
+		explicit IteratorWrapper(std::unique_ptr<NodeIterator> it)
 		{
-			base = std::unique_ptr<NodeIterator>(it);
+			base = std::move(it);
 		}
 		
 		IteratorWrapper& operator++()
@@ -66,6 +65,7 @@ class Node
 		virtual std::vector<unsigned> getFriends() const = 0;
 		virtual IteratorWrapper begin() const = 0;
 		virtual IteratorWrapper end() const = 0;
+		virtual ~Node() {}
 };
 
 class ListNodeIterator : public NodeIterator
@@ -127,12 +127,12 @@ class ListNode : public Node
 		
 		virtual IteratorWrapper begin() const
 		{
-			return IteratorWrapper(new ListNodeIterator(friends.begin()));
+			return IteratorWrapper(std::unique_ptr<NodeIterator>(new ListNodeIterator(friends.begin())));
 		}
 		
 		virtual IteratorWrapper end() const
 		{
-			return IteratorWrapper(new ListNodeIterator(friends.end()));
+			return IteratorWrapper(std::unique_ptr<NodeIterator>(new ListNodeIterator(friends.end())));
 		}
 		
 		
@@ -143,6 +143,7 @@ class ListNode : public Node
 class TableNodeIterator : public NodeIterator
 {
 	typedef std::vector<bool>::const_iterator v_iter;
+	
 	public:
 		TableNodeIterator(v_iter it, v_iter vbegin, v_iter vend)
 		{
@@ -213,12 +214,12 @@ class TableNode : public Node
 		
 		virtual IteratorWrapper begin() const
 		{
-			return IteratorWrapper(new TableNodeIterator(friends.begin(), friends.begin(), friends.end()));
+			return IteratorWrapper(std::unique_ptr<NodeIterator>(new TableNodeIterator(friends.begin(), friends.begin(), friends.end())));
 		}
 		
 		virtual IteratorWrapper end() const
 		{
-			return IteratorWrapper(new TableNodeIterator(friends.end(), friends.begin(), friends.end()));
+			return IteratorWrapper(std::unique_ptr<NodeIterator>(new TableNodeIterator(friends.end(), friends.begin(), friends.end())));
 		}
 		
 	private:
@@ -228,17 +229,17 @@ class TableNode : public Node
 class Graph
 {
 	public:
-		unsigned add(Node* node)
+		unsigned add(std::unique_ptr<Node> node)
 		{
-			nodes.push_back(std::unique_ptr<Node>(node));
+			nodes.push_back(std::move(node));
 			return nodes.size() - 1;
 		}
 		
-		unsigned add(Node* node, const std::vector<unsigned>& friends)
+		unsigned add(std::unique_ptr<Node> node, const std::vector<unsigned>& friends)
 		{
-			nodes.push_back(std::unique_ptr<Node>(node));
 			for(auto v : friends)
 				node->linkTo(v);
+			nodes.push_back(std::move(node));
 			return nodes.size() - 1;
 		}
 		

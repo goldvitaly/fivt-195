@@ -1,100 +1,73 @@
 #include "graph.hpp"
-#include "algo.hpp"
+#include "dfs.hpp"
+#include "kosaraju.hpp"
+
 #include <iostream>
+#include <cstdlib>
+#include <set>
+#include <memory>
 
 using namespace std;
 using namespace graph;
 using namespace algo;
 
-//Create graph with different nodes representation; test it.
-void test1(int vsize)
+bool testDFS(size_t testSize)
 {
 	Graph g;
-	for(int i = 0; i < vsize / 2; ++i)
-		g.add(new TableNode());
-	for(int i = vsize / 2; i < vsize; ++i)
-		g.add(new ListNode());
-	for(int i = 0; i < vsize; ++i)
-		for(int j = i; j < i + 3 && j < vsize; ++j)
-			g.connect(i, j);
-	for(int v = 0; v < vsize; ++v)
-		assert(g.getNode(v).getFriends().size() == (unsigned)min(3, vsize - v));
-}
-
-//Count components in non-oriented graph. The answer must be equal to "comps" argument.
-void test2(int vsize, int comps)
-{
-	Graph g;
-	for(int i = 0; i < vsize; ++i)
-		g.add(new ListNode());
-	for(int i = 0; i < comps; i++)
-		for(int v = i + comps; v < vsize; v += comps)
+	size_t size = 0;
+	size_t root = sqrt(testSize);
+	size_t compCount1 = 0;
+	while(size < testSize)
+	{
+		++compCount1;
+		size_t compSize = rand() % (root - 1) + 1;
+		for(size_t v = 0; v < compSize; ++v)
 		{
-			if(v - i < 0)
-				continue;
-			g.connect(v, i);
-			g.connect(i, v);
+			vector<unsigned> friends = {(unsigned)(size + (v + 1) % compSize)};
+			for(unsigned i = 0; i < 5; ++i)
+				friends.push_back(size + rand() % compSize);
+			g.add(unique_ptr<Node>(new ListNode()), friends);
 		}
-	GraphSolver solver(g);
-	solver.dfs();
-	assert(solver.getComponentsCount() == comps);
+		size += compSize;
+	}
+	DFSMaker dfser(g);
+	unsigned compCount2 = 0;
+	for(unsigned v = 0; v < size; ++v)
+	{
+		if(dfser.dfs(v) == COLOR_WHITE)
+			++compCount2;
+	}
+	if(compCount1 != compCount2)
+		cerr << "DFS test failed: " << "wrong answer " << compCount2 <<
+										 "( correct: " << compCount1 << ")" << endl;
+	else
+		cerr << "DFS test OK: " << "answer " << compCount2 << endl;
+	return compCount1 == compCount2;
 }
 
-//Test Kosaraju. V = 6.
-void test3()
+bool testStrongComps(size_t testSize)
 {
 	Graph g;
-	g.add(new ListNode(), {3});
-	g.add(new ListNode());
-	g.add(new ListNode(), {0, 4});
-	g.add(new ListNode(), {2, 5});
-	g.add(new ListNode());
-	g.add(new ListNode(), {3, 4});
-	GraphSolver solver(g);
-	solver.makeKosarajuAlgo();
-	const vector<int>& comps = solver.getComponents();
-	assert(comps[0] == comps[2] && comps[0] == comps[3] && comps[0] == comps[5]);
-	assert(comps[1] != comps[0]);
-	assert(comps[4] != comps[0]);
-	assert(comps[1] != comps[4]);
-}
-
-void test4()
-{
-	Graph g;
-	g.add(new ListNode(), {2, 3, 8});
-	g.add(new ListNode(), {7});
-	g.add(new ListNode(), {6});
-	g.add(new ListNode(), {0});
-	g.add(new ListNode());
-	g.add(new ListNode(), {1, 7, 9});
-	g.add(new ListNode(), {0});
-	g.add(new ListNode(), {5});
-	g.add(new ListNode());
-	g.add(new ListNode(), {1});
-	GraphSolver solver(g);
-	solver.makeTarjanAlgo();
-	const vector<int>& comps = solver.getComponents();
-	for(unsigned v = 0; v < g.size(); ++v)
-		cerr << v << ":" << comps[v] << endl;
-	
+	for(unsigned v = 0; v < testSize; ++v)
+		g.add(unique_ptr<Node>(new ListNode()));
+	size_t edges = testSize * 3;
+	for(unsigned e = 0; e < edges; ++e)
+		g.connect(rand() % testSize, rand() % testSize);
+	KosarajuMaker kosmaker(g);
+	auto comps = kosmaker.make();
+	cerr << comps.size() << endl;
+	return true;
 }
 
 int main()
 {
-	cerr << "--- Simple tests --- " << endl;
-	cerr << "Test 1 start" << endl;
-	test1(10);
-	cerr << "Test 1 OK" << endl;
-	cerr << "Test 2 start" << endl;
-	for(int i = 1; i <= 1000000; i *= 10)
-		test2(i, min(33, i));
-	cerr << "Test 2 OK" << endl;
-	cerr << "Test 3 start" << endl;
-	test3();
-	cerr << "Test 3 OK" << endl;
-	cerr << "Test 4 start" << endl;
-	test4();
-	cerr << "Test 4 OK" << endl;
+	srand(43);
+	for(int i = 0; i < 100; ++i)
+		if(!testDFS(10000))
+			return -1;
+
+	for(int i = 0; i < 100; ++i)
+		if(!testStrongComps(500))
+			return -1;
 	return 0;
 }

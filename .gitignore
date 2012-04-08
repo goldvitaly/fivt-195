@@ -1,5 +1,4 @@
 *.o
-*.bat
 test
-*.out
 *.log
+old
