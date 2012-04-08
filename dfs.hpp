@@ -16,7 +16,7 @@ namespace algo
 	class DFSMaker
 	{
 		public:
-			DFSMaker(const Graph& gr) : g(gr)
+			explicit DFSMaker(const Graph& gr) : g(gr)
 			{ uncolor(); }
 			
 			void uncolor()

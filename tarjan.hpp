@@ -15,7 +15,7 @@ namespace algo
 class TarjanMaker
 {
 	public:
-		TarjanMaker(const Graph& gr) : g(gr) {}
+		explicit TarjanMaker(const Graph& gr) : g(gr) {}
 
 		const std::set<std::set<unsigned>>& make()
 		{

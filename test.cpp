@@ -20,7 +20,6 @@ void printComps(set<set<unsigned>> comps)
 			cout << v << " ";
 		cout << endl;
 	}
-	cout << "---" << endl;
 }
 
 bool testDFS(size_t testSize)

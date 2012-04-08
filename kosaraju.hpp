@@ -14,9 +14,9 @@ namespace algo
 	class KosarajuMaker
 	{
 		public:
-			KosarajuMaker(const Graph& gr) : g(gr), rev(reverse(gr)) {}
+			explicit KosarajuMaker(const Graph& gr) : g(gr), rev(reverse(gr)) {}
 			
-			std::set<std::set<unsigned>> make()
+			const std::set<std::set<unsigned>>& make()
 			{
 				result.clear();
 				auto revOut = DFSMaker(rev).make();
