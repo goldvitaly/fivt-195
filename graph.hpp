@@ -38,8 +38,8 @@ public:
 	size_t IncidentNum () const
 	{
 		size_t num = 0;
-		for (size_t i = 0; i < _Inc.size(); ++i)
-			num += _Inc[i]->IncidentNum();
+		for (auto i : _Inc)
+			num += i->IncidentNum();
 		return num;
 	}
 	const Incident* GetIncident (size_t Vertex) const
