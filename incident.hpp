@@ -1,6 +1,7 @@
 #ifndef INCIDENT_HPP
 #define INCIDENT_HPP
 
+#include <typeinfo>
 #include <vector>
 #include <memory>
 #include <utility>
@@ -13,7 +14,6 @@ public:
     public:
         virtual void operator ++ () = 0;
         virtual size_t operator * () const = 0;
-        virtual bool operator == (const p_iterator &It) const = 0;
         virtual bool operator != (const p_iterator &It) const = 0;
         virtual ~p_iterator (){};
     };
@@ -24,6 +24,20 @@ public:
         
         std::unique_ptr<p_iterator> _It;
         
+        iterator (const iterator&) = delete;
+		iterator& operator = (const iterator&) = delete;
+		
+		iterator (iterator&& It)
+		{
+			_It = std::move(It._It);
+		}
+		
+		iterator& operator = (iterator&& It)
+		{
+			_It = std::move(It._It);
+			return *this;
+		}
+		
         explicit iterator (std::unique_ptr<p_iterator> It):_It(std::move(It)){}
     
         iterator& operator ++ ()
@@ -37,14 +51,9 @@ public:
             return *(*_It);
         }
         
-        bool operator == (const iterator &It) const
+        bool operator != (iterator &It) const
         {
-            return *_It == *It._It;
-        }
-        
-        bool operator != (const iterator &It) const
-        {
-            return *_It != *It._It;
+            return *_It != *(It._It);
         }
         
         ~iterator (){};
@@ -57,7 +66,7 @@ public:
 	virtual iterator begin () const = 0;
 	virtual iterator end () const = 0;
 
-	virtual ~Incident (){};
+	virtual ~Incident (){}
 };
 
 class VBoolIncident : public Incident
@@ -66,11 +75,7 @@ public:
     class p_iterator : public Incident::p_iterator
     {
     public:
-        p_iterator ()
-        {
-            _Index = -1;
-        }
-        p_iterator (const std::vector <bool> &_a, size_t index): _a(_a)
+        p_iterator (const std::vector <bool> &_a, size_t index = 0): _a(_a)
         {
             _Index = 0;
             while (_Index < _a.size() && _Index != index && _a[_Index] == false)
@@ -89,13 +94,9 @@ public:
         {
             return _Index;
         }
-        bool operator == (const VBoolIncident::p_iterator &It) const
+        bool operator != (const Incident::p_iterator &It) const
         {
-            return _Index == It._Index;
-        }
-        bool operator != (const VBoolIncident::p_iterator &It) const
-        {
-            return _Index != It._Index;
+            return _Index != dynamic_cast<const VBoolIncident::p_iterator&>(It)._Index;
         }
         ~p_iterator (){};
     private:
@@ -136,20 +137,92 @@ public:
     
 	virtual iterator begin () const
 	{
-	    p_iterator* it = new VBoolIncident::p_iterator();//(_a, 0);
-        //return iterator(std::unique_ptr<Incident::p_iterator>(NULL));//new VBoolIncident::p_iterator(_a, 0)));
-               //Iterator(std::unique_ptr<Incidents::BaseIterator>(new BaseIterator(incidents)));
+        return iterator(std::unique_ptr<p_iterator>(new p_iterator(_a)));
     }
 
 	virtual iterator end () const
 	{
-        //return iterator(std::unique_ptr<p_iterator>(new p_iterator(_a, _IncidentNum)));
+        return iterator(std::unique_ptr<p_iterator>(new p_iterator(_a, _IncidentNum)));
     }
     
     virtual ~VBoolIncident() {}
 private:
     size_t _IncidentNum;
     std::vector <bool> _a;
+};
+
+class VIntIncident : public Incident
+{
+public: 
+    class p_iterator : public Incident::p_iterator
+    {
+    public:
+        p_iterator (const std::vector <size_t> &_a, size_t index = 0): _a(_a)
+        {
+            _Index = index;
+        }
+        void operator ++ ()
+        {
+            _Index++;
+        }
+        size_t operator * () const
+        {
+            return _a[_Index];
+        }
+        bool operator != (const Incident::p_iterator &It) const
+        {
+            return _Index != dynamic_cast<const VIntIncident::p_iterator&>(It)._Index;
+        }
+        ~p_iterator (){};
+        
+        size_t _Index;
+    private:
+        const std::vector <size_t> _a;
+        
+    };
+
+    VIntIncident ():_a(){}
+    
+	virtual void AddIncident (size_t Vertex)
+	{
+        _a.push_back(Vertex);
+    }
+    
+	virtual void RemoveIncident (size_t Vertex)
+	{
+	    std::vector <size_t> _newa;
+        for (size_t i = 0; i < _a.size(); ++i)
+            if (_a[i] != Vertex)
+                _newa.push_back(_a[i]);
+        _a = _newa;
+    }
+    
+	virtual bool CheckIncident (size_t Vertex) const
+	{
+        for (size_t i = 0; i < _a.size(); ++i)
+            if (_a[i] == Vertex)
+                return true;
+        return false;
+    }
+    
+	virtual size_t IncidentNum () const
+	{
+        return _a.size();
+    }
+    
+	virtual VIntIncident::iterator begin () const
+	{
+        return iterator(std::unique_ptr<p_iterator>(new p_iterator(_a)));
+    }
+
+	virtual VIntIncident::iterator end () const
+	{
+        return iterator(std::unique_ptr<p_iterator>(new p_iterator(_a, _a.size())));
+    }
+    
+    virtual ~VIntIncident() {}
+private:
+    std::vector <size_t> _a;
 };
 
 #endif /* INCIDENT_HPP */
