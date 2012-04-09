@@ -20,10 +20,9 @@ public:
 		queue.insert(State(from, *curLen[from]));
 		while(!queue.empty()){
 			const State& curState = *queue.begin();
-			
 			for(const Vertex<Weight>& next: graph.getIncidents(curState.id)){
 				Length newLen = calcLength(*curLen[curState.id], next.weight);
-				if(!curLen[next.id]){
+				if(curLen[next.id]){
 					if(newLen < *curLen[next.id]){
 						queue.erase(State(next.id, *curLen[next.id]));
 						curLen[next.id] = newLen;
@@ -37,11 +36,9 @@ public:
 					queue.insert(State(next.id, *curLen[next.id]));
 				}
 			}
-			
 			queue.erase(*queue.begin());
 		}
-		
-		return ShortestPathsInfo<Length>(std::move(curLen), std::move(previous));
+		return ShortestPathsInfo<Length>(curLen, previous);
 	}
 private:
 	struct State{

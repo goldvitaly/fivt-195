@@ -11,10 +11,10 @@ public:
 			const std::vector<boost::optional<Length> >& v,
 			const std::vector<boost::optional<size_t> >& p
 			): lengths(v), previous(p){}
-	ShortestPathsInfo(
-			std::vector<boost::optional<Length> >&& v,
-			std::vector<boost::optional<size_t> >&& p
-	): lengths(v), previous(p){}
+	//ShortestPathsInfo(
+	//		std::vector<boost::optional<Length> >&& v,
+	//		std::vector<boost::optional<size_t> >&& p
+	//): lengths(v), previous(p){}
 	boost::optional<Length> length(size_t to){
 		return lengths[to];
 	}

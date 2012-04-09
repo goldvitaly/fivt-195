@@ -48,18 +48,26 @@ bool testGraph(const Graph<NoWeight>& graph){
 	Coloring expected = TrivialStronglyConnectedComponents(graph).getColoring();
 	return checkColoringsEqual(received, expected);
 }
-int main() {
+
+void testTarjan(){
 	for(int i = 0; i < (1 << 16); ++i){
 		if(!testGraph(genGraph(i))){
 			cerr<<"Test failed on 4-vertex graph";
 			exit (1);
 		}
 	}
-	
-	
+}
+
+void testDijkstra(){
 	Graph<int> g;
 	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+	g.addEdge(0, 1, 42);
 	ShortestPath<int> sp(g);
-	sp.calculate(0).length(0);
+	cout<<*sp.calculate(0).length(1);
+}
+int main() {
+	testTarjan();
+	testDijkstra();
 	return 0;
 }
