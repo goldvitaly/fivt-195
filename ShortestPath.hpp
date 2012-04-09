@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 
+#include "ShortestPathsInfo.hpp"
 
 template<typename Weight, typename Length = Weight, typename CalcLength = std::plus<Weight> >
 class ShortestPath{
@@ -11,25 +12,28 @@ public:
 	explicit ShortestPath(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength())
 		:graph(graph), calcLength(calcLength){}
 	
-	boost::optional<Length> length(size_t from, size_t to) const {
+	ShortestPathsInfo<Length> calculate(size_t from) const {
 		std::set<State> queue;
 		std::vector<boost::optional<Length> > curLen(graph.size());
+		std::vector<boost::optional<size_t> > previous(graph.size());
 		curLen[from] = Length();
 		queue.insert(State(from, *curLen[from]));
 		while(!queue.empty()){
 			const State& curState = *queue.begin();
 			
 			for(const Vertex<Weight>& next: graph.getIncidents(curState.id)){
-				Length newLen = calcLength(curLen[curState.id], next.weight);
+				Length newLen = calcLength(*curLen[curState.id], next.weight);
 				if(!curLen[next.id]){
 					if(newLen < *curLen[next.id]){
 						queue.erase(State(next.id, *curLen[next.id]));
 						curLen[next.id] = newLen;
+						previous[next.id] = curState.id;
 						queue.insert(State(next.id, *curLen[next.id]));
 					}
 				}
 				else {
 					curLen[next.id] = newLen;
+					previous[next.id] = curState.id;
 					queue.insert(State(next.id, *curLen[next.id]));
 				}
 			}
@@ -37,7 +41,7 @@ public:
 			queue.erase(*queue.begin());
 		}
 		
-		return curLen[to];
+		return ShortestPathsInfo<Length>(std::move(curLen), std::move(previous));
 	}
 private:
 	struct State{

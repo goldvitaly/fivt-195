@@ -56,9 +56,10 @@ int main() {
 		}
 	}
 	
+	
 	Graph<int> g;
 	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
 	ShortestPath<int> sp(g);
-	cout<<*sp.length(0, 0);
+	sp.calculate(0).length(0);
 	return 0;
 }
