@@ -14,7 +14,7 @@ public:
 	virtual ~IGenerator () {}
 };
 
-class Random: public IGenerator
+class Random: public IGenerator // bad name
 {
 public:
 	virtual ~Random() {}

@@ -1,6 +1,7 @@
 #include "Graph/Graph.hpp"
 #include "algorithm/generators/generators.hpp"
 #include "incidences/VectorIncidence.hpp"
+#include "tarjan_tests/tester.hpp"
 #include <iostream>
 
 using namespace graph;
@@ -9,19 +10,24 @@ using namespace generators;
 int main()
 {
 	Random random = Random();
-	Graph graph;
+	auto VecIncGen = [](){return std::unique_ptr<IIncidence>(new VectorIncidence());};
 	
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 10; i++)
 	{
-		graph = random.gen(4, 5, [](){return std::unique_ptr<IIncidence>(new VectorIncidence());});
-		for(size_t j = 0; j < graph.size(); j++)
+		Graph graph = random.gen(20, 400, VecIncGen);
+		if (!tarjan_tester::test(graph))
 		{
-			std::cout << j << ": ";
-			for (auto k: graph[j])
-				std::cout << k << " ";
+			std::cout << graph.size() << std::endl;
+			for (size_t j = 0; j < graph.size(); j++)
+			{
+				std::cout << j << ": ";
+				for (auto k: graph[j])
+					std::cout << k << " ";
+				std::cout << std::endl;
+			}
 			std::cout << std::endl;
+			break;
 		}
-		std::cout << std::endl;
 	}
 	
 	return 0;

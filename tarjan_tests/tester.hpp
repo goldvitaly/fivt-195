@@ -1,3 +1,6 @@
+#ifndef TARJAN_TESTER_HPP
+#define TARJAN_TESTER_HPP
+
 #include "../Graph/Graph.hpp"
 #include "../algorithm/tarjan/tarjan.hpp"
 #include "../algorithm/utils/dfs.hpp"
@@ -8,7 +11,7 @@
 
 namespace tarjan_tester
 {
-bool test (const graph::Graph graph)
+bool test (const graph::Graph& graph)
 {
 	std::cerr << "Testing, V = " << graph.size() << std::endl;
 	std::vector<size_t> res = tarjanStronglyConnectedComponents(graph);
@@ -18,7 +21,7 @@ bool test (const graph::Graph graph)
 			bool reachIJ = reachable(i, j, graph);
 			bool reachJI = reachable(j, i, graph);
 			if ( (reachIJ && reachJI && res[i] != res[j]) ||
-				 (!(reachIJ && !reachJI) && res[i] == res[j]) )
+				 (!(reachIJ && reachJI) && res[i] == res[j]) )
 			{
 				std::cerr << "Result: WA" << std::endl;
 				return false;
@@ -30,3 +33,5 @@ bool test (const graph::Graph graph)
 	
 }
 } // namespace tarjan_tester
+
+#endif

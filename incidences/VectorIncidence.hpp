@@ -1,3 +1,6 @@
+#ifndef VECTOR_INCIDENCE
+#define VECTOR_INCIDENCE
+
 #include <algorithm>
 
 #include "../Graph/IIncidence.hpp"
@@ -63,3 +66,5 @@ private:
 	std::vector<size_t> adjacent;
 	
 };
+
+#endif
