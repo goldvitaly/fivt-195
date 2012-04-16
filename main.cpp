@@ -1,26 +1,28 @@
+#include "Graph/Graph.hpp"
+#include "algorithm/generators/generators.hpp"
+#include "incidences/VectorIncidence.hpp"
 #include <iostream>
 
-#include "Graph.hpp"
-#include "iIncidence.hpp"
-#include "Iterator.hpp"
-#include "IteratorWrapper.hpp"
-#include "VectorIncidence.hpp"
-// как можно избавиться от подключениях всех библиотек в main?
-
-typedef Graph::iIncidence::IteratorWrapper iterator;
+using namespace graph;
+using namespace generators;
 
 int main()
 {
-	Graph g;
+	Random random = Random();
+	Graph graph;
 	
-	g.addVertex(Graph::incList(new VectorIncidence()));
-	g.addVertex(Graph::incList(new VectorIncidence()));
-	g.addVertex(Graph::incList(new VectorIncidence()));
-	g.addVertex(Graph::incList(new VectorIncidence()));
+	for (int i = 0; i < 5; i++)
+	{
+		graph = random.gen(4, 5, [](){return std::unique_ptr<IIncidence>(new VectorIncidence());});
+		for(size_t j = 0; j < graph.size(); j++)
+		{
+			std::cout << j << ": ";
+			for (auto k: graph[j])
+				std::cout << k << " ";
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+	}
 	
-	g.addEdge(0, 1);
-	g.addEdge(0, 2);
-	g.addEdge(2, 1);
-		
 	return 0;
 }
