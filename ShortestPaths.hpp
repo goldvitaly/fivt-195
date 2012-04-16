@@ -1,15 +1,23 @@
 #ifndef SHORTESTPATH_HPP
 #define SHORTESTPATH_HPP
+#include "Path.hpp"
+#include "ShortestPathsInfo.hpp"
 #include <boost/optional.hpp>
 #include <set>
 #include <vector>
 
-#include "ShortestPathsInfo.hpp"
+template <typename Weight>
+class SumShortestPathsFunctor{
+public:
+	Weight operator() (const Weight& oldLen, const Weight& weight, const Path&){
+		return oldLen + weight;
+	}
+};
 
 template<typename Weight, typename Length = Weight, typename CalcLength = std::plus<Weight> >
-class ShortestPath{
+class ShortestPaths{
 public:
-	explicit ShortestPath(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength())
+	explicit ShortestPaths(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength())
 		:graph(graph), calcLength(calcLength){}
 	
 	ShortestPathsInfo<Length> calculate(size_t from) const {

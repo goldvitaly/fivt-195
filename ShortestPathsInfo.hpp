@@ -1,7 +1,8 @@
 #ifndef SHORTESTPATHSINFO_HPP
 #define SHORTESTPATHSINFO_HPP
-
+#include "Path.hpp"
 #include <boost/optional.hpp>
+#include <vector>
 
 template <typename Length>
 class ShortestPathsInfo{
@@ -11,24 +12,14 @@ public:
 			const std::vector<boost::optional<Length> >& v,
 			const std::vector<boost::optional<size_t> >& p
 			): lengths(v), previous(p){}
-	//ShortestPathsInfo(
-	//		std::vector<boost::optional<Length> >&& v,
-	//		std::vector<boost::optional<size_t> >&& p
-	//): lengths(v), previous(p){}
 	boost::optional<Length> length(size_t to){
 		return lengths[to];
 	}
-	PathType path(size_t to){
-		if(!previous[to])
+	PathType path(size_t to){		
+		if(!lengths[to])
 			return PathType();
-		std::vector<size_t> path;
-		do{
-			path.push_back(to);
-			to = *previous[to];
-		}
-		while(previous[to]);
-		std::reverse(previous.begin(), previous.end());
-		return PathType(path);
+		std::vector<size_t> path = Path(previous, to).toVector();
+		return path;
 	}
 private:
 	std::vector< boost::optional<Length> > lengths;
@@ -36,4 +27,3 @@ private:
 };
 
 #endif /* SHORTESTPATHSINFO_HPP */
-

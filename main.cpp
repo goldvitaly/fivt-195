@@ -2,11 +2,11 @@
 #include "Incidents.hpp"
 #include "MatrixIncidents.hpp"
 #include "SetIncidents.hpp"
+#include "ShortestPaths.hpp"
 #include "StronglyConnectedComponents.hpp"
+#include "StronglyConnectedComponentsInfo.hpp"
 #include "TrivialStronglyConnectedComponents.hpp"
 #include "VectorIncidents.hpp"
-#include "StronglyConnectedComponentsInfo.hpp"
-#include "ShortestPath.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <set>
@@ -62,9 +62,18 @@ void testDijkstra(){
 	Graph<int> g;
 	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
 	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
 	g.addEdge(0, 1, 42);
-	ShortestPath<int> sp(g);
-	cout<<*sp.calculate(0).length(1);
+	g.addEdge(1, 2, 3);
+	g.addEdge(0, 2, 100);
+	ShortestPathsInfo<int> spi = ShortestPaths<int>(g).calculate(0);
+	assert(*spi.length(2) == 45);
+	assert(!spi.length(3));
+	std::vector<size_t> vv = *spi.path(2);
+	for(size_t v: vv){
+		cout<<v<<' ';
+	}
 }
 int main() {
 	testTarjan();
