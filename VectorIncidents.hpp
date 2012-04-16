@@ -36,6 +36,7 @@ public:
 		return std::find(incidents.begin(),incidents.end(), Vertex<Weight>(to)) != incidents.end();
 	}
 	
+	virtual ~VectorIncidents(){}
 private:
 	typedef ContainerBaseIterator<std::vector<Vertex<Weight> > > BaseIterator;
 	std::vector<Vertex<Weight> > incidents;

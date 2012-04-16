@@ -35,6 +35,7 @@ class MatrixIncidents : public Incidents<NoWeight>{
 				assert(false);
 			}
 		}
+		virtual ~MatrixIncidents(){}
 	private:
 		const std::vector<bool> v;
 		size_t index;

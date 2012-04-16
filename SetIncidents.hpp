@@ -35,6 +35,8 @@ public:
 		return incidents.find(CurVertex(to)) != incidents.end();
 	}
 	
+	virtual ~SetIncidents(){}
+	
 private:
 	std::set<CurVertex> incidents;
 };

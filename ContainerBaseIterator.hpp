@@ -25,6 +25,7 @@ class ContainerBaseIterator : public Incidents<typename T::value_type::Weight>::
 				assert(false);
 			}
 		}
+		virtual ~ContainerBaseIterator(){}
 	private:
 		Iterator iter;
 };
