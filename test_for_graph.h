@@ -9,7 +9,7 @@ template <class T>
 class Test_For_Graph
 {
 public:
-    Test_For_Graph(Graph<T>* graph)
+    explicit Test_For_Graph(Graph<T>* graph)
     {
         graph_ = graph;
     }
@@ -41,7 +41,7 @@ public:
                     init_marks();
                     dfs(y);
                     poss_y_to_x = (mark_[x] != 0);
-                    if((Tarjan_for_graph_.get_color(x) == Tarjan_for_graph_.get_color(y))  !=  (poss_x_to_y  &&  poss_y_to_x))
+                    if((Tarjan_for_graph_.get_num_of_strong_comp(x) == Tarjan_for_graph_.get_num_of_strong_comp(y))  !=  (poss_x_to_y  &&  poss_y_to_x))
                         return -1;
                 }
         }

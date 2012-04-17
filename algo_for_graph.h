@@ -28,9 +28,9 @@ public:
         return num_of_strong_comp;
     }
 
-    int get_color(int node_num)
+    int get_num_of_strong_comp(int node_num)
     {
-        return color_[node_num];
+        return num_of_strong_comp_[node_num];
     }
 
 private:
@@ -38,7 +38,7 @@ private:
     {
         IN_STACK, NOT_IN_STACK
     };
-    std::vector<int> color_;
+    std::vector<int> num_of_strong_comp_;
     std::stack<int> st_;
     int time_;
     std::vector<char> in_stack_;
@@ -49,8 +49,8 @@ private:
     size_t num_of_strong_comp;
     void init()
     {
-        color_.clear();
-        color_.resize(graph_->size(), -1);
+        num_of_strong_comp_.clear();
+        num_of_strong_comp_.resize(graph_->size(), -1);
         mark_.clear();
         mark_.resize(graph_->size(), 0);
         time_ = 0;
@@ -80,15 +80,15 @@ private:
         }
         if(time_in_[curr_node] == time_up_[curr_node])
         {
-            int colored_node;
+            int node_to_add_to_str_comp;
             do
             {
-                colored_node = st_.top();
+                node_to_add_to_str_comp = st_.top();
                 st_.pop();
-                color_[colored_node] = num_of_strong_comp;
-                in_stack_[colored_node] = NOT_IN_STACK;
+                num_of_strong_comp_[node_to_add_to_str_comp] = num_of_strong_comp;
+                in_stack_[node_to_add_to_str_comp] = NOT_IN_STACK;
             }
-            while(colored_node != curr_node);
+            while(node_to_add_to_str_comp != curr_node);
             num_of_strong_comp++;
         }
     }

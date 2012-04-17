@@ -21,17 +21,18 @@ public:
         virtual bool operator != (const BaseIterator& it) const = 0;
         virtual size_t operator * () const = 0;
         virtual BaseIterator& operator ++ () = 0;
-        ~BaseIterator(){};
+        virtual ~BaseIterator(){};
     };
 
 
     class Iterator
     {
     public:
-        explicit Iterator(BaseIterator* it)
+        Iterator(BaseIterator* it)
         {
             iterator_ = std::unique_ptr<BaseIterator>(it);
         }
+
         bool operator == (const Iterator& it)
         {
             return(*iterator_ == *(it.iterator_));
@@ -57,7 +58,7 @@ public:
 
     virtual Iterator begin() = 0;
     virtual Iterator end() = 0;
-    ~BaseNode(){};
+    virtual ~BaseNode(){};
 };
 
 
