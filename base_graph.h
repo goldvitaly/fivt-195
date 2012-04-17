@@ -28,7 +28,7 @@ public:
     class Iterator
     {
     public:
-        Iterator(BaseIterator* it)
+        explicit Iterator(BaseIterator* it)
         {
             iterator_ = std::unique_ptr<BaseIterator>(it);
         }
