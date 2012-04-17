@@ -8,18 +8,18 @@
 
 typedef std::vector<size_t> TypeComponent;
 
-struct statusVertice
+struct StatusVertice
 {
     bool used;
     bool isRoot;
     size_t lowLink;
-    statusVertice() : used(false), isRoot(false), lowLink(0) {}
+    StatusVertice() : used(false), isRoot(false), lowLink(0) {}
 };
 
 class InfoDFSTarjan
 {
 public:
-    std::vector<statusVertice> statusVertices;
+    std::vector<StatusVertice> statusVertices;
     size_t timer;
     std::stack<size_t> stackVertices;
     std::vector<TypeComponent> components;
@@ -34,7 +34,7 @@ private:
     InfoDFSTarjan* info;
     size_t par;
 
-    void updLowLink(size_t v, size_t par, std::vector<statusVertice> &statusVertices)
+    void updLowLink(size_t v, size_t par, std::vector<StatusVertice> &statusVertices)
     {
         if (par < G->numVertices()) // it should be in DFS for parent after recursive from its child v
         {
