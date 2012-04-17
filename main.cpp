@@ -1,19 +1,10 @@
-#include <fstream>
-#include <iostream>
-#include <vector>
-#include <set>
-#include <map>
-#include <string>
-#include "Graphalgo.h"
-#include <memory>
-#include <utility>
+#include "Testgraphalgo.h"
 
 using namespace std;
 
 int main()
 {
-	//testGraph();
-   testTarjan();
+	testTarjan();
 	return 0;
 }
 

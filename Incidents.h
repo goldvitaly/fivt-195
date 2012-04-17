@@ -9,9 +9,6 @@
 #include <algorithm>
 #include <fstream>
 
-using namespace std;
-
-
 class IncidenceCallBack //further may referred ICB
 {
 private:
@@ -25,12 +22,12 @@ public:
 class ICBprint : public IncidenceCallBack 
 {
 private:
-	ofstream* out;
+	std::ofstream* out;
 public:
-	ICBprint (ofstream & _out) {out = &_out;};
+	ICBprint (std::ofstream & _out) {out = &_out;};
 	void operator()(size_t v) 
 	{
-		*out << v << endl;
+		*out << v << std::endl;
 	}
 };
 
@@ -44,12 +41,16 @@ public:
 	virtual void clear() = 0;
 	virtual void incedents(IncidenceCallBack& cb) = 0;
 	virtual ~Vertex () {}
+	virtual void deletingError()
+	{
+		std::cerr << "Deleting error" << std::endl;
+	}
 };
 
 class IncidenceVectorBool : public Vertex
 { 
 private:
-	vector<bool> adj;
+	std::vector<bool> adj;
 	size_t deg;
 public:
 	IncidenceVectorBool () : deg(0) {};
@@ -67,7 +68,7 @@ public:
 	{
 		if (v >= adj.size() || adj[v])
 		{
-			cerr << "Deleting error" << endl;
+			deletingError();
 			return;
 		}
 		if (adj[v])
@@ -101,8 +102,9 @@ public:
 
 class IncidenceVectorInt : public Vertex
 { 
+
 private:
-	vector<size_t> adj;
+	std::vector<size_t> adj;
 	size_t deg;
 public:
 	IncidenceVectorInt (): deg(0) {};
@@ -115,7 +117,7 @@ public:
 	{
 		if (v >= adj.size() || adj[v] == 0)
 		{
-			cerr << "Deleting error" << endl;
+			deletingError();
 			return;
 		}
 		if (adj[v] > 0)
@@ -150,7 +152,7 @@ public:
 class IncidenceSet : public Vertex
 {
 private:
-	set<size_t> adj;
+	std::set<size_t> adj;
 public:
 	void addNeighbour(size_t v)
 	{
@@ -158,9 +160,9 @@ public:
 	}
 	void delNeighbour(size_t v)
 	{
-		set<size_t>:: iterator it = adj.find(v);
+		std::set<size_t>:: iterator it = adj.find(v);
 		if (it == adj.end())
-			cerr << "Deleting error" << endl;
+			deletingError();
 		else	
 			adj.erase(it);
 	}
@@ -186,7 +188,7 @@ public:
 class IncidenceMap : public Vertex
 {
 private:
-	map<size_t, size_t> adj;
+	std::map<size_t, size_t> adj;
 public:
 	void addNeighbour(size_t v)
 	{
@@ -194,11 +196,11 @@ public:
 	}
 	void delNeighbour(size_t v)
 	{
-		map<size_t, size_t>:: iterator it;
+		std::map<size_t, size_t>:: iterator it;
 		it = adj.find(v);
 		if (it == adj.end())
 		{
-			cerr << "Deleting error" << endl;
+			deletingError();
 			return;
 		}
 		if (it->second == 1)
@@ -228,7 +230,7 @@ public:
 class IncidenceList : public Vertex
 {
 private:
-	vector<size_t> adj;
+	std::vector<size_t> adj;
 public:
 	void addNeighbour(size_t v)
 	{
@@ -240,21 +242,21 @@ public:
 		for (size_t pos = 0; pos < adj.size(); pos++)
 			if (adj[pos] == v)
 			{
-				swap(adj[pos], adj[adj.size() - 1]);
+				std::swap(adj[pos], adj[adj.size() - 1]);
 				adj.pop_back();
 				isDeleted = true;
 				break;
 			}	 
 		if (!isDeleted)
 		{
-			cerr << "Deleting error" << endl;
+			deletingError();
 		}
 	}
 	bool isConnect(size_t v) const  
 	{
 		
 		auto it = 
-			find_if(adj.begin(), adj.end(), [v] (size_t x) 
+			std::find_if(adj.begin(), adj.end(), [v] (size_t x) 
 			{
 				return (x == v);
 			});
