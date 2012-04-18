@@ -61,24 +61,25 @@ private:
         num_of_strong_comp = 0;
     }
 
-    void make_Tarjan(int curr_node)
+    void make_Tarjan(int curr_node_num)
     {
-        time_in_[curr_node] = time_;
-        time_up_[curr_node] = time_;
+        BaseNode* curr_node = graph_->graph_[curr_node_num].get();
+        time_in_[curr_node_num] = time_;
+        time_up_[curr_node_num] = time_;
         time_++;
-        in_stack_[curr_node] = IN_STACK;
-        st_.push(curr_node);
-        for(BaseNode::Iterator it = graph_->graph_[curr_node]->begin(); it != graph_->graph_[curr_node]->end(); ++it)
+        in_stack_[curr_node_num] = IN_STACK;
+        st_.push(curr_node_num);
+        for(BaseNode::Iterator it = curr_node->begin(); it != curr_node->end(); ++it)
         {
             if(time_in_[*it] == -1)
             {
                 make_Tarjan(*it);
-                time_up_[curr_node] = std::min(time_up_[curr_node], time_up_[*it]);
+                time_up_[curr_node_num] = std::min(time_up_[curr_node_num], time_up_[*it]);
             }
             else  if(in_stack_[*it] == IN_STACK)
-                time_up_[curr_node] = std::min(time_up_[curr_node], time_in_[*it]);
+                time_up_[curr_node_num] = std::min(time_up_[curr_node_num], time_in_[*it]);
         }
-        if(time_in_[curr_node] == time_up_[curr_node])
+        if(time_in_[curr_node_num] == time_up_[curr_node_num])
         {
             int node_to_add_to_str_comp;
             do
@@ -88,7 +89,7 @@ private:
                 num_of_strong_comp_[node_to_add_to_str_comp] = num_of_strong_comp;
                 in_stack_[node_to_add_to_str_comp] = NOT_IN_STACK;
             }
-            while(node_to_add_to_str_comp != curr_node);
+            while(node_to_add_to_str_comp != curr_node_num);
             num_of_strong_comp++;
         }
     }

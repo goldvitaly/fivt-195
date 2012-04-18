@@ -9,7 +9,6 @@
 class BaseNode
 {
 public:
-
     virtual void add_edge(size_t to) = 0;
     virtual void delete_edge(size_t to) = 0;
     virtual size_t number_of_edges() const = 0;

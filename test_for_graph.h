@@ -66,10 +66,11 @@ private:
         }
     }
 
-    void dfs(int curr_node)
+    void dfs(int curr_node_num)
     {
-        mark_[curr_node] = 1;
-        for(BaseNode::Iterator it = graph_->graph_[curr_node]->begin(); it != graph_->graph_[curr_node]->end(); ++it)
+        BaseNode* curr_node = graph_->graph_[curr_node_num].get();
+        mark_[curr_node_num] = 1;
+        for(BaseNode::Iterator it = curr_node->begin(); it != curr_node->end(); ++it)
             if(!mark_[*it])
                 dfs(*it);
     }
