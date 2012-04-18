@@ -38,7 +38,7 @@ public:
 					queue.insert(State(next.id, *curLen[next.id]));
 				}
 			}
-			queue.erase(*queue.begin());
+			queue.erase(curState);
 		}
 		return ShortestPathsInfo<Length>(curLen, previous);
 	}
