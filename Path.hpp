@@ -7,7 +7,7 @@
 
 class Path{
 public:
-	Path(std::vector< boost::optional<size_t> > parents, size_t to):
+	Path(const std::vector< boost::optional<size_t> >& parents, size_t to):
 		parents(parents), to(to), filled(false)
 	{}
 	
