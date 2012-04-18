@@ -35,7 +35,7 @@ class MatrixIncidents : public Incidents<NoWeight>{
 				assert(false);
 			}
 		}
-		virtual ~MatrixIncidents(){}
+		virtual ~BaseIterator(){}
 	private:
 		const std::vector<bool> v;
 		size_t index;
@@ -61,6 +61,7 @@ public:
 	virtual bool checkEdge(size_t to) const {
 		return incidents[to];
 	}
+	virtual ~MatrixIncidents(){}
 private:
 	std::vector<bool> incidents;
 };
