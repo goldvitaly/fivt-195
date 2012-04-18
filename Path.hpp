@@ -1,6 +1,5 @@
-
-#ifndef LAZYPATH_HPP
-#define LAZYPATH_HPP
+#ifndef PATH_HPP
+#define PATH_HPP
 
 #include <boost/optional.hpp>
 #include <memory>
@@ -56,4 +55,4 @@ private:
 	mutable bool filled;
 	mutable std::vector<size_t> path;
 };
-#endif /* LAZYPATH_HPP */
+#endif /* PATH_HPP */
