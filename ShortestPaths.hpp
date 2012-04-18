@@ -14,14 +14,14 @@ public:
 	}
 };
 
-template<typename Weight, typename Length = Weight, typename CalcLength = std::plus<Weight> >
+template<typename Weight, typename Length = Weight, typename CalcLength = std::plus<Weight> , typename CompLength = std::less<Length> >
 class ShortestPaths{
-public:
-	explicit ShortestPaths(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength())
-		:graph(graph), calcLength(calcLength){}
+public: 
+	explicit ShortestPaths(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength(), const CompLength& compLength = CompLength())
+		:graph(graph), calcLength(calcLength), compLength(compLength){}
 	
 	ShortestPathsInfo<Length> calculate(size_t from) const {
-		std::set<State> queue;
+		std::set<State, StateComparator> queue(compLength);
 		std::vector<boost::optional<Length> > curLen(graph.size());
 		std::vector<boost::optional<size_t> > previous(graph.size());
 		curLen[from] = Length();
@@ -30,15 +30,9 @@ public:
 			const State& curState = *queue.begin();
 			for(const Vertex<Weight>& next: graph.getIncidents(curState.id)){
 				Length newLen = calcLength(*curLen[curState.id], next.weight);
-				if(curLen[next.id]){
-					if(newLen < *curLen[next.id]){
+				if(!curLen[next.id] || compLength(newLen , *curLen[next.id])){
+					if(curLen[next.id])
 						queue.erase(State(next.id, *curLen[next.id]));
-						curLen[next.id] = newLen;
-						previous[next.id] = curState.id;
-						queue.insert(State(next.id, *curLen[next.id]));
-					}
-				}
-				else {
 					curLen[next.id] = newLen;
 					previous[next.id] = curState.id;
 					queue.insert(State(next.id, *curLen[next.id]));
@@ -53,13 +47,24 @@ private:
 		size_t id;
 		const Length& curLen;
 		State(size_t id, const Length& curLen):id(id), curLen(curLen){}
-		bool operator < (const State& other) const {
-			return curLen < other.curLen || (curLen == other.curLen && id < other.id);
-		}
 	};
+	struct StateComparator{
+		StateComparator(const CompLength& compLength):
+			compLength(compLength){}
+		bool operator ()(const State& first, const State& second) const {
+			if(compLength(first.curLen, second.curLen))
+				return true;
+			if(compLength(second.curLen, first.curLen))
+				return false;
+			return first.id < second.id;
+		}
+	private:
+		CompLength compLength;
+	};	
 	
 	const Graph<Weight>& graph;
 	CalcLength calcLength;
+	CompLength compLength;
 };
 
 #endif /* SHORTESTPATH_HPP */
