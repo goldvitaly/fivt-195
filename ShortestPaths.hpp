@@ -1,5 +1,6 @@
 #ifndef SHORTESTPATH_HPP
 #define SHORTESTPATH_HPP
+#include "Graph.hpp"
 #include "Path.hpp"
 #include "ShortestPathsInfo.hpp"
 #include <boost/optional.hpp>

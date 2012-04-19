@@ -1,3 +1,4 @@
+#include "AllShortestPaths.hpp"
 #include "Graph.hpp"
 #include "Incidents.hpp"
 #include "MatrixIncidents.hpp"
@@ -33,6 +34,27 @@ Graph<NoWeight> genGraph(int mask){
 	}
 	return graph;
 }
+
+Graph<int> genRandomWeightedGraph(size_t size){
+	Graph<int> g;
+	for(size_t i=0; i<size; ++i){
+		Incidents<int>* ptr;
+		if(rand()&1){
+			ptr = new VectorIncidents<int>();
+		}
+		else
+			ptr = new SetIncidents<int>();
+		g.addVertex(std::unique_ptr< Incidents<int> >(ptr));
+	}
+	for(size_t i=0; i<size; ++i){
+		for(size_t j=0; j<size; ++j){
+			if(rand()&1){
+				g.addEdge(i, j, rand()%100);
+			}
+		}
+	}
+	return g;
+}
 bool checkColoringsEqual(const Coloring& a, const Coloring& b){
 	assert(a.size()==b.size());
 	for(size_t i = 0; i < a.size(); ++i){
@@ -58,25 +80,20 @@ void testTarjan(){
 	}
 }
 
-void testDijkstra(){
-	Graph<int> g;
-	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
-	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
-	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
-	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
-	g.addEdge(0, 1, 42);
-	g.addEdge(1, 2, 3);
-	g.addEdge(0, 2, 100);
-	ShortestPathsInfo<int> spi = ShortestPaths<int>(g).calculate(0);
-	assert(*spi.length(2) == 45);
-	assert(!spi.length(3));
-	std::vector<size_t> vv = *spi.path(2);
-	for(size_t v: vv){
-		cout<<v<<' ';
+void stressTestDijkstra(int n){
+	typedef std::vector< std::vector< boost::optional<int> > > Result;
+	for(int i=0;i<n;++i){
+		Graph<int> g(genRandomWeightedGraph(10));
+		Result received(g.size());
+		Result expected = AllShortestPaths<int>(g).calculate();
+		for(size_t i=0; i<g.size(); ++i){
+			received[i] = ShortestPaths<int>(g).calculate(i).allLengths();
+		}
+		assert(expected == received);
 	}
 }
 int main() {
 	testTarjan();
-	testDijkstra();
+	stressTestDijkstra(1000);
 	return 0;
 }
