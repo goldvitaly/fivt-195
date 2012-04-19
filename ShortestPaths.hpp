@@ -9,12 +9,12 @@
 template <typename Weight>
 class SumShortestPathsFunctor{
 public:
-	Weight operator() (const Weight& oldLen, const Weight& weight, const Path&){
+	Weight operator() (const Weight& oldLen, const Weight& weight, const Path&) const {
 		return oldLen + weight;
 	}
 };
 
-template<typename Weight, typename Length = Weight, typename CalcLength = std::plus<Weight> , typename CompLength = std::less<Length> >
+template<typename Weight, typename Length = Weight, typename CalcLength = SumShortestPathsFunctor<Length> , typename CompLength = std::less<Length> >
 class ShortestPaths{
 public: 
 	explicit ShortestPaths(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength(), const CompLength& compLength = CompLength())
@@ -29,7 +29,7 @@ public:
 		while(!queue.empty()){
 			const State& curState = *queue.begin();
 			for(const Vertex<Weight>& next: graph.getIncidents(curState.id)){
-				Length newLen = calcLength(*curLen[curState.id], next.weight);
+				Length newLen = calcLength(*curLen[curState.id], next.weight, Path(previous, next.id));
 				if(!curLen[next.id] || compLength(newLen , *curLen[next.id])){
 					if(curLen[next.id])
 						queue.erase(State(next.id, *curLen[next.id]));
