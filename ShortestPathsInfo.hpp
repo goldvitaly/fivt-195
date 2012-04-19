@@ -12,6 +12,9 @@ public:
 			const std::vector<boost::optional<Length> >& v,
 			const std::vector<boost::optional<size_t> >& p
 			): lengths(v), previous(p){}
+	std::vector< boost::optional<Length> > allLengths(){
+		return lengths;
+	}
 	boost::optional<Length> length(size_t to){
 		return lengths[to];
 	}
