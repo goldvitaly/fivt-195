@@ -8,18 +8,17 @@
 
 // добавить структура пути, функция пересчета( доступ к пути, стр пути у нашей вершины, вес ребра в след), компаратор, вернуть его структуру
 // сет или куча а то медленно
-
 template<class StructVer, class Weight>
 class ShortestPath
 {
 typedef unsigned int TypeNameVer;
 public:
-    int count(int vertexBegin, int vertexEnd)
+    Weight count(const TypeNameVer& vertexStart, const TypeNameVer& vertexEnd, const Weight& weightNotPath)
     {
-        begin(vertexBegin);
-        return (Mark[vertexEnd] == 2) ? Dist[vertexEnd] : -1;
+        begin(vertexStart);
+        return (Mark[vertexEnd] == 2) ? Dist[vertexEnd] : weightNotPath;
     }
-    std::vector<int> count(int vertex)
+    std::vector<Weight> count(const TypeNameVer& vertex)
     {
         begin(vertex);
         return Dist;
@@ -31,7 +30,7 @@ public:
     }
 private:
     const Graph<StructVer, Weight>& graph;
-    std::vector<int> Dist;
+    std::vector<Weight> Dist;
     std::vector<int> Mark;
     void begin(int vertex)
     {
@@ -50,7 +49,6 @@ private:
             if(id_min == -1)
                 break;
             Mark[id_min] = 2;
-            std::cout << "take black " << id_min << std::endl;
             Relax relax(*this, graph, id_min);
             graph.for_each_neighbour((TypeNameVer)id_min, relax);
         }
