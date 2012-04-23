@@ -6,20 +6,20 @@
 #include <vector>
 #include <iostream>
 
-// добавить структура пути, функция пересчета(доступ к пути, стр пути у нашей вершины, вес ребра в след)
-template<class StructVer, class Weight, class Cmp = std::less<Weight> >
+// функция пересчета(доступ к пути)
+template<class StructVer, class Weight, class Path, class CalkPath, class Cmp = std::less<Path>, class StayingPath = Path>
 class ShortestPath
 {
 typedef unsigned int TypeNameVer;
-typedef typename std::set<std::pair<Weight, TypeNameVer> >::iterator SetIterator;
-typedef std::pair<Weight, TypeNameVer> Path;
+typedef typename std::set<std::pair<Path, TypeNameVer> >::iterator SetIterator;
+typedef std::pair<Path, TypeNameVer> CurPath;
 public:
-    Weight count(const TypeNameVer& vertexStart, const TypeNameVer& vertexEnd, const Weight& weightNotPath)
+    Path count(const TypeNameVer& vertexStart, const TypeNameVer& vertexEnd, const Path& notPath)
     {
         begin(vertexStart);
-        return (Mark[vertexEnd] == 2) ? Dist[vertexEnd] : weightNotPath;
+        return (Mark[vertexEnd] == 2) ? Dist[vertexEnd] : notPath;
     }
-    std::vector<Weight> count(const TypeNameVer& vertex)
+    std::vector<Path> count(const TypeNameVer& vertex)
     {
         begin(vertex);
         return Dist;
@@ -32,7 +32,7 @@ public:
 private:
     class CmpPath{
     public:
-        bool operator()(const Path& a, const Path& b) const
+        bool operator()(const CurPath& a, const CurPath& b) const
         {
             if(Cmp()(a.first, b.first))
                 return true;
@@ -43,18 +43,18 @@ private:
         }
     };
     const Graph<StructVer, Weight>& graph;
-    std::vector<Weight> Dist;
+    std::vector<Path> Dist;
     std::vector<int> Mark;
-    std::set<Path, CmpPath> set;
+    std::set<CurPath, CmpPath> set;
     void begin(const TypeNameVer& vertex)
     {
-        set.insert(std::make_pair(0, vertex));
+        set.insert(std::make_pair(StayingPath(), vertex));
         Mark[vertex] = 1;
         while(1)
         {
             if(set.empty())
                 break;
-            Path minElem = *set.begin();
+            CurPath minElem = *set.begin();
             Mark[minElem.second] = 2;
             set.erase(set.begin());
             Relax relax(*this, minElem.second);
@@ -76,14 +76,14 @@ private:
             if(shortestPath.Mark[vertex] == 0)
             {
                 shortestPath.Mark[vertex] = 1;
-                shortestPath.Dist[vertex] = shortestPath.Dist[root] + weight;
+                shortestPath.Dist[vertex] = CalkPath()(shortestPath.Dist[root], weight);
                 shortestPath.set.insert(std::make_pair(shortestPath.Dist[vertex], vertex));
             }
             else if(shortestPath.Mark[vertex] == 1 &&
-              shortestPath.Dist[root] + weight < shortestPath.Dist[vertex])
+              Cmp()(CalkPath()(shortestPath.Dist[root], weight), shortestPath.Dist[vertex]))
             {
                 shortestPath.set.erase(std::make_pair(shortestPath.Dist[vertex], vertex));
-                shortestPath.Dist[vertex] = shortestPath.Dist[root] + weight;
+                shortestPath.Dist[vertex] = CalkPath()(shortestPath.Dist[root], weight);
                 shortestPath.set.insert(std::make_pair(shortestPath.Dist[vertex], vertex));
             }
         }

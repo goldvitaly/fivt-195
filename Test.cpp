@@ -15,7 +15,6 @@
 #include "ShortestPath.h"
 
 typedef unsigned int TypeNameVer;
-
 void make_random_graph(Graph<Vertex<int> , int >& graph, int numVer)
 {
     srand(time(NULL));
@@ -131,6 +130,26 @@ void testRandomGraphs(int numVer = 3)
     }
 }
 
+
+
+class PlusPairInt
+{
+public:
+     std::pair<int, int> operator()(std::pair<int, int> a, int b)
+     {
+         return std::pair<int,int>(a.first + b, a.second + b);
+     }
+};
+
+class CmpPair
+{
+public:
+    bool operator()(std::pair<int,int> a, std::pair<int,int> b) const
+    {
+        return a < b;
+    }
+};
+
 int main()
 {
     testRandomGraphs(10);
@@ -142,11 +161,11 @@ int main()
     }
     Graph<Vertex<int>, int> graph;
     make_graph(graph);
-    ShortestPath<Vertex<int>, int> shortestPath(graph);
-    std::vector<int> ans = shortestPath.count(0);
+    ShortestPath<Vertex<int>, int, std::pair<int, int>, PlusPairInt, CmpPair> shortestPath(graph);
+    std::vector<std::pair<int, int> > ans = shortestPath.count(0);
     for(int i = 0; i < ans.size(); i++)
     {
-        std::cout << ans[i] << " ";
+        std::cout << ans[i].first << " " << ans[i].second << std::endl;
     }
     std::cout << std::endl;
     return 0;
