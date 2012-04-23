@@ -9,13 +9,13 @@
 class GraphAlgorithm
 {
 public:
-    struct VertexStructure
+    struct VertexInfo
     {
         size_t Tin;
         size_t TinMin;
         bool Used;
         bool InProcess;
-        VertexStructure()
+        VertexInfo()
         {
             Tin = 0;
             TinMin = 0;
@@ -25,7 +25,7 @@ public:
     };
     std::vector<size_t> FindStronglyConnectedComponents (const Graph& G)
     {
-        _Vertex.assign(G.VertexNum(), VertexStructure());
+        _Vertex.assign(G.VertexNum(), VertexInfo());
         _Comp.assign(G.VertexNum(), 0);
         _Stack.clear();
         _Timer = 0;
@@ -39,7 +39,7 @@ public:
     }
 private:
     size_t _Timer, _Color;
-    std::vector<VertexStructure> _Vertex;
+    std::vector<VertexInfo> _Vertex;
     std::vector<size_t> _Comp;
     std::vector<size_t> _Stack;
     
@@ -50,7 +50,7 @@ private:
         _Vertex[v].Tin = _Vertex[v].TinMin = _Timer++;
         _Vertex[v].InProcess = true;
         
-        for (auto u : *G.GetIncident(v))
+        for (auto u : G.GetIncident(v))
         {
             if (!_Vertex[u].Used)
             {
