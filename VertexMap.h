@@ -37,12 +37,12 @@ public:
         std::copy(neighbours.begin(), neighbours.end(), neighboursCopy.begin());
         return neighboursCopy;
     }
-    void for_each_neighbour(UnaryFunc& unaryFunc) const
+    void for_each_neighbour(BinaryFunc<Weight>& binaryFunc) const
     {
         ConstIteratorNeighbours it = neighbours.begin();
         while(it != neighbours.end())
         {
-            unaryFunc(it->first);
+            binaryFunc(it->first, it->second);
             it++;
         }
     }

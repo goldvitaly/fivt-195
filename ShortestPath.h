@@ -49,33 +49,30 @@ private:
             if(id_min == -1)
                 break;
             Mark[id_min] = 2;
-            Relax relax(*this, graph, id_min);
+            Relax relax(*this, id_min);
             graph.for_each_neighbour((TypeNameVer)id_min, relax);
         }
     }
-    class Relax : public UnaryFunc
+    class Relax : public BinaryFunc<Weight>
     {
         typedef unsigned int TypeNameVer;
         ShortestPath& shortestPath;
-        const Graph<StructVer, Weight>& graph;
         TypeNameVer root;
         public:
-        Relax(ShortestPath& shortestPath_, const Graph<StructVer, Weight>& graph_, TypeNameVer root_) : shortestPath(shortestPath_) , graph(graph_)
+        Relax(ShortestPath& shortestPath_, TypeNameVer root_) : shortestPath(shortestPath_)
         {
             root = root_;
         }
-        void operator()(const TypeNameVer& vertex)
+        void operator()(const TypeNameVer& vertex, const Weight& weight)
         {
             if(shortestPath.Mark[vertex] != 2 &&
-              (shortestPath.Mark[vertex] == 0 || shortestPath.Dist[root] + graph.weight(root, vertex) < shortestPath.Dist[vertex]))
+              (shortestPath.Mark[vertex] == 0 || shortestPath.Dist[root] + weight < shortestPath.Dist[vertex]))
             {
                 shortestPath.Mark[vertex] = 1;
-                shortestPath.Dist[vertex] = shortestPath.Dist[root] + graph.weight(root, vertex);
+                shortestPath.Dist[vertex] = shortestPath.Dist[root] + weight;
             }
         }
     };
 };
-
-
 
 #endif // SHORTESTPATH_H_INCLUDED

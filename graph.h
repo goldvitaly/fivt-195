@@ -19,6 +19,17 @@ private:
 };
 
 template<class Weight>
+class BinaryFunc
+{
+    typedef unsigned int TypeNameVer;
+public:
+    virtual void operator()(const TypeNameVer& elem, const Weight& weight){};
+    BinaryFunc(const UnaryFunc&) = delete;
+    BinaryFunc() { };
+private:
+};
+
+template<class Weight>
 class Vertex {
     typedef unsigned int TypeNameVer;
 public:
@@ -26,7 +37,25 @@ public:
     virtual void delete_neighbour(const TypeNameVer& nameVer) = 0;
     virtual bool exist_neighbour(const TypeNameVer& nameVer) = 0;
     virtual std::vector<std::pair<TypeNameVer, Weight> > list_neighbour() const = 0;
-    virtual void for_each_neighbour(UnaryFunc& unaryFunc) const = 0;
+    virtual void for_each_neighbour(BinaryFunc<Weight>& binaryFunc) const = 0;
+    virtual void for_each_neighbour(UnaryFunc& unaryFunc) const
+    {
+        class MyBinaryFunc : public BinaryFunc<Weight>
+        {
+            UnaryFunc& unaryFunc;
+         public:
+            MyBinaryFunc(UnaryFunc& unaryFunc_): unaryFunc(unaryFunc_)
+            {
+
+            }
+            void operator()(const TypeNameVer& elem, const Weight& weight)
+            {
+                unaryFunc(elem);
+            }
+        };
+        MyBinaryFunc myBinaryFunc(unaryFunc);
+        for_each_neighbour(myBinaryFunc);
+    }
     virtual Weight weight(const TypeNameVer& nameVer) const  = 0;
     virtual size_t degree() const = 0;
     virtual ~Vertex(){}
@@ -89,6 +118,10 @@ public:
                 unaryFunc(i);
             }
         }
+    }
+    void for_each_neighbour(const TypeNameVer& nameVer, BinaryFunc<Weight>& binaryFunc) const
+    {
+        graph[nameVer]->for_each_neighbour(binaryFunc);
     }
     void for_each_neighbour(const TypeNameVer& nameVer, UnaryFunc& unaryFunc) const
     {

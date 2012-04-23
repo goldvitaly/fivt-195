@@ -57,10 +57,10 @@ public:
         std::vector<std::pair<TypeNameVer, Weight> > neighboursCopy(neighbours);
         return neighboursCopy;
     }
-    void for_each_neighbour(UnaryFunc& unaryFunc) const
+    void for_each_neighbour(BinaryFunc<Weight>& binaryFunc) const
     {
         for(size_t i = 0; i < neighbours.size(); i++)
-            unaryFunc(neighbours[i].first);
+            binaryFunc(neighbours[i].first, neighbours[i].second);
     }
     size_t degree() const
     {
