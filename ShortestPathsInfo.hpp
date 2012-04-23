@@ -12,13 +12,13 @@ public:
 			const std::vector<boost::optional<Length> >& v,
 			const std::vector<boost::optional<size_t> >& p
 			): lengths(v), previous(p){}
-	std::vector< boost::optional<Length> > allLengths(){
+	std::vector< boost::optional<Length> > allLengths() const {
 		return lengths;
 	}
-	boost::optional<Length> length(size_t to){
+	boost::optional<Length> length(size_t to) const {
 		return lengths[to];
 	}
-	PathType path(size_t to){		
+	PathType path(size_t to) const {
 		if(!lengths[to])
 			return PathType();
 		std::vector<size_t> path = Path(previous, to).toVector();
