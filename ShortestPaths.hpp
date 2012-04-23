@@ -28,7 +28,8 @@ public:
 		curLen[from] = Length();
 		queue.insert(State(from, *curLen[from]));
 		while(!queue.empty()){
-			const State& curState = *queue.begin();
+			auto firstIterator = queue.begin();
+			const State& curState = *firstIterator;
 			for(const Vertex<Weight>& next: graph.getIncidents(curState.id)){
 				Length newLen = calcLength(*curLen[curState.id], next.weight, Path(previous, next.id));
 				if(!curLen[next.id] || compLength(newLen , *curLen[next.id])){
@@ -39,7 +40,7 @@ public:
 					queue.insert(State(next.id, *curLen[next.id]));
 				}
 			}
-			queue.erase(curState);
+			queue.erase(firstIterator);
 		}
 		return ShortestPathsInfo<Length>(curLen, previous);
 	}
