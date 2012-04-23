@@ -11,7 +11,7 @@ template<class Weight>
 class VertexMap : public Vertex<Weight>
 {
     typedef unsigned int TypeNameVer;
-    typedef typename std::map<TypeNameVer, Weight>::iterator IteratorNeighbours;
+    typedef typename std::map<TypeNameVer, Weight>::const_iterator ConstIteratorNeighbours;
 public:
     void add_neighbour(const TypeNameVer& nameVer, const Weight& weight)
     {
@@ -27,15 +27,8 @@ public:
     }
     Weight weight(const TypeNameVer& nameVer) const
     {
-        std::vector<std::pair<TypeNameVer, Weight> > neighboursCopy;
-        neighboursCopy.resize(neighbours.size());
-        std::copy(neighbours.begin(), neighbours.end(), neighboursCopy.begin());
-        for(int i = 0; i < neighboursCopy.size(); i++)
-        {
-            if(neighboursCopy[i].first == nameVer)
-                return neighboursCopy[i].second;
-        }
-        //return neighbours[i];
+        ConstIteratorNeighbours it = neighbours.find(nameVer);
+        return it->second;
     }
     std::vector<std::pair<TypeNameVer, Weight> > list_neighbour() const
     {
@@ -46,13 +39,11 @@ public:
     }
     void for_each_neighbour(UnaryFunc& unaryFunc) const
     {
-        // IteratorNeighbours Iter = neighbours.begin();
-        std::vector<std::pair<TypeNameVer, Weight> > neighboursCopy;
-        neighboursCopy.resize(neighbours.size());
-        std::copy(neighbours.begin(), neighbours.end(), neighboursCopy.begin());
-        for(int i= 0; i < neighboursCopy.size(); i++)
+        ConstIteratorNeighbours it = neighbours.begin();
+        while(it != neighbours.end())
         {
-            unaryFunc(neighboursCopy[i].first);
+            unaryFunc(it->first);
+            it++;
         }
     }
     size_t degree() const

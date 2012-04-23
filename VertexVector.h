@@ -10,6 +10,7 @@ template<class Weight>
 class VertexVector : public Vertex<Weight>
 {
     typedef unsigned int TypeNameVer;
+    typedef typename std::vector<std::pair<TypeNameVer, Weight> >::const_iterator ConstIteratorNeighbours;
     typedef typename std::vector<std::pair<TypeNameVer, Weight> >::iterator IteratorNeighbours;
 public:
     void add_neighbour(const TypeNameVer& nameVer, const Weight& weight)
@@ -26,13 +27,21 @@ public:
     }
     Weight weight(const TypeNameVer& nameVer) const
     {
-        for(int i = 0; i < neighbours.size(); i++)
-        {
-            if(neighbours[i].first == nameVer)
-                return neighbours[i].second;
-        }
+        ConstIteratorNeighbours it = findFirstKey(nameVer);
+        return it->second;
     }
-    IteratorNeighbours findFirstKey(const TypeNameVer& nameVer) // не могу приписать const
+    ConstIteratorNeighbours findFirstKey(const TypeNameVer& nameVer) const
+    {
+        ConstIteratorNeighbours it = neighbours.begin();
+        while(it != neighbours.end())
+        {
+            if(it->first == nameVer)
+                return it;
+            it++;
+        }
+        return it;
+    }
+    IteratorNeighbours findFirstKey(const TypeNameVer& nameVer)
     {
         IteratorNeighbours it = neighbours.begin();
         while(it != neighbours.end())

@@ -140,7 +140,6 @@ int main()
         testAllGraphs(i);
         std::cerr << "testAllgraphs " << i << " Ok" << std::endl;
     }
-
     Graph<Vertex<int>, int> graph;
     make_graph(graph);
     ShortestPath<Vertex<int>, int> shortestPath(graph);
