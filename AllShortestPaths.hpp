@@ -9,12 +9,13 @@
 
 template<typename Weight, typename Length = Weight, typename CalcLength = std::plus<Length> , typename CompLength = std::less<Length> >
 class AllShortestPaths{
+	typedef std::vector< std::vector< boost::optional<Length> > > LengthMatrix;
 public: 
 	explicit AllShortestPaths(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength(), const CompLength& compLength = CompLength())
 		:graph(graph), calcLength(calcLength), compLength(compLength){}
 	
-		std::vector< std::vector< boost::optional<Length> > > calculate(){
-			std::vector< std::vector< boost::optional<Length> > > res(graph.size(), std::vector< boost::optional<Length> >(graph.size()));
+		LengthMatrix calculate(){
+			LengthMatrix res(graph.size(), std::vector< boost::optional<Length> >(graph.size()));
 			for(size_t from=0; from < graph.size(); ++from){
 				for(const Vertex<Weight>& to: graph.getIncidents(from)){
 					res[from][to.id] = Length(to.weight);
