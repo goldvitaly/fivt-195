@@ -21,7 +21,7 @@ public:
 	PathType path(size_t to) const {
 		if(!lengths[to])
 			return PathType();
-		std::vector<size_t> path = Path(previous, to).toVector();
+		std::vector<size_t> path = Path(previous, to).path();
 		return path;
 	}
 private:

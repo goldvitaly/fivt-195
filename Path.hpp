@@ -8,51 +8,22 @@
 class Path{
 public:
 	Path(const std::vector< boost::optional<size_t> >& parents, size_t to):
-		parents(parents), to(to), filled(false)
+		parents(parents), to(to)
 	{}
-	
-	size_t operator[] (size_t index) const {
-		fill();
-		return path[index];
-	}
-	
-	std::vector<size_t> toVector() const {
-		fill();
-		return path;
-	}
-	
-	size_t size() const {
-		fill();
-		return path.size();
-	}
-	
-	size_t front() const {
-		fill();
-		return path.front();
-	}
-	
-	size_t back() const {
-		fill();
-		return path.back();
+		
+	std::vector<size_t> path() const {
+		std::vector<size_t> curpath;
+		size_t cur = to;
+		while(parents[cur]){
+			curpath.push_back(cur);
+			cur = *parents[cur];
+		}
+		curpath.push_back(cur);
+		std::reverse(curpath.begin(), curpath.end());
+		return curpath;
 	}
 private:
-	void fill() const {
-		if(!filled){
-			filled = true;
-			size_t cur = to;
-			while(parents[cur]){
-				path.push_back(cur);
-				cur = *parents[cur];
-			}
-			path.push_back(cur);
-			std::reverse(path.begin(), path.end());
-		}
-	}
 	const std::vector<boost::optional<size_t> >& parents;
 	size_t to;
-	
-	//cached path
-	mutable bool filled;
-	mutable std::vector<size_t> path;
 };
 #endif /* PATH_HPP */
