@@ -6,12 +6,13 @@
 #include <vector>
 #include <iostream>
 
-// добавить структура пути, функция пересчета( доступ к пути, стр пути у нашей вершины, вес ребра в след), компаратор, вернуть его структуру
-// сет или куча а то медленно
-template<class StructVer, class Weight>
+// добавить структура пути, функция пересчета(доступ к пути, стр пути у нашей вершины, вес ребра в след)
+template<class StructVer, class Weight, class Cmp = std::less<Weight> >
 class ShortestPath
 {
 typedef unsigned int TypeNameVer;
+typedef typename std::set<std::pair<Weight, TypeNameVer> >::iterator SetIterator;
+typedef std::pair<Weight, TypeNameVer> Path;
 public:
     Weight count(const TypeNameVer& vertexStart, const TypeNameVer& vertexEnd, const Weight& weightNotPath)
     {
@@ -29,47 +30,61 @@ public:
         Mark.resize(graph.size());
     }
 private:
+    class CmpPath{
+    public:
+        bool operator()(const Path& a, const Path& b) const
+        {
+            if(Cmp()(a.first, b.first))
+                return true;
+            else if(Cmp()(b.first, a.first) && a.second < b.second)
+                return true;
+            else
+                return false;
+        }
+    };
     const Graph<StructVer, Weight>& graph;
     std::vector<Weight> Dist;
     std::vector<int> Mark;
-    void begin(int vertex)
+    std::set<Path, CmpPath> set;
+    void begin(const TypeNameVer& vertex)
     {
+        set.insert(std::make_pair(0, vertex));
         Mark[vertex] = 1;
-        Dist[vertex] = 0;
         while(1)
         {
-            int id_min = -1;
-            for(int i = 0; i < Dist.size(); i++)
-            {
-                if(Mark[i] == 1 && (id_min == -1 || Dist[i] < Dist[id_min]))
-                {
-                    id_min = i;
-                }
-            }
-            if(id_min == -1)
+            if(set.empty())
                 break;
-            Mark[id_min] = 2;
-            Relax relax(*this, id_min);
-            graph.for_each_neighbour((TypeNameVer)id_min, relax);
+            Path minElem = *set.begin();
+            Mark[minElem.second] = 2;
+            set.erase(set.begin());
+            Relax relax(*this, minElem.second);
+            graph.for_each_neighbour(minElem.second, relax);
         }
     }
     class Relax : public BinaryFunc<Weight>
     {
         typedef unsigned int TypeNameVer;
         ShortestPath& shortestPath;
-        TypeNameVer root;
+        const TypeNameVer& root;
         public:
-        Relax(ShortestPath& shortestPath_, TypeNameVer root_) : shortestPath(shortestPath_)
+        Relax(ShortestPath& shortestPath_, const TypeNameVer& root_) : shortestPath(shortestPath_), root(root_)
         {
-            root = root_;
+
         }
         void operator()(const TypeNameVer& vertex, const Weight& weight)
         {
-            if(shortestPath.Mark[vertex] != 2 &&
-              (shortestPath.Mark[vertex] == 0 || shortestPath.Dist[root] + weight < shortestPath.Dist[vertex]))
+            if(shortestPath.Mark[vertex] == 0)
             {
                 shortestPath.Mark[vertex] = 1;
                 shortestPath.Dist[vertex] = shortestPath.Dist[root] + weight;
+                shortestPath.set.insert(std::make_pair(shortestPath.Dist[vertex], vertex));
+            }
+            else if(shortestPath.Mark[vertex] == 1 &&
+              shortestPath.Dist[root] + weight < shortestPath.Dist[vertex])
+            {
+                shortestPath.set.erase(std::make_pair(shortestPath.Dist[vertex], vertex));
+                shortestPath.Dist[vertex] = shortestPath.Dist[root] + weight;
+                shortestPath.set.insert(std::make_pair(shortestPath.Dist[vertex], vertex));
             }
         }
     };
