@@ -9,56 +9,66 @@
 class GraphAlgorithm
 {
 public:
+    struct VertexStructure
+    {
+        size_t Tin;
+        size_t TinMin;
+        bool Used;
+        bool InProcess;
+        VertexStructure()
+        {
+            Tin = 0;
+            TinMin = 0;
+            Used = 0;
+            InProcess = 0;
+        }
+    };
     std::vector<size_t> FindStronglyConnectedComponents (const Graph& G)
     {
-        _Used.assign(G.VertexNum(), false);
+        _Vertex.assign(G.VertexNum(), VertexStructure());
         _Comp.assign(G.VertexNum(), 0);
-        _Tin.assign(G.VertexNum(), 0);
-        _TinMin.assign(G.VertexNum(), 0);
-        _InProcess.assign(G.VertexNum(), 0);
         _Stack.clear();
         _Timer = 0;
         _Color = 0;
         
         for (size_t i = 0; i < G.VertexNum(); ++i)
-            if (!_Used[i])
+            if (!_Vertex[i].Used)
                 StronglyConnectedComponentsDFS(G, i);
         
         return _Comp;
     }
 private:
     size_t _Timer, _Color;
-    std::vector<size_t> _Comp, _Tin, _TinMin;
-    std::vector<bool> _Used;
+    std::vector<VertexStructure> _Vertex;
+    std::vector<size_t> _Comp;
     std::vector<size_t> _Stack;
-    std::vector<bool> _InProcess;
     
     void StronglyConnectedComponentsDFS (const Graph& G, size_t v)
     {
-        _Used[v] = true;
+        _Vertex[v].Used = true;
         _Stack.push_back(v);
-        _Tin[v] = _TinMin[v] = _Timer++;
-        _InProcess[v] = true;
+        _Vertex[v].Tin = _Vertex[v].TinMin = _Timer++;
+        _Vertex[v].InProcess = true;
         
         for (auto u : *G.GetIncident(v))
         {
-            if (!_Used[u])
+            if (!_Vertex[u].Used)
             {
                 StronglyConnectedComponentsDFS(G, u);
-                _TinMin[v] = std::min(_TinMin[v], _TinMin[u]);
+                _Vertex[v].TinMin = std::min(_Vertex[v].TinMin, _Vertex[u].TinMin);
             }
-            else if (_InProcess[u])
-                _TinMin[v] = std::min(_TinMin[v], _Tin[u]);
+            else if (_Vertex[u].InProcess)
+                _Vertex[v].TinMin = std::min(_Vertex[v].TinMin, _Vertex[u].Tin);
         }
         
-        if (_Tin[v] == _TinMin[v])
+        if (_Vertex[v].Tin == _Vertex[v].TinMin)
         {
             size_t u;
             do
             {
                 u = _Stack.back();
                 _Stack.pop_back();
-                _InProcess[u] = false;
+                _Vertex[u].InProcess = false;
                 _Comp[u] = _Color;                
                 
             } while (u != v);
