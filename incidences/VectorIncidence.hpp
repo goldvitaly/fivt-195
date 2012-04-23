@@ -5,7 +5,7 @@
 
 #include "../Graph/IIncidence.hpp"
 #include "../Graph/Iterator.hpp"
-#include "../Graph/IteratorWrapper.hpp" // стоит ли здесь подключать только нужные хэдеры, или жде стоит подключить один граф?
+#include "../Graph/IteratorWrapper.hpp"
 
 class VectorIncidence: public graph::IIncidence
 {
@@ -14,10 +14,10 @@ public: // built-in iterator definition
 	{
 	public:
 		VectorIterator() {}
-		VectorIterator(std::vector<size_t>::const_iterator it_): it(it_) {}
-		~VectorIterator() {}
+		explicit VectorIterator(std::vector<size_t>::const_iterator it_): it(it_) {}
+		virtual ~VectorIterator() {}
 		
-		virtual std::unique_ptr<Iterator> clone() {
+		virtual std::unique_ptr<Iterator> clone() const {
 			return std::unique_ptr<Iterator>(new VectorIterator(it));
 		}
 		
@@ -38,7 +38,7 @@ public: // built-in iterator definition
 	
 public: // definition of methods
 	VectorIncidence() {}
-	~VectorIncidence() {} // TODO: add copy constructors
+	virtual ~VectorIncidence() {} // TODO: add copy constructors
 
 	virtual std::unique_ptr<graph::IIncidence> clone() const {
 		return std::unique_ptr<graph::IIncidence>(new VectorIncidence(*this));

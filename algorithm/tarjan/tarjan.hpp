@@ -10,7 +10,7 @@
 
 namespace __tarjan_impl
 {
-class Wrapper
+class TarjanRunner
 {
 private:
 	class Info
@@ -26,21 +26,21 @@ private:
 	};
 	const graph::Graph& graph;
 	
-	std::vector<Info> info;
-	std::stack<size_t> path;
+	std::vector<Info> vertexInfo;
+	std::stack<size_t> visitedStack;
 	size_t dfsTime;
 	size_t compsNumber;
 	
 	void dfs(size_t vertex)
 	{
-		Info& curInfo = info[vertex];
+		Info& curInfo = vertexInfo[vertex];
 		curInfo.tin = curInfo.tup = dfsTime++;
 		curInfo.visited = curInfo.inStack = true;
-		path.push(vertex);
+		visitedStack.push(vertex);
 		
 		for (auto child: graph[vertex])
 		{
-			const Info& childInfo = info[child];
+			const Info& childInfo = vertexInfo[child];
 			if (!childInfo.visited)
 			{
 				dfs(child);
@@ -53,11 +53,11 @@ private:
 		}
 		if (curInfo.tup == curInfo.tin)
 		{
-			while (!path.empty() && info[path.top()].tin >= curInfo.tin)
+			while (!visitedStack.empty() && vertexInfo[visitedStack.top()].tin >= curInfo.tin)
 			{
-				info[path.top()].col = compsNumber;
-				info[path.top()].inStack = false;
-				path.pop();
+				vertexInfo[visitedStack.top()].col = compsNumber;
+				vertexInfo[visitedStack.top()].inStack = false;
+				visitedStack.pop();
 			}
 			++compsNumber;
 		}
@@ -65,21 +65,22 @@ private:
 	
 
 public:
-	Wrapper (const graph::Graph& graph_): graph(graph_) {}
+	TarjanRunner (const graph::Graph& graph_): graph(graph_) {}
 	
 	std::vector<size_t> getStronglyConnectedComponents()
 	{
-		info.assign(graph.size(), Info());
-		path = std::stack<size_t>();
-		dfsTime = compsNumber = 0; // стоит ли разнести эти присваивания, потому что они разные по смыслу?
+		vertexInfo.assign(graph.size(), Info());
+		visitedStack = std::stack<size_t>();
+		dfsTime = 0;
+		compsNumber = 0;
 		
 		for (size_t i = 0; i < graph.size(); i++)
-			if (!info[i].visited)
+			if (!vertexInfo[i].visited)
 				dfs(i);
 		
 		std::vector<size_t> col(graph.size());
 		for (size_t i = 0; i < graph.size(); i++)
-			col[i] = info[i].col;
+			col[i] = vertexInfo[i].col;
 		return std::move(col);
 	}
 	
@@ -88,8 +89,8 @@ public:
 
 inline std::vector<size_t> tarjanStronglyConnectedComponents(const graph::Graph& graph)
 {
-	__tarjan_impl::Wrapper wrapper(graph);
-	return wrapper.getStronglyConnectedComponents();
+	__tarjan_impl::TarjanRunner runner(graph);
+	return runner.getStronglyConnectedComponents();
 }
 
 #endif

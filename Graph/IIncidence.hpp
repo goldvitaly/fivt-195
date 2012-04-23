@@ -12,7 +12,7 @@ public: // declaration of types
 	typedef IteratorWrapper iterator; // TODO: how to make this class private&friend and make public typedef?
 	
 public: // declaration of methods
-	virtual ~IIncidence() {}; // почему нельзя написать деструктор = 0?
+	virtual ~IIncidence() {}; // почему нельзя написать деструктор = 0? - DONE
 
 	virtual std::unique_ptr<IIncidence> clone() const = 0;
 

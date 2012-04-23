@@ -11,15 +11,14 @@ namespace graph
 class Graph
 {
 public: // declaration of types
-	typedef std::unique_ptr<IIncidence> incList;
+	typedef std::unique_ptr<IIncidence> IncidencePtr;
 	
 public: // declaration of methods
 	Graph();
 	Graph(const Graph&) = delete;
 	Graph(Graph&&) = default;
-	~Graph(); // нужно ли явно определять стандартные конструктор и деструктор у невиртуального класса?
 
-	void addVertex(incList);
+	void addVertex(IncidencePtr);
 	void clear();
 	
 	void addEdge(size_t, size_t);
@@ -29,7 +28,7 @@ public: // declaration of methods
 	const IIncidence& operator[] (int) const;
 	
 private:
-	std::vector<incList> incLists;
+	std::vector<IncidencePtr> IncidencePtrs;
 };
 } // namespace graph
 

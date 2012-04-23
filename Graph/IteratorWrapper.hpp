@@ -29,7 +29,13 @@ public: // declaration and definition of methods
 	size_t operator* () const {
 		return **it;
 	}
-	bool operator!= (const IteratorWrapper& iterator) const {
+	/**
+	 * @brief checks unequality of two iteratorWrappers.
+	 * Return true iff one of tho cases happen:
+	 * 	1) exactly one of holding iterators equals to nullptr
+	 *  2) none of holding iterators equal to nullptr and they are unequal to each other
+	 */
+	bool operator!= (const IteratorWrapper& iterator) {
 		return (!it ^ !iterator.it) || (it && iterator.it && *it != *iterator.it);
 	}
 	

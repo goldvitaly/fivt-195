@@ -10,7 +10,7 @@ class Iterator
 public: // declaration of methods
 	virtual ~Iterator() {}
 	
-	virtual std::unique_ptr<Iterator> clone() = 0;
+	virtual std::unique_ptr<Iterator> clone() const = 0;
 	
 	//virtual Iterator& operator= (const Iterator&) = 0; // it seems that default "=" is enough for my needs
 	

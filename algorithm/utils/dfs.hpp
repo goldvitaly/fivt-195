@@ -10,7 +10,7 @@ class Wrapper
 {
 private:
 	const graph::Graph& graph;
-	std::vector<bool> visited;
+	std::vector<char> visited;
 	
 	void dfs(size_t vertex)
 	{

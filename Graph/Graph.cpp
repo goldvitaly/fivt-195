@@ -3,27 +3,25 @@
 
 namespace graph
 {
-Graph::Graph() {}
-Graph::~Graph() {}
-
-void Graph::addVertex(incList list) {
-	incLists.push_back(std::move(list));
+Graph::Graph() {}	
+void Graph::addVertex(IncidencePtr list) {
+	IncidencePtrs.push_back(std::move(list));
 }
 void Graph::clear() {
-	incLists.clear();
+	IncidencePtrs.clear();
 }
 
 void Graph::addEdge(size_t from, size_t to) {
-	incLists[from]->addEdge(to);
+	IncidencePtrs[from]->addEdge(to);
 }
 void Graph::delEdge(size_t from, size_t to) {
-	incLists[from]->delEdge(to);
+	IncidencePtrs[from]->delEdge(to);
 }
 
 size_t Graph::size() const {
-	return incLists.size();
+	return IncidencePtrs.size();
 }
 const IIncidence& Graph::operator[] (int i) const {
-	return *incLists[i];
+	return *IncidencePtrs[i];
 }
 } // namespace graph
