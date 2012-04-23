@@ -8,7 +8,7 @@ std::vector<bool> used;
 void dfs (int v, const Graph &G)
 {
     used[v] = true;
-    for (auto u : *G.GetIncident(v))
+    for (auto u : G.GetIncident(v))
     {
         if (!used[u])
             dfs(u, G);
@@ -59,21 +59,15 @@ int main ()
     const size_t testM = 100;
     const size_t testSrand = 333;
     
-    #define PRINT_TEST_RESULTS
-    
     srand(testSrand);
     
     for (size_t t = 0; t < testNum; ++t)
     {
-        #ifdef PRINT_TEST_RESULTS
         if (test(testN, testM))
             std::cerr << "test #" << t + 1 << " ok" << std::endl;
         else
             std::cerr << "test #" << t + 1 << " failed" << std::endl;
-        #endif /* PRINT_TEST_RESULTS */
     }
-    
-    #undef PRINT_TEST_RESULTS
     
 	return 0;
 }
