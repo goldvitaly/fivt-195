@@ -12,7 +12,7 @@ public:
 	Graph (){}
 	template <typename IncidentClass> void AddVertex (size_t Vertex)
 	{
-		while (Vertex >= _Inc.size()) _Inc.push_back(new IncidentClass());
+		while (Vertex >= _Inc.size()) _Inc.push_back(std::unique_ptr<IncidentClass>(new IncidentClass()));
 	}
 	void RemoveVertex (size_t Vertex)
 	{
@@ -38,16 +38,17 @@ public:
 	size_t IncidentNum () const
 	{
 		size_t num = 0;
-		for (auto i : _Inc)
-			num += i->IncidentNum();
+		for (size_t i = 0; i < _Inc.size(); ++i)
+			num += _Inc[i]->IncidentNum();
 		return num;
 	}
-	const Incident* GetIncident (size_t Vertex) const
+	const Incident& GetIncident (size_t Vertex) const
 	{
-		return _Inc[Vertex];
+		return *_Inc[Vertex];
 	}
+	virtual ~Graph (){}
 private:
-	std::vector <Incident*> _Inc;
+	std::vector <std::unique_ptr<Incident>> _Inc;
 };
 
 #endif /* GRAPH_HPP */
