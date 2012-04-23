@@ -4,8 +4,8 @@ using namespace std;
 
 int main()
 {
-    testTarjan();
-    return 0;
+	testTarjan();
+	return 0;
 }
 
 
