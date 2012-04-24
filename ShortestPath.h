@@ -40,7 +40,8 @@ public:
 };
 
 
-template<class StructVer, class Weight, class Path, class CalkPath, class Cmp = std::less<Path>, class StayingPath = Path>
+template<class StructVer, class Weight, class Path, class CalkPath, class Cmp = std::less<Path>,
+         class StayingPath = Path>
 class ShortestPath
 {
 typedef unsigned int TypeNameVer;
@@ -123,7 +124,8 @@ private:
         }
         void operator()(const TypeNameVer& vertex, const Weight& weight)
         {
-            AccessPath<Weight, Path> newAccessPath = AccessPath<Weight, Path>(vertex, &shortestPath.accessPath[root], weight, shortestPath.dist[root]);
+            AccessPath<Weight, Path> newAccessPath =
+                AccessPath<Weight, Path>(vertex, &shortestPath.accessPath[root], weight, shortestPath.dist[root]);
             Path newPath = CalkPath()(newAccessPath);
             if(shortestPath.mark[vertex] == 0)
             {
