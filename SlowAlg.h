@@ -40,7 +40,7 @@ private:
         }
         void operator()(const TypeNameVer& vertex)
         {
-            if(firstDFS == true)
+            if(firstDFS)
             {
                 if(slowAlg.mark[vertex][vertex] == 0)
                     slowAlg.dfs(vertex, vertex);
