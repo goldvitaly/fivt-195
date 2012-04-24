@@ -6,6 +6,46 @@
 #include <vector>
 #include <iostream>
 
+template<class Path, class Weight>
+class List
+{
+    typedef unsigned int TypeNameVer;
+    Weight weightRoot;
+    Path pathRoot;
+    TypeNameVer vertex;
+    List* root;
+public:
+    List()
+    {
+        vertex = 0;
+        root = NULL;
+    }
+    List(const TypeNameVer& nameVer, List* prev_, Weight weight_, Path path_)
+    {
+        vertex = nameVer;
+        root = prev_;
+        weightRoot = weight_;
+        pathRoot = path_;
+    }
+    TypeNameVer curVertex() const
+    {
+        return vertex;
+    }
+    List* prev() const
+    {
+        return root;
+    }
+    Weight weight() const
+    {
+        return weightRoot;
+    }
+    Path path() const
+    {
+        return pathRoot;
+    }
+};
+
+
 // функция пересчета(доступ к пути)
 template<class StructVer, class Weight, class Path, class CalkPath, class Cmp = std::less<Path>, class StayingPath = Path>
 class ShortestPath
@@ -28,6 +68,7 @@ public:
     {
         Dist.resize(graph.size());
         Mark.resize(graph.size());
+        list.resize(graph.size());
     }
 private:
     class CmpPath{
@@ -43,12 +84,14 @@ private:
         }
     };
     const Graph<StructVer, Weight>& graph;
+    std::vector<List<Path, Weight> > list;
     std::vector<Path> Dist;
     std::vector<int> Mark;
     std::set<CurPath, CmpPath> set;
     void begin(const TypeNameVer& vertex)
     {
         set.insert(std::make_pair(StayingPath(), vertex));
+        list[vertex] = List<Path, Weight>(vertex, NULL, Weight(), StayingPath());
         Mark[vertex] = 1;
         while(1)
         {
@@ -56,6 +99,7 @@ private:
                 break;
             CurPath minElem = *set.begin();
             Mark[minElem.second] = 2;
+            std::cout << "balck " << minElem.second << std::endl;
             set.erase(set.begin());
             Relax relax(*this, minElem.second);
             graph.for_each_neighbour(minElem.second, relax);
@@ -73,17 +117,22 @@ private:
         }
         void operator()(const TypeNameVer& vertex, const Weight& weight)
         {
+            //std::cout << "watch " << vertex << " " << std::endl;
+            Path newPath = CalkPath()(List<Path, Weight>(vertex, &shortestPath.list[root], weight, shortestPath.Dist[root]));
+            std::cout << newPath.first << " " << newPath.second << std::endl;
             if(shortestPath.Mark[vertex] == 0)
             {
                 shortestPath.Mark[vertex] = 1;
-                shortestPath.Dist[vertex] = CalkPath()(shortestPath.Dist[root], weight);
+                shortestPath.list[vertex] = List<Path, Weight>(vertex, &shortestPath.list[root], weight, shortestPath.Dist[root]);
+                shortestPath.Dist[vertex] = newPath;
                 shortestPath.set.insert(std::make_pair(shortestPath.Dist[vertex], vertex));
             }
             else if(shortestPath.Mark[vertex] == 1 &&
-              Cmp()(CalkPath()(shortestPath.Dist[root], weight), shortestPath.Dist[vertex]))
+              Cmp()(newPath, shortestPath.Dist[vertex]))
             {
                 shortestPath.set.erase(std::make_pair(shortestPath.Dist[vertex], vertex));
-                shortestPath.Dist[vertex] = CalkPath()(shortestPath.Dist[root], weight);
+                shortestPath.Dist[vertex] = newPath;
+                shortestPath.list[vertex] = List<Path, Weight>(vertex, &shortestPath.list[root], weight, shortestPath.Dist[root]);
                 shortestPath.set.insert(std::make_pair(shortestPath.Dist[vertex], vertex));
             }
         }

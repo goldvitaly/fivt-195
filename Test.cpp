@@ -15,7 +15,7 @@
 #include "ShortestPath.h"
 
 typedef unsigned int TypeNameVer;
-void make_random_graph(Graph<Vertex<int> , int >& graph, int numVer)
+void make_random_graph(Graph<Vertex<int>, int >& graph, int numVer)
 {
     srand(time(NULL));
     for(int i = 0; i < numVer; i++)
@@ -135,8 +135,17 @@ void testRandomGraphs(int numVer = 3)
 class PlusPairInt
 {
 public:
-     std::pair<int, int> operator()(std::pair<int, int> a, int b)
+     std::pair<int, int> operator()(List<std::pair<int, int>, int> list)
      {
+         std::pair<int, int> a = list.path();
+         int b = list.weight();
+         while(list.prev() != NULL)
+         {
+             std::cout << list.curVertex() << " ";
+             list = *(list.prev());
+         }
+         std::cout << list.curVertex() << " ";
+         std::cout << std::endl;
          return std::pair<int,int>(a.first + b, a.second + b);
      }
 };
