@@ -17,7 +17,7 @@ class AccessPath
 public:
     AccessPath() {
         vertex = 0;
-        AccessPath* prevAccessPath = NULL;
+        prevAccessPath = NULL;
     }
     AccessPath(const TypeNameVer& nameVer, AccessPath* accessPath_, Weight weight_, Path path_) {
         vertex = nameVer;
@@ -48,7 +48,7 @@ typedef unsigned int TypeNameVer;
 typedef typename std::set<std::pair<Path, TypeNameVer> >::iterator SetIterator;
 typedef std::pair<Path, TypeNameVer> CurPath;
 public:
-    ShortestPath(const Graph<StructVer, Weight>& graph_) : graph(graph_)
+    explicit ShortestPath(const Graph<StructVer, Weight>& graph_) : graph(graph_)
     {
 
     }
@@ -63,6 +63,10 @@ public:
         init(notPath);
         begin(vertex);
         return dist;
+    }
+    AccessPath<Weight, Path> path(const TypeNameVer& vertex) const
+    {
+        return accessPath[vertex];
     }
 private:
     void init(const Path& notPath)
