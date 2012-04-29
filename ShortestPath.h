@@ -48,7 +48,7 @@ typedef unsigned int TypeNameVer;
 typedef typename std::set<std::pair<Path, TypeNameVer> >::iterator SetIterator;
 typedef std::pair<Path, TypeNameVer> CurPath;
 public:
-    explicit ShortestPath(const Graph<StructVer, Weight>& graph_) : graph(graph_)
+    explicit ShortestPath(const Graph<StructVer, Weight>& graph_, CalkPath calkPath_ = CalkPath()) : graph(graph_), calkPath(calkPath_)
     {
 
     }
@@ -86,7 +86,7 @@ private:
         {
             if(Cmp()(a.first, b.first))
                 return true;
-            else if(Cmp()(a.first, b.first) && Cmp()(b.first, a.first) && a.second < b.second)
+            else if((Cmp()(a.first, b.first) == Cmp()(b.first, a.first)) && a.second < b.second)
                 return true;
             else
                 return false;
@@ -98,6 +98,7 @@ private:
     std::vector<Path> dist;
     std::vector<int> mark;
     std::set<CurPath, CmpPath> set;
+    CalkPath calkPath;
 
     void begin(const TypeNameVer& vertex)
     {
@@ -130,7 +131,7 @@ private:
         {
             AccessPath<Weight, Path> newAccessPath =
                 AccessPath<Weight, Path>(vertex, &shortestPath.accessPath[root], weight, shortestPath.dist[root]);
-            Path newPath = CalkPath()(newAccessPath);
+            Path newPath = shortestPath.calkPath(newAccessPath);
             if(shortestPath.mark[vertex] == 0)
             {
                 shortestPath.mark[vertex] = 1;
