@@ -55,8 +55,9 @@ private:
 		{
 			while (!visitedStack.empty() && vertexInfo[visitedStack.top()].tin >= curInfo.tin)
 			{
-				vertexInfo[visitedStack.top()].col = compsNumber;
-				vertexInfo[visitedStack.top()].inStack = false;
+				auto top = visitedStack.top(); // можно ли использовать в таких ситуациях использовать auto, если я не помню название типа, который лежит в стеке?
+				vertexInfo[top].col = compsNumber;
+				vertexInfo[top].inStack = false;
 				visitedStack.pop();
 			}
 			++compsNumber;
@@ -65,21 +66,21 @@ private:
 	
 
 public:
-	TarjanRunner (const graph::Graph& graph_): graph(graph_) {}
+	explicit TarjanRunner (const graph::Graph& graph_): graph(graph_) {}
 	
 	std::vector<size_t> getStronglyConnectedComponents()
 	{
-		vertexInfo.assign(graph.size(), Info());
+		vertexInfo.assign(graph.vertexNum(), Info());
 		visitedStack = std::stack<size_t>();
 		dfsTime = 0;
 		compsNumber = 0;
 		
-		for (size_t i = 0; i < graph.size(); i++)
+		for (size_t i = 0; i < graph.vertexNum(); i++)
 			if (!vertexInfo[i].visited)
 				dfs(i);
 		
-		std::vector<size_t> col(graph.size());
-		for (size_t i = 0; i < graph.size(); i++)
+		std::vector<size_t> col(graph.vertexNum());
+		for (size_t i = 0; i < graph.vertexNum(); i++)
 			col[i] = vertexInfo[i].col;
 		return std::move(col);
 	}

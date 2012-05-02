@@ -17,7 +17,7 @@ public: // declaration and definition of methods
 	IteratorWrapper& operator= (const IteratorWrapper& iterator)
 	{
 		if (iterator.it)
-			it = iterator.it->clone(); // в чем отличие от it = std::move(..)? Вроде бы здесь должен move вызываться, а не copy
+			it = iterator.it->clone(); // в чем отличие от it = std::move(..)? Вроде бы здесь должен move вызываться, а не copy - DONE
 		else
 			it.reset(nullptr);
 		return *this;
@@ -35,7 +35,7 @@ public: // declaration and definition of methods
 	 * 	1) exactly one of holding iterators equals to nullptr
 	 *  2) none of holding iterators equal to nullptr and they are unequal to each other
 	 */
-	bool operator!= (const IteratorWrapper& iterator) {
+	bool operator!= (const IteratorWrapper& iterator) const {
 		return (!it ^ !iterator.it) || (it && iterator.it && *it != *iterator.it);
 	}
 	

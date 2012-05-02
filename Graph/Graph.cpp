@@ -18,10 +18,10 @@ void Graph::delEdge(size_t from, size_t to) {
 	IncidencePtrs[from]->delEdge(to);
 }
 
-size_t Graph::size() const {
+size_t Graph::vertexNum() const {
 	return IncidencePtrs.size();
 }
-const IIncidence& Graph::operator[] (int i) const {
-	return *IncidencePtrs[i];
+const IIncidence& Graph::operator[] (size_t vertexId) const {
+	return *IncidencePtrs[vertexId];
 }
 } // namespace graph

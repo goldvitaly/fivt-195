@@ -14,17 +14,17 @@ public:
 	virtual ~IGenerator () {}
 };
 
-class Random: public IGenerator // bad name
+class RandomGraphGenerator: public IGenerator // bad name
 {
 public:
-	virtual ~Random() {}
+	virtual ~RandomGraphGenerator() {}
 	graph::Graph gen(size_t numVertices, size_t numEdges,  std::unique_ptr<graph::IIncidence> (insGetter)())
 	{
 		graph::Graph graph;
 		for (size_t i = 0; i < numVertices; i++)
 			graph.addVertex(insGetter());
 		for (size_t i = 0; i < numEdges; i++)
-			graph.addEdge(rand()%graph.size(), rand()%graph.size());
+			graph.addEdge(rand()%graph.vertexNum(), rand()%graph.vertexNum());
 		return std::move(graph);
 	}
 };

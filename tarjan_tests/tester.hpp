@@ -13,9 +13,9 @@ namespace tarjan_tester
 {
 bool test (const graph::Graph& graph)
 {
-	std::cerr << "Testing, V = " << graph.size() << std::endl;
+	std::cerr << "Testing, V = " << graph.vertexNum() << std::endl;
 	std::vector<size_t> res = tarjanStronglyConnectedComponents(graph);
-	for (size_t i = 0; i < graph.size(); i++)
+	for (size_t i = 0; i < graph.vertexNum(); i++)
 		for (size_t j = 0; j < i; j++)
 		{
 			bool reachIJ = reachable(i, j, graph);

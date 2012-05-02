@@ -6,7 +6,7 @@
 
 namespace __dfs_impl
 {
-class Wrapper
+class DfsRunner
 {
 private:
 	const graph::Graph& graph;
@@ -21,10 +21,10 @@ private:
 	}
 	
 public:
-	Wrapper(const graph::Graph& graph_): graph(graph_) {}
+	explicit DfsRunner(const graph::Graph& graph_): graph(graph_) {}
 	bool reachable(size_t from, size_t to)
 	{
-		visited.assign(graph.size(), false);
+		visited.assign(graph.vertexNum(), false);
 		dfs(from);
 		return visited[to];
 	}
@@ -33,7 +33,7 @@ public:
 
 bool reachable (size_t from, size_t to, const graph::Graph& graph)
 {
-	__dfs_impl::Wrapper wrapper(graph);
+	__dfs_impl::DfsRunner wrapper(graph);
 	return wrapper.reachable(from, to);
 }
 

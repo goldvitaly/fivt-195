@@ -9,16 +9,16 @@ using namespace generators;
 
 int main()
 {
-	Random random = Random();
+	RandomGraphGenerator gen = RandomGraphGenerator();
 	auto VecIncGen = [](){return std::unique_ptr<IIncidence>(new VectorIncidence());};
 	
 	for (int i = 0; i < 10; i++)
 	{
-		Graph graph = random.gen(20, 400, VecIncGen);
+		Graph graph = gen.gen(20, 400, VecIncGen);
 		if (!tarjan_tester::test(graph))
 		{
-			std::cout << graph.size() << std::endl;
-			for (size_t j = 0; j < graph.size(); j++)
+			std::cout << graph.vertexNum() << std::endl;
+			for (size_t j = 0; j < graph.vertexNum(); j++)
 			{
 				std::cout << j << ": ";
 				for (auto k: graph[j])

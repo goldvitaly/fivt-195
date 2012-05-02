@@ -24,8 +24,8 @@ public: // declaration of methods
 	void addEdge(size_t, size_t);
 	void delEdge(size_t, size_t);
 	
-	size_t size() const;
-	const IIncidence& operator[] (int) const;
+	size_t vertexNum() const;
+	const IIncidence& operator[] (size_t) const;
 	
 private:
 	std::vector<IncidencePtr> IncidencePtrs;
