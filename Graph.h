@@ -9,7 +9,7 @@ class Graph
 private:
 	std::vector< std::unique_ptr<Vertex> > graph;
 public:
-   	void addEdge(size_t from, size_t to)
+	void addEdge(size_t from, size_t to)
 	{
 		graph[from]->addNeighbour(to);
 	}
