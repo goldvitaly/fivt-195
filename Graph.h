@@ -11,7 +11,7 @@ class Graph
 private:
 	std::vector< std::unique_ptr< Vertex<TWeight> > > graph;
 public:
-   	void addEdge(size_t from, size_t to, const TWeight& weight = Tweight())
+	void addEdge(size_t from, size_t to, const TWeight& weight = Tweight())
 	{
 		graph[from]->addNeighbour(Edge<TWeight>(to, weight));
 	}
