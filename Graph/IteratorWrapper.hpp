@@ -7,12 +7,13 @@
 
 namespace graph
 {
+template<typename TEdge>
 class IteratorWrapper
 {
 public: // declaration and definition of methods
 	IteratorWrapper() {} 
 	IteratorWrapper(const IteratorWrapper& iterator): it(iterator.it ? iterator.it->clone() : nullptr) {}
-	explicit IteratorWrapper(Iterator* iterator): it(iterator) {}
+	explicit IteratorWrapper(Iterator<TEdge>* iterator): it(iterator) {}
 	
 	IteratorWrapper& operator= (const IteratorWrapper& iterator)
 	{
@@ -26,7 +27,7 @@ public: // declaration and definition of methods
 	IteratorWrapper& operator++ () {
 		++(*it); return *this;
 	}
-	size_t operator* () const {
+	const TEdge& operator* () const { // TODO: add duplicated non-const method
 		return **it;
 	}
 	/**
@@ -40,7 +41,7 @@ public: // declaration and definition of methods
 	}
 	
 private:
-	std::unique_ptr<Iterator> it;
+	std::unique_ptr<Iterator<TEdge>> it;
 };
 } // namespace graph
 
