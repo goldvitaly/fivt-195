@@ -1,11 +1,11 @@
-#include "Testgraphalgo.h"
+#include "Test_dfs_tarjan.h"
 
 using namespace std;
 
 int main()
 {
-    testTarjan();
-    return 0;
+	testTarjan();
+	return 0;
 }
 
 
