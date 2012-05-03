@@ -1,4 +1,4 @@
-#include "Testgraphalgo.h"
+#include "Testdijkstra.h"
 
 int main()
 {
