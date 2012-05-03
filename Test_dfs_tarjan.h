@@ -102,7 +102,7 @@ inline void testTarjan()
     std::cout << "numVertices numEdges time(sec) result" << std::endl;
     for (size_t i = 0; i < qTests; i++)
     {
-        srand(rand());
+    	srand(rand());
         size_t numVertices = (rand() % maxN) + 1;
         size_t numEdges = (rand() % maxM) + 1;
         res = genTestTarjan(numVertices, numEdges);
