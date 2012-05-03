@@ -22,7 +22,7 @@ class InfoDFSTarjan
 {
 public:
 	std::vector<StatusVertex> statusVertices;
-	size_t timer;
+   size_t timer;
 	std::stack<size_t> stackVertices;
 	std::vector<TypeComponent> components;
    
@@ -39,16 +39,16 @@ private:
 	
 	//updating lowLink[par]
 	void updLowLink(size_t child, size_t par, std::vector<StatusVertex> &statusVertices)
-   	{
-      		if (par != nonParent) // if parent exists  
-      		{
-         		if (statusVertices[child].lowLink < statusVertices[par].lowLink)
-			{
-				statusVertices[par].lowLink = statusVertices[child].lowLink;
-				statusVertices[par].isRoot = false;
-		   	}
-      		}
-   	}
+   {
+      if (par != nonParent) // if parent exists  
+      {
+         if (statusVertices[child].lowLink < statusVertices[par].lowLink)
+		   {
+			   statusVertices[par].lowLink = statusVertices[child].lowLink;
+			   statusVertices[par].isRoot = false;
+		   }
+      }
+   }
 public:
 	DFSTarjan (Graph &_G, size_t _par, InfoDFSTarjan &_info)
 	{G = &_G; par = _par; info = &_info;}
@@ -58,16 +58,16 @@ public:
 		StatusVertex& statusCurVertex = info->statusVertices[v];
 		if (statusCurVertex.used)
 		{
-         		updLowLink(v, par, info->statusVertices);
-         		return;
-      		}
+         updLowLink(v, par, info->statusVertices);
+         return;
+      }
 		statusCurVertex.lowLink = info->timer++;
 		statusCurVertex.used = true;
 		info->stackVertices.push(v);
 		statusCurVertex.isRoot = true;
 
 		DFSTarjan newDFS(*this);
-	        newDFS.par = v;
+      newDFS.par = v;
 		G->foreachIncidence(v, newDFS);
 
 		if (statusCurVertex.isRoot)
@@ -85,7 +85,7 @@ public:
 			info->components.push_back(component);
 		}
 
-      		updLowLink(v, par, info->statusVertices);
+      updLowLink(v, par, info->statusVertices);
 	}
 };
 
