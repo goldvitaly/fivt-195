@@ -2,8 +2,8 @@
 
 int main()
 {
-	testDijkstra();
-	return 0;
+    testDijkstra();
+    return 0;
 }
 
 
