@@ -96,13 +96,13 @@ inline bool genTestTarjan(size_t numVertices, size_t numEdges)
 
 inline void testTarjan()
 {
-	srand(515115);
-	const size_t qTests = 20, maxN = 500, maxM = 2000;
-	bool res;
+    srand(515115);
+    const size_t qTests = 20, maxN = 500, maxM = 2000;
+    bool res;
     std::cout << "numVertices numEdges time(sec) result" << std::endl;
     for (size_t i = 0; i < qTests; i++)
     {
-    	srand(rand());
+        srand(rand());
         size_t numVertices = (rand() % maxN) + 1;
         size_t numEdges = (rand() % maxM) + 1;
         res = genTestTarjan(numVertices, numEdges);
