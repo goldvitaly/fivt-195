@@ -1,9 +1,9 @@
-#include "Testdijkstra.h"
+#include "Test_dijkstra.h"
 
 int main()
 {
-    testDijkstra();
-    return 0;
+	testDijkstra();
+	return 0;
 }
 
 
