@@ -16,43 +16,17 @@ namespace algo
 	class DFSMaker
 	{
 		public:
-			explicit DFSMaker(const Graph& gr) : g(gr)
-			{ uncolor(); }
+			explicit DFSMaker(const Graph& gr);
 			
-			void uncolor()
-			{
-				color.assign(g.size(), COLOR_WHITE);
-			}
+			void uncolor();
 
-			void clearStack()
-			{
-				while(!out.empty())
-					out.pop();
-			}
+			void clearStack();
 			
-			int dfs(unsigned v)
-			{
-				if(color[v] != COLOR_WHITE)
-					return color[v];
-				color[v] = COLOR_GREY;
-				for(unsigned u : g.getNode(v))
-					dfs(u);
-				color[v] = COLOR_BLACK;
-				out.push(v);
-				return COLOR_WHITE;
-			}
+			int dfs(unsigned v);
 			
-			const std::stack<unsigned>& make()
-			{
-				uncolor();
-				clearStack();
-				for(unsigned v = 0; v < g.size(); ++v)
-					dfs(v);
-				return out;
-			}
+			const std::stack<unsigned>& make();
 			
-			const std::stack<unsigned>& getOutStack()
-			{ return out; }
+			const std::stack<unsigned>& getOutStack();
 			
 		private:
 			const Graph& g;
