@@ -4,7 +4,6 @@
 
 #include <list>
 #include <vector>
-#include <set>
 #include <algorithm>
 
 namespace graph
@@ -17,7 +16,7 @@ class TarjanMaker
 	public:
 		explicit TarjanMaker(const Graph& gr) : g(gr) {}
 
-		const std::set<std::set<unsigned>>& make()
+		const std::list<std::list<unsigned>>& make()
 		{
 			result.clear();
 			lowlink.assign(g.size(), 0);
@@ -33,7 +32,7 @@ class TarjanMaker
 
 	private:
 		const Graph& g;
-		std::set<std::set<unsigned>> result;
+		std::list<std::list<unsigned>> result;
 		std::vector<unsigned> lowlink;
 		std::vector<unsigned> tin;
 		std::list<unsigned> st;
@@ -59,17 +58,17 @@ class TarjanMaker
 			}
 			if(lowlink[v] == tin[v])
 			{
-				std::set<unsigned> comp;
+				std::list<unsigned> comp;
 				unsigned next;
 				do
 				{
 					next = st.back();
-					comp.insert(next);
+					comp.push_back(next);
 					processing[next] = false;
 					st.pop_back();
 				}
 				while(next != v);
-				result.insert(comp);
+				result.push_back(comp);
 			}
 		}
 };

@@ -5,7 +5,7 @@
 
 #include <stack>
 #include <vector>
-#include <set>
+#include <list>
 
 namespace graph
 {
@@ -16,7 +16,7 @@ namespace algo
 		public:
 			explicit KosarajuMaker(const Graph& gr) : g(gr), rev(reverse(gr)) {}
 			
-			const std::set<std::set<unsigned>>& make()
+			const std::list<std::list<unsigned>>& make()
 			{
 				result.clear();
 				auto revOut = DFSMaker(rev).make();
@@ -28,13 +28,13 @@ namespace algo
 					if(dfser.dfs(v) == COLOR_WHITE)
 					{
 						auto reached = dfser.getOutStack();
-						std::set<unsigned> component;
+						std::list<unsigned> component;
 						while(!reached.empty())
 						{
-							component.insert(reached.top());
+							component.push_back(reached.top());
 							reached.pop();
 						}
-						result.insert(component);
+						result.push_back(component);
 						dfser.clearStack();
 					}
 				}
@@ -44,7 +44,7 @@ namespace algo
 		private:
 			const Graph& g;
 			Graph rev;
-			std::set<std::set<unsigned>> result;
+			std::list<std::list<unsigned>> result;
 	};
 }
 }

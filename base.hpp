@@ -18,5 +18,4 @@ namespace graph
 		}
 		return result;
 	}
-
 }

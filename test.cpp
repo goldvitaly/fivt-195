@@ -8,12 +8,13 @@
 #include <cstdlib>
 #include <set>
 #include <memory>
+#include <cmath>
 
 using namespace std;
 using namespace graph;
 using namespace algo;
 
-void printComps(set<set<unsigned>> comps)
+void printComps(list<list<unsigned>> comps)
 {
 	for(auto& comp : comps)
 	{
@@ -21,6 +22,13 @@ void printComps(set<set<unsigned>> comps)
 			cout << v << " ";
 		cout << endl;
 	}
+}
+
+void sortComps(list<list<unsigned>>& comps)
+{
+	for(auto& comp : comps)
+		comp.sort();
+	comps.sort();
 }
 
 bool testDFS(size_t testSize)
@@ -73,6 +81,8 @@ bool testStrongComps(size_t testSize)
 	auto comps1 = kosmaker.make();
 	TarjanMaker tarjmaker(g);
 	auto comps2 = tarjmaker.make();
+	sortComps(comps1);
+	sortComps(comps2);
 	if(comps1 != comps2)
 	{
 		cerr << "Strong components test fail: Kosaraju = " << comps1.size() <<
@@ -85,33 +95,52 @@ bool testStrongComps(size_t testSize)
 	return comps1 == comps2;
 }
 
-int main()
+bool primitiveWeightedTest(size_t testSize)
 {
-	srand(43);
-	/*
-	for(int i = 0; i < 100; ++i)
-		if(!testDFS(10000))
-			return -1;
-
-	for(int i = 0; i < 100; ++i)
-		if(!testStrongComps(10000))
-			return -1;
-	*/
 	WeightedGraph<int> test;
-	for(int i = 0; i < 5; ++i)
+	for(unsigned i = 0; i < testSize; ++i)
 		test.add(unique_ptr<Node>(new ListNode()));
-	for(int i = 0; i < 4; ++i)
+	for(unsigned i = 0; i < testSize - 1; ++i)
 	{
 		test.connect(i, i + 1, i * i);
 		test.connect(i + 1, i, i * i);
 	}
-	for(int i : {0, 1, 2, 3, 4})
+	for(unsigned v = 0; v < testSize; ++v)
 	{
-		cout << i << endl;
-		for(auto j : test.getNode(i))
+		for(auto edge : test.getNode(v))
 		{
-			cout << "\t" << j.first << " " << j.second << endl;
+			unsigned u = edge.first;
+			int w = edge.second;
+			if(abs((int)v - (int)u) > 2 || v == u)
+			{
+				cerr << "Vertices " << v << " and " << u << " are connected" << endl;
+				return false;
+			}
+
+			if(w != pow(min(u, v), 2))
+			{
+				cerr << "Wrong weight between " << v << " and " << u << " : " << w << endl;
+				return false;
+			}
 		}
 	}
+	cerr << "Primitive weighted test (size " << testSize << ") OK" << endl;
+	return true;
+}
+
+int main()
+{
+	srand(43);
+
+	for(int i = 0; i < 100; ++i)
+		if(!testDFS(1000))
+			return -1;
+
+	for(int i = 0; i < 100; ++i)
+		if(!testStrongComps(1000))
+			return -1;
+	for(size_t i = 1; i < 100; ++i)
+		if(!primitiveWeightedTest(i))
+			return -1;
 	return 0;
 }
