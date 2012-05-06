@@ -6,7 +6,6 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <set>
 #include <memory>
 #include <cmath>
 
@@ -14,7 +13,7 @@ using namespace std;
 using namespace graph;
 using namespace algo;
 
-void printComps(list<list<unsigned>> comps)
+void printComps(list<list<unsigned>>& comps)
 {
 	for(auto& comp : comps)
 	{
@@ -133,13 +132,14 @@ int main()
 	srand(43);
 
 	for(int i = 0; i < 100; ++i)
-		if(!testDFS(1000))
+		if(!testDFS(10000))
 			return -1;
 
 	for(int i = 0; i < 100; ++i)
-		if(!testStrongComps(1000))
+		if(!testStrongComps(10000))
 			return -1;
-	for(size_t i = 1; i < 100; ++i)
+
+	for(size_t i = 10000; i < 10100; ++i)
 		if(!primitiveWeightedTest(i))
 			return -1;
 	return 0;

@@ -9,35 +9,33 @@ namespace algo
 	const std::list<std::list<unsigned>>& TarjanMaker::make()
 	{
 		result.clear();
-		lowlink.assign(g.size(), 0);
-		tin.assign(g.size(), 0);
-		processing.assign(g.size(), false);
+		info.resize(g.size());
 		st.clear();
 		time = 0;
 		for(unsigned v = 0; v < g.size(); ++v)
-			if(tin[v] == 0)
+			if(info[v].tin == 0)
 				dfs(v);
 		return result;
 	}
 
 	void TarjanMaker::dfs(unsigned v)
 	{
-		tin[v] = lowlink[v] = ++time;
-		processing[v] = true;
+		info[v].tin = info[v].lowlink = ++time;
+		info[v].processing = true;
 		st.push_back(v);
 		for(unsigned u : g.getNode(v))
 		{
-			if(tin[u] == 0)
+			if(info[u].tin == 0)
 			{
 				dfs(u);
-				if(lowlink[u] < lowlink[v])
-					lowlink[v] = lowlink[u];
+				if(info[u].lowlink < info[v].lowlink)
+					info[v].lowlink = info[u].lowlink;
 			}
-			else if(processing[u])
-				if(tin[u] < lowlink[v])
-					lowlink[v] = tin[u];
+			else if(info[u].processing)
+				if(info[u].tin < info[v].lowlink)
+					info[v].lowlink = info[u].tin;
 		}
-		if(lowlink[v] == tin[v])
+		if(info[v].lowlink == info[v].tin)
 		{
 			std::list<unsigned> comp;
 			unsigned next;
@@ -45,7 +43,7 @@ namespace algo
 			{
 				next = st.back();
 				comp.push_back(next);
-				processing[next] = false;
+				info[next].processing = false;
 				st.pop_back();
 			}
 			while(next != v);

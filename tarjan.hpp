@@ -10,6 +10,13 @@ namespace graph
 namespace algo
 {
 
+struct VertexInfo
+{
+	unsigned lowlink;
+	unsigned tin;
+	bool processing;
+};
+
 class TarjanMaker
 {
 	public:
@@ -20,10 +27,8 @@ class TarjanMaker
 	private:
 		const Graph& g;
 		std::list<std::list<unsigned>> result;
-		std::vector<unsigned> lowlink;
-		std::vector<unsigned> tin;
 		std::list<unsigned> st;
-		std::vector<bool> processing;
+		std::vector<VertexInfo> info;
 		unsigned time;
 
 		void dfs(unsigned v);
