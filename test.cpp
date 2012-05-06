@@ -2,6 +2,7 @@
 #include "dfs.hpp"
 #include "kosaraju.hpp"
 #include "tarjan.hpp"
+#include "weighted.hpp"
 
 #include <iostream>
 #include <cstdlib>
@@ -87,6 +88,7 @@ bool testStrongComps(size_t testSize)
 int main()
 {
 	srand(43);
+	/*
 	for(int i = 0; i < 100; ++i)
 		if(!testDFS(10000))
 			return -1;
@@ -94,5 +96,22 @@ int main()
 	for(int i = 0; i < 100; ++i)
 		if(!testStrongComps(10000))
 			return -1;
+	*/
+	WeightedGraph<int> test;
+	for(int i = 0; i < 5; ++i)
+		test.add(unique_ptr<Node>(new ListNode()));
+	for(int i = 0; i < 4; ++i)
+	{
+		test.connect(i, i + 1, i * i);
+		test.connect(i + 1, i, i * i);
+	}
+	for(int i : {0, 1, 2, 3, 4})
+	{
+		cout << i << endl;
+		for(auto j : test.getNode(i))
+		{
+			cout << "\t" << j.first << " " << j.second << endl;
+		}
+	}
 	return 0;
 }

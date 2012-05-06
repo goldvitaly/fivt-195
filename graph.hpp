@@ -52,6 +52,11 @@ class IteratorWrapper
 		{
 			return *base != *iw.base;
 		}
+
+		std::unique_ptr<NodeIterator>& getBaseIterator()
+		{
+			return base;
+		}
 		
 	private:
 		std::unique_ptr<NodeIterator> base;
@@ -101,7 +106,7 @@ class ListNodeIterator : public NodeIterator
 		virtual bool operator!=(const NodeIterator& it) const
 		{
 			return base != ((ListNodeIterator&)it).base;
-		}
+		}		
 		
 	private:
 		std::vector<unsigned>::const_iterator base;
@@ -251,8 +256,8 @@ class Graph
 		bool areConnected(unsigned v1, unsigned v2) const
 		{
 			return nodes[v1]->isConnected(v2);
-		}		
-		
+		}
+
 		const Node& getNode(unsigned v) const
 		{
 			return *nodes[v];
