@@ -3,11 +3,14 @@
 #include "kosaraju.hpp"
 #include "tarjan.hpp"
 #include "weighted.hpp"
+#include "dijkstra.hpp"
+#include "adapter.hpp"
 
 #include <iostream>
 #include <cstdlib>
 #include <memory>
 #include <cmath>
+#include <cassert>
 
 using namespace std;
 using namespace graph;
@@ -127,6 +130,27 @@ bool primitiveWeightedTest(size_t testSize)
 	return true;
 }
 
+bool primitiveAdapterTest()
+{
+	Graph gr;
+	Adapter<string> g(gr, {});
+	g.add(TableNode::create(), "A");
+	g.add(TableNode::create(), "B");
+	g.add(TableNode::create(), "C", {"B"});
+	g.add(TableNode::create(), "D");
+	g.add(TableNode::create(), "E", {"A", "B"});
+	g.add(TableNode::create(), "F", {"A", "B", "C", "D", "E"});
+	assert(g.areConnected("C", "B"));
+	assert(g.areConnected("F", "D"));
+	assert(g.areConnected("E", "A"));
+	assert(!g.areConnected("A", "B"));
+	assert(!g.areConnected("C", "E"));
+	assert(!g.areConnected("D", "F"));
+	assert(g.getNode("F").getFriends().size() == 5);
+	cerr << "Primitive adapter test OK" << endl;
+	return true;
+}
+
 int main()
 {
 	srand(43);
@@ -142,5 +166,9 @@ int main()
 	for(size_t i = 10000; i < 10100; ++i)
 		if(!primitiveWeightedTest(i))
 			return -1;
+
+	if(!primitiveAdapterTest())
+		return -1;
+	
 	return 0;
 }

@@ -112,6 +112,11 @@ namespace graph
 				return graph.size();
 			}
 
+			const Graph& getBaseGraph()
+			{
+				return graph;
+			}
+
 		private:
 			Graph graph;
 			std::vector<std::vector<WeightType>> weights;

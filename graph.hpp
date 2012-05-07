@@ -71,6 +71,7 @@ class Node
 		virtual IteratorWrapper begin() const = 0;
 		virtual IteratorWrapper end() const = 0;
 		virtual ~Node() {}
+		static std::unique_ptr<Node> create();
 };
 
 class ListNodeIterator : public NodeIterator
@@ -140,6 +141,10 @@ class ListNode : public Node
 			return IteratorWrapper(std::unique_ptr<NodeIterator>(new ListNodeIterator(friends.end())));
 		}
 		
+		static std::unique_ptr<Node> create()
+		{
+			return std::unique_ptr<Node>(new ListNode());
+		}
 		
 	private:
 		std::vector<unsigned> friends;
@@ -225,6 +230,11 @@ class TableNode : public Node
 		virtual IteratorWrapper end() const
 		{
 			return IteratorWrapper(std::unique_ptr<NodeIterator>(new TableNodeIterator(friends.end(), friends.begin(), friends.end())));
+		}
+
+		static std::unique_ptr<Node> create()
+		{
+			return std::unique_ptr<Node>(new TableNode());
 		}
 		
 	private:

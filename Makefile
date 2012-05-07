@@ -2,7 +2,7 @@ CFLAGS = -std=c++0x -Wall -O2
 LFLAGS = 
 test: test.o base.o dfs.o kosaraju.o tarjan.o
 	g++ -o test test.o base.o dfs.o kosaraju.o tarjan.o $(LFLAGS)
-test.o: test.cpp graph.hpp dfs.hpp kosaraju.hpp tarjan.hpp weighted.hpp
+test.o: test.cpp graph.hpp dfs.hpp kosaraju.hpp tarjan.hpp weighted.hpp dijkstra.hpp adapter.hpp
 	g++ -c test.cpp $(CFLAGS)
 base.o: base.hpp base.cpp
 	g++ -c base.cpp $(CFLAGS)
