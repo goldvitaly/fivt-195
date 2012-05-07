@@ -1,6 +1,6 @@
 #ifndef INCIDENTS_HPP
 #define INCIDENTS_HPP
-#include "Vertex.hpp"
+#include "Edge.hpp"
 #include <memory>
 #include <utility>
 template <typename Weight>
@@ -9,7 +9,7 @@ public:
 	class BaseIterator {
 	public:
 		virtual void operator ++ () = 0;
-		virtual Vertex<Weight> operator * () const = 0;
+		virtual Edge<Weight> operator * () const = 0;
 		virtual bool operator != (const BaseIterator&) const = 0;
 		virtual ~BaseIterator(){}
 	};
@@ -22,7 +22,7 @@ public:
 		void operator ++ (){
 			++(*it);
 		}
-		Vertex<Weight> operator * () const {
+		Edge<Weight> operator * () const {
 			return **it;
 		}
 		bool operator != (Iterator& second) const {

@@ -29,7 +29,7 @@ private:
 		size_t time = mintime[v];
 		used[v] = true;
 		byTimeIn.push(v);
-		for(auto vert: graph.getIncidents(v)){
+		for(const auto& vert: graph.getIncidents(v)){
 			if(!used[vert.id])
 				dfs(vert.id);
 			if(components[vert.id] == dummyComponent)

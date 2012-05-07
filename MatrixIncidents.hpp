@@ -1,7 +1,7 @@
 #ifndef MATRIXINCIDENTS_HPP
 #define MATRIXINCIDENTS_HPP
 #include "Incidents.hpp"
-#include "Vertex.hpp"
+#include "Edge.hpp"
 #include <algorithm>
 #include <cassert>
 #include <memory>
@@ -23,8 +23,8 @@ class MatrixIncidents : public Incidents<NoWeight>{
 			}
 			while(index < v.size() && v[index]==0);
 		}
-		virtual Vertex<NoWeight> operator * () const {
-			return Vertex<NoWeight>(index);
+		virtual Edge<NoWeight> operator * () const {
+			return Edge<NoWeight>(index);
 		}
 		virtual bool operator != (const ParentBaseIterator& other) const {
 			try{

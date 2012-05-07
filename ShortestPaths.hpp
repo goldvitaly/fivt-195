@@ -30,7 +30,7 @@ public:
 		while(!queue.empty()){
 			auto firstIterator = queue.begin();
 			const State& curState = *firstIterator;
-			for(const Vertex<Weight>& next: graph.getIncidents(curState.id)){
+			for(const Edge<Weight>& next: graph.getIncidents(curState.id)){
 				Length newLen = calcLength(*curLen[curState.id], next.weight, Path(previous, next.id));
 				if(!curLen[next.id] || compLength(newLen , *curLen[next.id])){
 					if(curLen[next.id])

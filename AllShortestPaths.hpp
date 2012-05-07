@@ -17,7 +17,7 @@ public:
 		LengthMatrix calculate(){
 			LengthMatrix res(graph.size(), std::vector< boost::optional<Length> >(graph.size()));
 			for(size_t from=0; from < graph.size(); ++from){
-				for(const Vertex<Weight>& to: graph.getIncidents(from)){
+				for(const Edge<Weight>& to: graph.getIncidents(from)){
 					res[from][to.id] = Length(to.weight);
 				}
 				res[from][from] = Length();

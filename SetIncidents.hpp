@@ -6,7 +6,7 @@
 #include <set>
 template<typename Weight>
 class SetIncidents : public Incidents<Weight> {
-	typedef Vertex<Weight> CurVertex;
+	typedef Edge<Weight> CurVertex;
 	typedef ContainerBaseIterator<std::set<CurVertex> > BaseIterator;
 public:
 	SetIncidents(){}
