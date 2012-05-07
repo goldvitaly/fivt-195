@@ -7,29 +7,65 @@
 #include <memory>
 #include <iterator>
 
-/*
-	Class for graph storing. 
-	Vertexes are numbered using unsigned ints. 
-*/
+#include <boost/optional.hpp>
 
 namespace graph
 {
+namespace tag
+{
+	class no_info {};
+}
+
 namespace impl
 {
 
+template <class EdgeInfo>
+class Edge
+{
+	public:
+		unsigned int to;
+		EdgeInfo info;
+		Edge(unsigned int to, EdgeInfo info): to(to), info(info) {};
+		explicit Edge(unsigned int to): to(to) {};
+		bool operator < (const Edge& rhs) const {
+			return to < rhs.to;
+		}
+		bool operator == (const Edge& rhs) const {
+			return to == rhs.to;
+		}
+		bool operator != (const Edge& rhs) const {
+			return to != rhs.to;
+		}
+};
+
+template <class EdgeInfo> 
 class Graph
 {
 	private:
 		class IteratorWrapper;
 	public:
+		typedef Edge<EdgeInfo> edge_type;
 		typedef IteratorWrapper iterator;		
-		void add_edge(unsigned int from, unsigned int to) { this->get(from).add(to); };
-		void del_edge(unsigned int from, unsigned int to) { this->get(from).del(to); };
-		bool has_edge(unsigned int from, unsigned int to) { return this->get(from).has(to); };
-		unsigned int size() const { return vertices.size(); };
-		Graph(unsigned int vertex_number): vertices(vertex_number) {};
+		void add_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) { edges_count += this->get(from).add(edge_type(to, edge_info)); };
+		void del_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) { edges_count -= this->get(from).del(edge_type(to, edge_info)); };
+		bool has_edge(unsigned int from, unsigned int to) const { return this->get(from).has(edge_type(to)); };
+//		bool has_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) const { return this->get(from).has(edge_type(to, edge_info)); };
+		const EdgeInfo& get_edge(unsigned int from, unsigned int to) const { return this->get(from).get(to).info; }
+		unsigned int size() const 
+		{ 
+			return vertices.size(); 
+		}
+		unsigned int edges() const
+		{ 
+			return edges_count; 
+		}
+		Graph(unsigned int vertex_number): vertices(vertex_number) 
+		{
+			edges_count = 0;
+		}
 		Graph& operator = (const Graph& rhs)
 		{
+			edges_count = rhs.edges_count;
 			vertices.resize(rhs.size());
 			for (unsigned int i = 0; i < rhs.size(); i ++)
 				vertices[i].reset(rhs.vertices[i]->clone());
@@ -46,9 +82,10 @@ class Graph
 				virtual iterator begin() const = 0;
 				virtual iterator end() const = 0;
 				virtual unsigned int size() const = 0;
-				virtual void add(unsigned int) = 0;
-				virtual void del(unsigned int) = 0;
-				virtual bool has(unsigned int) const = 0;
+				virtual bool add(edge_type) = 0;
+				virtual bool del(edge_type) = 0;
+				virtual bool has(edge_type) const = 0;
+				virtual const edge_type& get(unsigned int) const = 0;
 				virtual Vertex* clone() const = 0;
 				virtual ~Vertex() {};
 		};
@@ -67,15 +104,17 @@ class Graph
 			public:
 				virtual void next() = 0;
 //				virtual void prev() = 0;
-				virtual unsigned int get() const = 0;
+				virtual const edge_type& get() const = 0;
 				virtual Iterator* clone() const = 0;
 				virtual ~Iterator() {};
 				virtual bool operator == (const Iterator& it) const = 0;
 		};
 	protected:
-		Vertex& get(unsigned int vertex) { return *vertices[vertex]; };
 		std::vector < std::unique_ptr <Vertex> > vertices;
+		Vertex& get(unsigned int vertex) { return *vertices[vertex]; };
+		const Vertex& get(unsigned int vertex) const { return *vertices[vertex]; };
 	private:
+		unsigned int edges_count;
 		class IteratorWrapper
 		{
 			private:
@@ -83,12 +122,13 @@ class Graph
 			public:
 				// typedefs for enabling iterator_traits for this iterator
 				typedef std::forward_iterator_tag iterator_category;
-				typedef unsigned int value_type;
+				typedef edge_type value_type;
 				typedef ptrdiff_t difference_type;
-				typedef unsigned int& reference;
-				typedef unsigned int* pointer;
+				typedef edge_type& reference;
+				typedef edge_type* pointer;
 				
-				unsigned int operator * () { return pointer_to_iterator->get(); }
+				const edge_type& operator * () const { return pointer_to_iterator->get(); }
+				const edge_type* operator -> () const { return &pointer_to_iterator->get(); };
 				IteratorWrapper& operator ++ ()	{ pointer_to_iterator->next(); return *this; }
 				IteratorWrapper& operator ++ (int) { pointer_to_iterator->next(); return *this; }
 //				IteratorWrapper& operator -- ()
