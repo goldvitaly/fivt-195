@@ -15,32 +15,36 @@ void dfs (int v, const Graph &G)
     }
 }
 
-bool test (size_t n, size_t m)
+template <typename IncidentType>
+bool test (size_t vertexNum, size_t edgeNum)
 {
     Graph G;
-    G.AddVertex<VIntIncident>(n);
-    
-    for (size_t i = 0; i < m; ++i)
+    for (size_t i = 0; i < vertexNum; ++i)
     {
-        size_t from, to;
-        from = rand() % n;
-        to = rand() % n;
-        G.AddIncident(from, to);
+        G.AddVertex<IncidentType>();
     }
     
+    for (size_t i = 0; i < edgeNum; ++i)
+    {
+        size_t from, to;
+        from = rand() % vertexNum;
+        to = rand() % vertexNum;
+        G.AddIncident(from, to);
+    }
+
     GraphAlgorithm ga;
 	std::vector<size_t> ord = ga.FindStronglyConnectedComponents(G);
 	
-	for (size_t v = 0; v < n; ++v)
+	for (size_t v = 0; v < vertexNum; ++v)
 	{
-	    for (size_t u = v + 1; u < n; ++u)
+	    for (size_t u = v + 1; u < vertexNum; ++u)
 	    {
 	        bool check = true;
-	        used.assign(n, 0);
+	        used.assign(vertexNum, 0);
 	        dfs(v, G);
 	        if (!used[u]) check = false;
 	        
-	        used.assign(n, 0);
+	        used.assign(vertexNum, 0);
 	        dfs(u, G);
 	        if (!used[v]) check = false;
 	        
@@ -63,7 +67,16 @@ int main ()
     
     for (size_t t = 0; t < testNum; ++t)
     {
-        if (test(testN, testM))
+        //Vector of Int
+        std::cerr << "VIntIncident ";
+        if (test<VIntIncident>(testN, testM))
+            std::cerr << "test #" << t + 1 << " ok" << std::endl;
+        else
+            std::cerr << "test #" << t + 1 << " failed" << std::endl;
+            
+        //Vector of Bool
+        std::cerr << "VBoolIncident ";
+        if (test<VBoolIncident>(testN, testM))
             std::cerr << "test #" << t + 1 << " ok" << std::endl;
         else
             std::cerr << "test #" << t + 1 << " failed" << std::endl;
