@@ -15,7 +15,7 @@ class Graph
 		{
 			inc[vertex] = std::move(vInc);
 		}
-		Incidents& getIncidents(int vertex) const
+		const Incidents& getIncidents(int vertex) const
 		{
 			return *inc[vertex];
 		}
