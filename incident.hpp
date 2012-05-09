@@ -56,7 +56,7 @@ public:
             return *_It != *(It._It);
         }
         
-        ~iterator (){};
+        ~iterator (){}
     };
 
 	virtual void AddIncident (size_t Vertex) = 0;
@@ -65,6 +65,7 @@ public:
 	virtual size_t IncidentNum () const = 0;
 	virtual iterator begin () const = 0;
 	virtual iterator end () const = 0;
+	virtual void clear () = 0;
 
 	virtual ~Incident (){}
 };
@@ -78,8 +79,9 @@ public:
         p_iterator (const std::vector <bool> &_a, size_t index = 0): _a(_a)
         {
             _Index = 0;
-            while (_Index < _a.size() && _Index != index && _a[_Index] == false)
+            while (_Index != _a.size() && (index != 0 || _a[_Index] != true))
             {
+                index -= _a[_Index];
                 _Index++;
             }
         }
@@ -88,7 +90,7 @@ public:
             do
             {
                 _Index++;
-            } while (_Index != _a.size() && _a[_Index] == false);
+            } while (_Index != _a.size() && _a[_Index] != true);
         }
         size_t operator * () const
         {
@@ -98,7 +100,7 @@ public:
         {
             return _Index != dynamic_cast<const VBoolIncident::p_iterator&>(It)._Index;
         }
-        ~p_iterator (){};
+        ~p_iterator (){}
     private:
         const std::vector <bool> _a;
         size_t _Index;
@@ -145,6 +147,12 @@ public:
         return iterator(std::unique_ptr<p_iterator>(new p_iterator(_a, _IncidentNum)));
     }
     
+    virtual void clear ()
+    {
+        _a.clear();
+        _IncidentNum = 0;
+    }
+    
     virtual ~VBoolIncident() {}
 private:
     size_t _IncidentNum;
@@ -157,6 +165,8 @@ public:
     class p_iterator : public Incident::p_iterator
     {
     public:
+        size_t _Index;
+        
         p_iterator (const std::vector <size_t> &_a, size_t index = 0): _a(_a)
         {
             _Index = index;
@@ -173,12 +183,10 @@ public:
         {
             return _Index != dynamic_cast<const VIntIncident::p_iterator&>(It)._Index;
         }
-        ~p_iterator (){};
+        ~p_iterator (){}
         
-        size_t _Index;
     private:
         const std::vector <size_t> _a;
-        
     };
 
     VIntIncident ():_a(){}
@@ -218,6 +226,11 @@ public:
 	virtual VIntIncident::iterator end () const
 	{
         return iterator(std::unique_ptr<p_iterator>(new p_iterator(_a, _a.size())));
+    }
+    
+    virtual void clear ()
+    {
+        _a.clear();
     }
     
     virtual ~VIntIncident() {}
