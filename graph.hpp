@@ -10,17 +10,21 @@ class Graph
 {
 public:
 	Graph (){}
-	template <typename IncidentClass> void AddVertex (size_t Vertex)
+	template <typename IncidentClass> size_t AddVertex ()
 	{
-		while (Vertex >= _Inc.size()) _Inc.push_back(std::unique_ptr<IncidentClass>(new IncidentClass()));
+	    _Inc.push_back(std::unique_ptr<IncidentClass>(new IncidentClass()));
+	    return _Inc.size() - 1;
 	}
 	void RemoveVertex (size_t Vertex)
 	{
-		for (size_t i = 0; i < Vertex; ++i)
-			for (size_t j = Vertex; j < _Inc.size(); ++j)
-				_Inc[i]->RemoveIncident(j);
-
-		while (Vertex < _Inc.size()) _Inc.pop_back();
+	    if (Vertex >= _Inc.size()) return;
+	    
+		for (size_t v = 0; v < _Inc.size(); ++v)
+		{
+		    (*_Inc[v]).RemoveIncident(Vertex);
+		}
+		
+		(*_Inc[Vertex]).clear();
 	}
 	void AddIncident (size_t VertexA, size_t VertexB)
 	{
@@ -46,7 +50,7 @@ public:
 	{
 		return *_Inc[Vertex];
 	}
-	virtual ~Graph (){}
+	virtual ~Graph (){} //Да, нужен. Чтобы наследоваться.
 private:
 	std::vector <std::unique_ptr<Incident>> _Inc;
 };
