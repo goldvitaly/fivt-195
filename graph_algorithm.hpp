@@ -30,10 +30,12 @@ public:
         _Stack.clear();
         _Timer = 0;
         _Color = 0;
-        
+            
         for (size_t i = 0; i < G.VertexNum(); ++i)
             if (!_Vertex[i].Used)
+            {
                 StronglyConnectedComponentsDFS(G, i);
+            }
         
         return _Comp;
     }
