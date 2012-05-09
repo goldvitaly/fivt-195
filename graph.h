@@ -15,7 +15,7 @@ class Graph
 		{
 			inc[vertex] = std::move(vInc);
 		}
-		Incidents& getIncidents(int vertex)
+		Incidents& getIncidents(int vertex) const
 		{
 			return *inc[vertex];
 		}
@@ -30,7 +30,7 @@ class Graph
 			inc[from]->remove(to);
 		}
 		
-		void checkEdge(int from, int to)
+		void checkEdge(int from, int to) const
 		{
 			inc[from]->check(to);
 		}

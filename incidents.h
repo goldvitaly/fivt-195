@@ -18,7 +18,7 @@ class Incidents {
 		class Iterator 
 		{
 			public:
-				Iterator(std::unique_ptr<BaseIterator> p):base(std::move(p))
+				explicit Iterator(std::unique_ptr<BaseIterator> p):base(std::move(p))
 				{} 
 				bool operator != (const Iterator& second)
 				{
@@ -43,6 +43,8 @@ class Incidents {
 		virtual bool check(int to) const = 0;
 		virtual Iterator begin() const = 0;
 		virtual Iterator end() const = 0;
+		virtual ~Incidents()
+		{}
 };
 
 template <typename Itr>
@@ -54,7 +56,7 @@ class STLGraphIterator : public BaseIterator
 		{}
 		bool operator != (const BaseIterator& second) const
 		{
-			return cur != ((const STLGraphIterator&) second).cur;
+			return cur != (dynamic_cast<const STLGraphIterator&>(second)).cur;
 		}
 		BaseIterator& operator ++()
 		{
