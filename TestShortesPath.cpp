@@ -14,10 +14,10 @@
 
 typedef unsigned int TypeNameVer;
 
-void make_graph(Graph<Vertex<int>, int>& graph, int number = 0)
+std::vector<int> make_graph1(Graph<Vertex<int>, int>& graph)
 {
+    graph.clear();
     int numVer = 5;
-    srand(time(NULL));
     for(int i = 0; i < numVer; i++)
     {
         if(i%2 == 0)
@@ -25,30 +25,50 @@ void make_graph(Graph<Vertex<int>, int>& graph, int number = 0)
         else
             graph.add_vertex(i, new VertexMap<int>());
     }
-    if(number == 0) // ans from 0 : 0 1 4 2 3
+    graph.add_edge(0, 1, 1);
+    graph.add_edge(1, 2, 10);
+    graph.add_edge(1, 3, 1);
+    graph.add_edge(3, 4, 1);
+    graph.add_edge(4, 2, 1);
+    return std::vector<int>() = {0, 1, 4, 2, 3};
+}
+
+std::vector<int> make_graph2(Graph<Vertex<int>, int>& graph)
+{
+    graph.clear();
+    int numVer = 5;
+    for(int i = 0; i < numVer; i++)
     {
-        graph.add_edge(0, 1, 1);
-        graph.add_edge(1, 2, 10);
-        graph.add_edge(1, 3, 1);
-        graph.add_edge(3, 4, 1);
-        graph.add_edge(4, 2, 1);
+        if(i%2 == 0)
+            graph.add_vertex(i, new VertexVector<int>());
+        else
+            graph.add_vertex(i, new VertexMap<int>());
     }
-    else if(number == 1) // ans from 0 : 0 1 2 not 3
+    graph.add_edge(0, 1, 1);
+    graph.add_edge(1, 2, 1);
+    graph.add_edge(1, 4, 5);
+    graph.add_edge(2, 4, 1);
+    graph.add_edge(0, 2, 3);
+    return std::vector<int>() = {0, 1, 2, -1, 3};
+}
+
+std::vector<int> make_graph3(Graph<Vertex<int>, int>& graph)
+{
+    graph.clear();
+    int numVer = 5;
+    for(int i = 0; i < numVer; i++)
     {
-        graph.add_edge(0, 1, 1);
-        graph.add_edge(1, 2, 1);
-        graph.add_edge(1, 4, 5);
-        graph.add_edge(2, 4, 1);
-        graph.add_edge(0, 2, 3);
+        if(i%2 == 0)
+            graph.add_vertex(i, new VertexVector<int>());
+        else
+            graph.add_vertex(i, new VertexMap<int>());
     }
-    else if(number == 2) //ans from 0 : 0 4 3 1 not
-    {
-        graph.add_edge(0, 3, 1);
-        graph.add_edge(3, 2, 2);
-        graph.add_edge(0, 2, 10);
-        graph.add_edge(2, 1, 1);
-        graph.add_edge(1, 0, 1);
-    }
+    graph.add_edge(0, 3, 1);
+    graph.add_edge(3, 2, 2);
+    graph.add_edge(0, 2, 10);
+    graph.add_edge(2, 1, 1);
+    graph.add_edge(1, 0, 1);
+    return std::vector<int>() = {0, 4, 3, 1, -1};
 }
 
 class PlusPairInt
@@ -58,40 +78,37 @@ public:
      {
          std::pair<int, int> pair = accessPath.path();
          int integer = accessPath.weight();
-
-         // просто проверка доступа к пути. Выводит путь в обратном порядке.
-         std:: cout << "path: ";
-         while(accessPath.prev() != NULL)
-         {
-             std::cout << accessPath.lastVertex() << " ";
-             accessPath = *(accessPath.prev());
-         }
-         std::cout << accessPath.lastVertex() << " ";
-         std::cout << std::endl;
-
          return std::pair<int,int>(pair.first + integer, pair.second + integer);
      }
 };
 
-void test(int number)
+void test(Graph<Vertex<int>, int>& graph, std::vector<int> ans)
 {
-    Graph<Vertex<int>, int> graph;
-    make_graph(graph, number);
     //pair<int, int> взят просто так. В нем всегда first == second.
     ShortestPath<Vertex<int>, int, std::pair<int, int>, PlusPairInt> shortestPath(graph);
-    std::vector<std::pair<int, int> > ans = shortestPath.count(0, std::make_pair(-1, -1));
-    for(int i = 0; i < ans.size(); i++)
+    std::vector<std::pair<int, int> > ansShortestPath = shortestPath.count(0, std::make_pair(-1, -1));
+    for(int i = 0; i < graph.size(); i++)
     {
-        std::cout << ans[i].first << " " << ans[i].second << std::endl;
+        if(ans[i] != ansShortestPath[i].first || ansShortestPath[i].first != ansShortestPath[i].second)
+        {
+            std::cerr << ans[i] << " " << ansShortestPath[i].first << std::endl;
+            exit(1);
+        }
     }
-    std::cout << std::endl;
 }
 
 int main()
 {
-    for(int i = 0; i < 3; i++)
-    {
-        test(i);
-    }
+    Graph<Vertex<int>, int> graph;
+    std::vector<int> ans(5);
+    ans = make_graph1(graph);
+    test(graph, ans);
+
+    ans = make_graph2(graph);
+    test(graph, ans);
+
+    ans = make_graph3(graph);
+    test(graph, ans);
+
     return 0;
 }

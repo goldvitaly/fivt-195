@@ -141,6 +141,10 @@ public:
         }
         return size;
     }
+    void clear()
+    {
+        graph.clear();
+    }
 private:
     std::vector<std::unique_ptr<StructVer> > graph;
     void check_exist(const TypeNameVer& nameVer, bool suppos) const
