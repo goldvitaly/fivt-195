@@ -56,13 +56,13 @@ public:
     LenghtPath count(const TypeNameVer& vertexStart, const TypeNameVer& vertexEnd, const LenghtPath& notExistPath)
     {
         init(notExistPath);
-        begin(vertexStart);
+        beginSearchShortestPath(vertexStart);
         return (mark[vertexEnd] == 2) ? dist[vertexEnd] : notExistPath;
     }
     std::vector<LenghtPath> count(const TypeNameVer& vertex, const LenghtPath& notExistPath)
     {
         init(notExistPath);
-        begin(vertex);
+        beginSearchShortestPath(vertex);
         return dist;
     }
     AccessPath<Weight, LenghtPath> path(const TypeNameVer& vertex) const
@@ -101,7 +101,7 @@ private:
     std::set<CurLenghtPath, CmpPath> setGreyVertex;
     CalculatePath calculatePath;
 
-    void begin(const TypeNameVer& vertex)
+    void beginSearchShortestPath(const TypeNameVer& vertex)
     {
         dist[vertex] = StayingPath();
         setGreyVertex.insert(std::make_pair(StayingPath(), vertex));
