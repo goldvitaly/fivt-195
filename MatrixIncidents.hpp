@@ -36,6 +36,11 @@ class MatrixIncidents : public Incidents<NoWeight>{
 			}
 		}
 		virtual ~BaseIterator(){}
+		
+		virtual std::unique_ptr<ParentBaseIterator> copy() const {
+			return std::unique_ptr<ParentBaseIterator> (new BaseIterator(v, index));
+		}
+		
 	private:
 		const std::vector<bool> v;
 		size_t index;

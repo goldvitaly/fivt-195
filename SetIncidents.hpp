@@ -12,7 +12,7 @@ public:
 	SetIncidents(){}
 	explicit SetIncidents(const std::set<CurVertex>& v): incidents(v) {}
 	
-	virtual typename Incidents<Weight>::Iterator begin() const{
+	virtual typename Incidents<Weight>::Iterator begin() const {
 		return typename Incidents<Weight>::Iterator(std::unique_ptr<typename Incidents<Weight>::BaseIterator>(new BaseIterator(incidents.begin())));
 	}
 	virtual typename Incidents<Weight>::Iterator end() const{

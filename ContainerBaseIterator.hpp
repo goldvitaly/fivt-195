@@ -26,6 +26,10 @@ class ContainerBaseIterator : public Incidents<typename T::value_type::Weight>::
 			}
 		}
 		virtual ~ContainerBaseIterator(){}
+		
+		std::unique_ptr<BaseIterator> copy() const {
+			return std::unique_ptr<BaseIterator>(new ContainerBaseIterator(iter));
+		}
 	private:
 		Iterator iter;
 };

@@ -11,6 +11,7 @@ public:
 		virtual void operator ++ () = 0;
 		virtual Edge<Weight> operator * () const = 0;
 		virtual bool operator != (const BaseIterator&) const = 0;
+		virtual std::unique_ptr<BaseIterator> copy() const = 0;
 		virtual ~BaseIterator(){}
 	};
 	class Iterator {
@@ -34,6 +35,9 @@ public:
 		Iterator& operator=(Iterator&& m){
 			it = std::move(m.it);
 			return *this;
+		}
+		Iterator copy() const {
+			return Iterator(IteratorPointer(it->copy()));
 		}
 		Iterator(const Iterator&) = delete;
 		Iterator& operator=(const Iterator&) = delete;
