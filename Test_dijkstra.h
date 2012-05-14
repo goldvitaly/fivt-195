@@ -11,7 +11,7 @@
 
 typedef std::vector< std::vector< std::pair<size_t, size_t> > > TypeTestGraph;
 
-inline void genGraph(size_t numVertices, size_t numEdges, int maxWeight, Graph<int> &G, TypeTestGraph &testG)
+inline void makeGraph(size_t numVertices, size_t numEdges, int maxWeight, Graph<int> &G, TypeTestGraph &testG)
 {
     testG.resize(numVertices);
     G.resize(numVertices);
@@ -25,7 +25,7 @@ inline void genGraph(size_t numVertices, size_t numEdges, int maxWeight, Graph<i
     }
 }
 
-inline void trueAlgo(TypeTestGraph& tG, size_t from, std::vector<int>& outDist, std::vector<char>& outIsReached)
+inline void trueAlgo(TypeTestGraph& tG, size_t from, std::vector<int>* outDist, std::vector<char>* outIsReached)
 {
     size_t n = tG.size();
     std::vector<char> mark(n, false);
@@ -52,8 +52,8 @@ inline void trueAlgo(TypeTestGraph& tG, size_t from, std::vector<int>& outDist, 
                 d[to] = d[u] + len;
         }
     }
-    outDist = d;
-    outIsReached = mark;
+    *outDist = d;
+    *outIsReached = mark;
 }
 
 inline bool runTestDijkstra(size_t numVertices, size_t numEdges, int maxWeight)
@@ -61,7 +61,7 @@ inline bool runTestDijkstra(size_t numVertices, size_t numEdges, int maxWeight)
     time_t start = clock();
     Graph<int> G;
     TypeTestGraph tG;
-    genGraph(numVertices, numEdges, maxWeight, G, tG);
+    makeGraph(numVertices, numEdges, maxWeight, G, tG);
     std::vector<int> dijkstraDist(numVertices);
     std::vector<char> dijkstraIsReached(numVertices);
     std::vector<int> trueDist(numVertices);
@@ -69,10 +69,13 @@ inline bool runTestDijkstra(size_t numVertices, size_t numEdges, int maxWeight)
 
     Dijkstra<int, int> dijkstra(G);
     size_t from = rand() % numVertices;
-    dijkstra.calcDist(from, dijkstraDist, dijkstraIsReached);
+    ShortestPathInfo<int> pathInfo =  dijkstra.calcDist(from);
+    std::pair<std::vector<int>, std::vector<char>> tmpRes = pathInfo.getLengths();
+    dijkstraDist = tmpRes.first;
+    dijkstraIsReached = tmpRes.second;
     std::cout << numVertices << " " << numEdges << " ";
     std::cout << (double (clock()) - start) / CLOCKS_PER_SEC << " ";
-    trueAlgo(tG, from, trueDist, trueIsReached);
+    trueAlgo(tG, from, &trueDist, &trueIsReached);
     bool res = true;
     for (size_t i = 0; i < numVertices; ++i)
         if (!trueIsReached[i])
@@ -97,7 +100,7 @@ inline bool runTestDijkstra(size_t numVertices, size_t numEdges, int maxWeight)
 
 inline void testDijkstra()
 {
-    srand(515115);
+    srand(31518905);
     const size_t qTests = 20, maxN = 500, maxM = 5000, maxWeight = 100000;
     bool res;
     std::cout << "numVertices numEdges time(sec) result" << std::endl;
