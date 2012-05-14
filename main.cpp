@@ -49,7 +49,7 @@ Graph<int> genRandomWeightedGraph(size_t size){
 	for(size_t i=0; i<size; ++i){
 		for(size_t j=0; j<size; ++j){
 			if(rand()&1){
-				g.addEdge(i, j, rand()%100);
+				g.addEdge(i, j, rand()%1000);
 			}
 		}
 	}
@@ -80,6 +80,28 @@ void testTarjan(){
 	}
 }
 
+void testDijkstraPathes(int n){
+	for(int i=0;i<n;++i){
+		Graph<int> g(genRandomWeightedGraph(1000));
+		int start = rand() % g.size();
+		ShortestPaths<int,int> sp(g);
+		ShortestPathsInfo<int, int> spi = sp.calculate(start);
+		for(size_t to = 0; to < g.size(); ++to){
+			if(!spi.length(to)){
+			}
+			else{
+				int len = *spi.length(to);
+				const std::vector<Incidents<int>::Iterator> path = spi.path(to);
+				int gettedLen = 0;
+				for(const Incidents<int>::Iterator& inc: path){
+					gettedLen += (*inc).weight;
+				}
+				assert(len == gettedLen);
+			}
+		}
+	}
+}
+
 void stressTestDijkstra(int n){
 	typedef std::vector< std::vector< boost::optional<int> > > Result;
 	for(int i=0;i<n;++i){
@@ -93,7 +115,8 @@ void stressTestDijkstra(int n){
 	}
 }
 int main() {
-	testTarjan();
-	stressTestDijkstra(1000);
+	//testTarjan();
+	//stressTestDijkstra(1000);
+	testDijkstraPathes(1);
 	return 0;
 }

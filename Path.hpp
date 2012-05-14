@@ -5,25 +5,27 @@
 #include <memory>
 #include <vector>
 
+template<typename Weight>
 class Path{
 public:
-	Path(const std::vector< boost::optional<size_t> >& parents, size_t to):
-		parents(parents), to(to)
+	typedef typename Incidents<Weight>::Iterator Iterator;
+	Path(const std::vector< boost::optional<size_t> >& parents, size_t to, const std::vector<Iterator>& lastEdge):
+		parents(parents), lastEdge(lastEdge), to(to)
 	{}
 		
-	std::vector<size_t> path() const {
-		std::vector<size_t> curpath;
+	std::vector<Iterator> path() const {
+		std::vector<Iterator> curpath;
 		size_t cur = to;
 		while(parents[cur]){
-			curpath.push_back(cur);
+			curpath.push_back(lastEdge[cur].copy());
 			cur = *parents[cur];
 		}
-		curpath.push_back(cur);
 		std::reverse(curpath.begin(), curpath.end());
 		return curpath;
 	}
 private:
 	const std::vector<boost::optional<size_t> >& parents;
+	const std::vector<Iterator>& lastEdge;
 	size_t to;
 };
 #endif /* PATH_HPP */

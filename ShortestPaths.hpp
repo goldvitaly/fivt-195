@@ -10,7 +10,7 @@
 template <typename Weight>
 class SumShortestPathsFunctor{
 public:
-	Weight operator() (const Weight& oldLen, const Weight& weight, const Path&) const {
+	Weight operator() (const Weight& oldLen, const Weight& weight, const Path<Weight>&) const {
 		return oldLen + weight;
 	}
 };
@@ -21,28 +21,33 @@ public:
 	explicit ShortestPaths(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength(), const CompLength& compLength = CompLength())
 		:graph(graph), calcLength(calcLength), compLength(compLength){}
 	
-	ShortestPathsInfo<Length> calculate(size_t from) const {
+	ShortestPathsInfo<Length,Weight> calculate(size_t from){
 		std::set<State, StateComparator> queue(compLength);
-		std::vector<boost::optional<Length> > curLen(graph.size());
-		std::vector<boost::optional<size_t> > previous(graph.size());
+		curLen.assign(graph.size(), boost::optional<Length>());
+		previous.assign(graph.size(), boost::optional<size_t>());
+		for(size_t i=0;i<graph.size();++i){
+			lastEdge.push_back(std::move(Iterator()));
+		}
 		curLen[from] = Length();
 		queue.insert(State(from, *curLen[from]));
 		while(!queue.empty()){
 			auto firstIterator = queue.begin();
 			const State& curState = *firstIterator;
-			for(const Edge<Weight>& next: graph.getIncidents(curState.id)){
-				Length newLen = calcLength(*curLen[curState.id], next.weight, Path(previous, next.id));
+			for(Iterator it = graph.getIncidents(curState.id).begin();it != graph.getIncidents(curState.id).end(); ++it){
+				const Edge<Weight>& next = *it;
+				Length newLen = calcLength(*curLen[curState.id], next.weight, Path<Weight>(previous, next.id, lastEdge));
 				if(!curLen[next.id] || compLength(newLen , *curLen[next.id])){
 					if(curLen[next.id])
 						queue.erase(State(next.id, *curLen[next.id]));
 					curLen[next.id] = newLen;
 					previous[next.id] = curState.id;
+					lastEdge[next.id] = it.copy();
 					queue.insert(State(next.id, *curLen[next.id]));
 				}
 			}
 			queue.erase(firstIterator);
 		}
-		return ShortestPathsInfo<Length>(curLen, previous);
+		return ShortestPathsInfo<Length, Weight>(curLen, previous, lastEdge);
 	}
 private:
 	struct State{
@@ -67,6 +72,12 @@ private:
 	const Graph<Weight>& graph;
 	CalcLength calcLength;
 	CompLength compLength;
+	
+	std::vector<boost::optional<Length> > curLen;
+	std::vector<boost::optional<size_t> > previous;
+	typedef typename Incidents<Weight>::Iterator Iterator;
+	std::vector<Iterator> lastEdge;
+	
 };
 
 #endif /* SHORTESTPATH_HPP */

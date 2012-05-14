@@ -2,16 +2,19 @@
 #define SHORTESTPATHSINFO_HPP
 #include "Path.hpp"
 #include <boost/optional.hpp>
+#include <stdexcept>
 #include <vector>
 
-template <typename Length>
+template <typename Length, typename Weight>
 class ShortestPathsInfo{
-	typedef boost::optional< std::vector<size_t> > PathType;
+	typedef typename Incidents<Weight>::Iterator Iterator;
+	typedef std::vector<Iterator> PathType;
 public:
 	ShortestPathsInfo(
 			const std::vector<boost::optional<Length> >& v,
-			const std::vector<boost::optional<size_t> >& p
-			): lengths(v), previous(p){}
+			const std::vector<boost::optional<size_t> >& p,
+			const std::vector<Iterator>& lastEdge
+			): lengths(v), previous(p), lastEdge(lastEdge){}
 	std::vector< boost::optional<Length> > allLengths() const {
 		return lengths;
 	}
@@ -20,13 +23,14 @@ public:
 	}
 	PathType path(size_t to) const {
 		if(!lengths[to])
-			return PathType();
-		std::vector<size_t> path = Path(previous, to).path();
-		return path;
+			throw std::invalid_argument("No path");
+		PathType path = Path<Weight>(previous, to, lastEdge).path();
+		return std::move(path);
 	}
 private:
 	std::vector< boost::optional<Length> > lengths;
 	std::vector< boost::optional<size_t> > previous;
+	const std::vector<Iterator>& lastEdge;
 };
 
 #endif /* SHORTESTPATHSINFO_HPP */

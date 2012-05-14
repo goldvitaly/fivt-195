@@ -3,6 +3,7 @@
 #include "Edge.hpp"
 #include <memory>
 #include <utility>
+#include <iostream>
 template <typename Weight>
 class Incidents {
 public:
@@ -16,9 +17,9 @@ public:
 	};
 	class Iterator {
 		typedef std::unique_ptr<BaseIterator> IteratorPointer;
-	public:
 		IteratorPointer it;
-		
+	public:
+		Iterator():it(nullptr){}
 		explicit Iterator(IteratorPointer iter): it(std::move(iter)){}
 		void operator ++ (){
 			++(*it);
@@ -37,6 +38,8 @@ public:
 			return *this;
 		}
 		Iterator copy() const {
+			if(it.get() == 0)
+				return Iterator();
 			return Iterator(IteratorPointer(it->copy()));
 		}
 		Iterator(const Iterator&) = delete;
