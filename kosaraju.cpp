@@ -9,31 +9,33 @@ namespace graph
 {
 namespace algo
 {
-	KosarajuMaker::KosarajuMaker(const Graph& gr) : g(gr), rev(reverse(gr)) {}
-	
-	const std::list<std::list<unsigned>>& KosarajuMaker::make()
+
+KosarajuMaker::KosarajuMaker(const Graph& gr) : g(gr), rev(reverse(gr)) {}
+
+const std::list<std::list<unsigned>>& KosarajuMaker::make()
+{
+	result.clear();
+	auto revOut = DFSMaker(rev).make();
+	DFSMaker dfser(g);
+	while(!revOut.empty())
 	{
-		result.clear();
-		auto revOut = DFSMaker(rev).make();
-		DFSMaker dfser(g);
-		while(!revOut.empty())
+		unsigned v = revOut.top();
+		revOut.pop();
+		if(dfser.dfs(v) == COLOR_WHITE)
 		{
-			unsigned v = revOut.top();
-			revOut.pop();
-			if(dfser.dfs(v) == COLOR_WHITE)
+			auto reached = dfser.getOutStack();
+			std::list<unsigned> component;
+			while(!reached.empty())
 			{
-				auto reached = dfser.getOutStack();
-				std::list<unsigned> component;
-				while(!reached.empty())
-				{
-					component.push_back(reached.top());
-					reached.pop();
-				}
-				result.push_back(component);
-				dfser.clearStack();
+				component.push_back(reached.top());
+				reached.pop();
 			}
+			result.push_back(component);
+			dfser.clearStack();
 		}
-		return result;
 	}
+	return result;
+}
+
 }
 }

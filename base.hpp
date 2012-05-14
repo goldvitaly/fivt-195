@@ -4,5 +4,7 @@
 
 namespace graph
 {
-	Graph reverse(const Graph& g);
+
+Graph reverse(const Graph& g);
+
 }

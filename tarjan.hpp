@@ -19,19 +19,19 @@ struct VertexInfo
 
 class TarjanMaker
 {
-	public:
-		explicit TarjanMaker(const Graph& gr);
+public:
+	explicit TarjanMaker(const Graph& gr);
 
-		const std::list<std::list<unsigned>>& make();
+	const std::list<std::list<unsigned>>& make();
 
-	private:
-		const Graph& g;
-		std::list<std::list<unsigned>> result;
-		std::list<unsigned> st;
-		std::vector<VertexInfo> info;
-		unsigned time;
+private:
+	const Graph& g;
+	std::list<std::list<unsigned>> result;
+	std::list<unsigned> st;
+	std::vector<VertexInfo> info;
+	unsigned time;
 
-		void dfs(unsigned v);
+	void dfs(unsigned v);
 };
 
 }
