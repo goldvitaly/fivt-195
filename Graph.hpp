@@ -19,65 +19,73 @@
 #include <stdexcept>
 
 #include "IncidenceType.hpp"
+#include "Edge.hpp"
 #include "Utils.hpp"
 
+template<typename EdgeType>
 class Graph
 {
  public:
-  std::vector<VertexIncidenceType> vertexIncidents;
+  std::vector< VertexIncidenceType<EdgeType> > vertexIncidents;
 
   bool isOutOfBound(size_t index) const
   {
     return (index >= vertexIncidents.size());
   }
 
-  void addVertex(IncidenceType* incidence)
+  void addVertex(IncidenceType<EdgeType>* incidence)
   {
-    vertexIncidents.push_back(VertexIncidenceType(incidence));
+    vertexIncidents.push_back(VertexIncidenceType<EdgeType>(incidence));
   }
   
-  template<typename IncidenceTypeT>
-  void addVertices(int vertexNumber)
+  template< template<typename EdgeTypeT> class IncidenceTypeT >
+  void addVerticies(int vertexNumber)
   {
     for(int i = 0; i < vertexNumber; i++)
-      addVertex(new IncidenceTypeT);
+      addVertex(new IncidenceTypeT<EdgeType>);
   }
 
-  void setVertexIncidenceType(size_t vertex, IncidenceType* new_incidence)
+  void setVertexIncidenceType(size_t vertex, IncidenceType<EdgeType>* new_incidence)
   {
     if (isOutOfBound(vertex))
       throw new std::out_of_range("Try to change wrong vertex " + toString(vertex));
 
-    for(auto to : vertexIncidents[vertex])
+    for(auto edge : vertexIncidents[vertex])
     {
-      new_incidence->addEdge(to);
+      new_incidence->addEdge(edge);
     }
     vertexIncidents[vertex].clear();
-    vertexIncidents[vertex] = std::move(VertexIncidenceType(new_incidence));
+    vertexIncidents[vertex] = std::move(VertexIncidenceType<EdgeType>(new_incidence));
   }
 
-  void addEdge(size_t source, size_t destination)
+  void addEdge(EdgeType edge)
   {
-    if (isOutOfBound(source) || isOutOfBound(destination))
-      throw new std::out_of_range("Try to add bad edge from " + toString(source) + " " + toString(destination));
+    if (isOutOfBound(edge.source) || isOutOfBound(edge.destination))
+      throw new std::out_of_range("Try to add bad edge from " 
+                                  + toString(edge.source) + " " 
+                                  + toString(edge.destination));
 
-    vertexIncidents[source].addEdge(destination);
+    vertexIncidents[edge.source].addEdge(edge);
   }
 
-  void removeEdge(size_t source, size_t destination)
+  void removeEdge(EdgeType edge)
   {
-    if (isOutOfBound(source) || isOutOfBound(destination))
-      throw new std::out_of_range("Try to remove bad edge from " + toString(source) + " " + toString(destination));
+    if (isOutOfBound(edge.source) || isOutOfBound(edge.destination))
+      throw new std::out_of_range("Try to remove bad edge from " 
+                                  + toString(edge.source) + " " 
+                                  + toString(edge.destination));
 
-    vertexIncidents[source].removeEdge(destination);
+    vertexIncidents[edge.source].removeEdge(edge);
   }
 
-  bool hasEdge(size_t source, size_t destination) const
+  bool hasEdge(EdgeType edge) const
   {
-    if (isOutOfBound(source) || isOutOfBound(destination))
-      throw new std::out_of_range("Try to check bad edge from " + toString(source) + " " + toString(destination));
+    if (isOutOfBound(edge.source) || isOutOfBound(edge.destination))
+      throw new std::out_of_range("Try to check bad edge from " 
+                                  + toString(edge.destination) + " " 
+                                  + toString(edge.destination));
 
-    return vertexIncidents[source].isConnectedTo(destination);
+    return vertexIncidents[edge.source].hasEdge(edge);
   }
 
   size_t size() const
@@ -91,24 +99,6 @@ class Graph
       v.clear();
     vertexIncidents.clear();
   }
-
-  /*/Graph transpose()
-  {
-    Graph transposed_graph = this;
-    for (auto& v : transposed_graph.vertexIncidents)
-    {
-      v.clear();
-    }
-    for(int v = 0; v < size(); v++)
-    {
-      for(auto& to : vertexIncidents[v])
-      {
-        transposed_graph.addEdge(v, to);
-      }
-    }
-    return transposed_graph;
-    //return std::move(transposed_graph);
-  }*/
 
   ~Graph()
   {

@@ -26,6 +26,7 @@
 #include <stack>
 
 #include "Graph.hpp"
+#include "Edge.hpp"
 
 namespace graph_algorithms
 {
@@ -33,7 +34,7 @@ namespace graph_algorithms
 class StronglyConnectedComponentsFinder
 {
  public:
-  explicit StronglyConnectedComponentsFinder(const Graph& G):G(G) {}
+  explicit StronglyConnectedComponentsFinder(const Graph<BasicEdge>& G):G(G) {}
 
   std::vector<int> getStronglyConnectedComponents()
   {
@@ -59,7 +60,7 @@ class StronglyConnectedComponentsFinder
   }
 
  private:
-  const Graph& G;
+  const Graph<BasicEdge>& G;
   int curTime;
   int componentCount;
   std::stack<int> S;
@@ -73,8 +74,9 @@ class StronglyConnectedComponentsFinder
     S.push(v);
     isInStack[v] = 1;
     tin[v] = tup[v] = curTime++;
-    for(auto to : G.vertexIncidents[v])
+    for(auto edge : G.vertexIncidents[v])
     {
+      size_t to = edge.destination;
       if (tin[to] == 0)
       {
         dfs(to);
@@ -103,7 +105,7 @@ class StronglyConnectedComponentsFinder
 class ConnectivityChecker
 {
  public:
-  explicit ConnectivityChecker(const Graph& G):G(G) {}
+  explicit ConnectivityChecker(const Graph<BasicEdge>& G):G(G) {}
 
   bool checkConnectivity(size_t source, size_t destination)
   {
@@ -114,7 +116,7 @@ class ConnectivityChecker
   }
 
  private:
-  const Graph& G;
+  const Graph<BasicEdge>& G;
   std::vector<char> visited;
 
   bool dfs(size_t v, size_t destination)
@@ -122,8 +124,9 @@ class ConnectivityChecker
     visited[v] = 1;
     if (v == destination)
       return true;
-    for(auto to : G.vertexIncidents[v])
+    for(auto edge : G.vertexIncidents[v])
     {
+      size_t to = edge.destination;
       if (!visited[to])
       {
         if (dfs(to, destination))
@@ -135,12 +138,12 @@ class ConnectivityChecker
   
 }; // ConnectivityChecker
 
-template<typename IncidenceTypeT = VectorIncidence>
-Graph getRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t seed = 42)
+template< template<typename EdgeTypeT> class IncidenceTypeT = VectorIncidence >
+Graph<BasicEdge> getRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t seed = 42)
 {
   srand(seed);
-  Graph G;
-  G.addVertices<IncidenceTypeT> (vertexNumber);
+  Graph<BasicEdge> G;
+  G.addVerticies<IncidenceTypeT> (vertexNumber);
 
   for(int i = 0; i < vertexNumber; i++)
   {
@@ -149,12 +152,35 @@ Graph getRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t
       double probability = rand() * 1.0 / RAND_MAX;
       if (edgeCreationProbability > probability)
       {
-        G.vertexIncidents[i].addEdge(j);
+        G.vertexIncidents[i].addEdge(BasicEdge(i, j));
       }
     }
   }
   return G;
 }
+
+/*
+template< template<typename EdgeTypeT> class IncidenceTypeT = VectorIncidence, typename EdgeType >
+Graph<EdgeType> getRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t seed = 42)
+{
+  srand(seed);
+  Graph<EdgeType> G;
+  G.addVertices< IncidenceTypeT<EdgeType> > (vertexNumber);
+
+  for(int i = 0; i < vertexNumber; i++)
+  {
+    for(int j = 0; j < vertexNumber; j++)
+    {
+      double probability = rand() * 1.0 / RAND_MAX;
+      if (edgeCreationProbability > probability)
+      {
+        G.vertexIncidents[i].addEdge(EdgeType(i, j));
+      }
+    }
+  }
+  return G;
+}
+*/
 
 } // namespace graph_algorithms
 
