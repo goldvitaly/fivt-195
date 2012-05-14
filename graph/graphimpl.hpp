@@ -26,17 +26,43 @@ class Edge
 		unsigned int to;
 		EdgeInfo info;
 		Edge(unsigned int to, EdgeInfo info): to(to), info(info) {};
-		explicit Edge(unsigned int to): to(to) {};
-		bool operator < (const Edge& rhs) const {
-			return to < rhs.to;
+};
+
+template <class Edge> 
+class EdgeComparator
+{
+	public:
+		bool operator()(const Edge& lhs, const Edge& rhs) 
+		{
+			return lhs.to < rhs.to;
 		}
-		bool operator == (const Edge& rhs) const {
-			return to == rhs.to;
+		bool operator()(const Edge& lhs, unsigned int rhs)
+		{
+			return lhs.to < rhs;
 		}
-		bool operator != (const Edge& rhs) const {
-			return to != rhs.to;
+		bool operator()(unsigned int lhs, const Edge& rhs)
+		{
+			return lhs < rhs.to;
 		}
 };
+
+template <class Edge>
+class EdgeIsEqualPred
+{
+	private:
+		int value_to_compare;
+	public:
+		EdgeIsEqualPred(int value): value_to_compare(value)
+		{
+		}
+		bool operator() (const Edge& edge)
+		{
+			return edge.to == value_to_compare;
+		}
+};
+
+
+// EdgeInfo should be copyable
 
 template <class EdgeInfo> 
 class Graph
@@ -47,8 +73,8 @@ class Graph
 		typedef Edge<EdgeInfo> edge_type;
 		typedef IteratorWrapper iterator;		
 		void add_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) { edges_count += this->get(from).add(edge_type(to, edge_info)); };
-		void del_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) { edges_count -= this->get(from).del(edge_type(to, edge_info)); };
-		bool has_edge(unsigned int from, unsigned int to) const { return this->get(from).has(edge_type(to)); };
+		void del_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) { edges_count -= this->get(from).del(to); };
+		bool has_edge(unsigned int from, unsigned int to) const { return this->get(from).has(to); };
 //		bool has_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) const { return this->get(from).has(edge_type(to, edge_info)); };
 		const EdgeInfo& get_edge(unsigned int from, unsigned int to) const { return this->get(from).get(to).info; }
 		unsigned int size() const 
@@ -83,8 +109,8 @@ class Graph
 				virtual iterator end() const = 0;
 				virtual unsigned int size() const = 0;
 				virtual bool add(edge_type) = 0;
-				virtual bool del(edge_type) = 0;
-				virtual bool has(edge_type) const = 0;
+				virtual bool del(unsigned int) = 0;
+				virtual bool has(unsigned int) const = 0;
 				virtual const edge_type& get(unsigned int) const = 0;
 				virtual Vertex* clone() const = 0;
 				virtual ~Vertex() {};

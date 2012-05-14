@@ -264,14 +264,39 @@ int test_shortest_path_finding(
 	return 0;
 }
 
+class Int
+{
+	public:
+		int value;
+		explicit Int(int value): value(value)
+		{
+		}
+};
+
+bool operator < (const Int& lhs, const Int& rhs)
+{
+	return lhs.value < rhs.value;
+}
+
+Int operator + (const Int& lhs, const Int& rhs)
+{
+	return Int(lhs.value + rhs.value);
+}
+
+bool operator != (const Int& lhs, const Int& rhs)
+{
+	return lhs.value != rhs.value;
+}
+
 int main()
 {
 	int CODE = 0;
 	std::cerr << "Testing graph realization" << std::endl;
+	if (!(CODE = test_graph_realization<graph::VertexWithUnsortedVector<>>(3,1e5))) return CODE;
 	if (!(CODE = test_graph_realization<graph::VertexWithUnsortedVector<>>(100,1e5))) return CODE;
 	if (!(CODE = test_graph_realization<graph::VertexWithSortedVector<>>(100,1e5))) return CODE;
-	if (!(CODE = test_graph_realization<graph::VertexWithSet<>>(100,1e5))) return CODE;
-	if (!(CODE = test_graph_realization<graph::VertexWithMultiset<>>(100,1e5))) return CODE;
+//	if (!(CODE = test_graph_realization<graph::VertexWithSet<>>(100,1e5))) return CODE;
+//	if (!(CODE = test_graph_realization<graph::VertexWithMultiset<>>(100,1e5))) return CODE;
 	std::cerr << "Graph realization seemes to be OK" << std::endl << "Testing Tarjan algorithm realization" << std::endl;
 	if (!(CODE = strongly_connection_test(5,   1e3))) return CODE;
 	if (!(CODE = strongly_connection_test(10,  1e3))) return CODE;
@@ -280,6 +305,9 @@ int main()
 	std::cerr << "Tarjan algorithm seemes to be OK" << std::endl; 
 	for (int i = 0; i < 100; i ++)
 		if (test_shortest_path_finding<int, int>(5, 15, [](){ return rand() % 100; }, std::plus<int>(), std::less<int>(), 0) != 0) 
+			return 1;
+	for (int i = 0; i < 100; i ++)
+		if (test_shortest_path_finding<Int, Int>(5, 15, [](){ return Int(rand() % 100); }, std::plus<Int>(), std::less<Int>(), Int(0)) != 0) 
 			return 1;
 	std::cerr << "Dijkstra with ints seemes to be OK" << std::endl;
 	for (int i = 0; i < 100; i ++)

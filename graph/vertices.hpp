@@ -78,21 +78,25 @@ namespace graph
 				Base::data.push_back(edge); 
 				return Base::data.size() != old_size;
 			}
-			bool has(edge_type edge) const
+			bool has(unsigned int vertex) const
 			{
-				return std::find(Base::data.begin(), Base::data.end(), edge) != Base::data.end(); 
+				return std::find_if(Base::data.begin(), Base::data.end(), graph::impl::EdgeIsEqualPred<edge_type>(vertex)) != Base::data.end(); 
 			}
 			const edge_type& get(unsigned int vertex) const
 			{
-				typename std::vector<edge_type>::const_iterator it = std::find(Base::data.begin(), Base::data.end(), edge_type(vertex));
+				typename std::vector<edge_type>::const_iterator it = std::find_if(Base::data.begin(), Base::data.end(), 
+						graph::impl::EdgeIsEqualPred<edge_type>(vertex));
 				if (it == Base::data.end())
 					throw std::out_of_range("No such edge");
 				return *it;
 			}
-			bool del(edge_type edge)
+			bool del(unsigned int vertex)
 			{
 				int old_size = Base::data.size();
-				typename std::vector<edge_type>::iterator it = std::find(Base::data.begin(), Base::data.end(), edge);
+				typename std::vector<edge_type>::iterator it = std::find_if(Base::data.begin(), Base::data.end(), 
+						graph::impl::EdgeIsEqualPred<edge_type>(vertex));
+				if (it != Base::data.end() && it->to == vertex)
+					Base::data.erase(it);
 				return Base::data.size() != old_size;
 			}
 	};
@@ -102,6 +106,7 @@ namespace graph
 	{		
 		typedef graph::VertexWithAbstractVector<EdgeInfo> Base;
 		typedef typename graph::impl::Graph<EdgeInfo>::edge_type edge_type;
+		typedef graph::impl::EdgeComparator<edge_type> edge_comp;
 		public:
 			typename graph::impl::Graph<EdgeInfo>::Vertex* clone() const { 
 				return new graph::VertexWithSortedVector<EdgeInfo>(*this); 
@@ -109,66 +114,79 @@ namespace graph
 			bool add(edge_type edge) 
 			{
 				int old_size = Base::data.size(); 
-				Base::data.insert(std::upper_bound(Base::data.begin(), Base::data.end(), edge), edge);
+				Base::data.insert(std::upper_bound(Base::data.begin(), Base::data.end(), edge, edge_comp()), edge);
 				return old_size != Base::data.size();
 			}; 
-			bool has(edge_type edge) const
-			{ 
-				typename std::vector<edge_type>::const_iterator it = std::lower_bound(Base::data.begin(), Base::data.end(), edge);
-				return it != Base::data.end() && *it == edge;
+			bool has(unsigned int vertex) const
+			{
+				typename std::vector<edge_type>::const_iterator it = std::lower_bound(Base::data.begin(), Base::data.end(), vertex, edge_comp());
+				return it != Base::data.end() && it->to == vertex;
 			}
 			const edge_type& get(unsigned int vertex) const
 			{
-				typename std::vector<edge_type>::const_iterator it =
-					std::lower_bound(Base::data.begin(), Base::data.end(), edge_type(vertex));
+				typename std::vector<edge_type>::const_iterator it = std::lower_bound(Base::data.begin(), Base::data.end(), vertex, edge_comp());
 				if (it == Base::data.end() || it->to != vertex)
 					throw std::out_of_range("No such edge");
 				return *it;
 			}
-			bool del(edge_type edge) 
+			bool del(unsigned int vertex) 
 			{
 				int old_size = Base::data.size();
-				typename std::vector<edge_type>::iterator it = std::lower_bound(Base::data.begin(), Base::data.end(), edge);
-				if (it != Base::data.end() && *it == edge)
+				typename std::vector<edge_type>::iterator it = std::lower_bound(Base::data.begin(), Base::data.end(), vertex, edge_comp());
+				if (it != Base::data.end() && it->to == vertex)
 					Base::data.erase(it);		
 				return Base::data.size() != old_size;
 			}
 	};
+
+/*
 
 	template <class Container, class EdgeInfo>
 	class VertexWithAbstractSet: public graph::VertexWithSTLContainer<Container, EdgeInfo>
 	{
 		typedef graph::VertexWithSTLContainer<Container, EdgeInfo> Base;
 		typedef typename graph::impl::Graph<EdgeInfo>::edge_type edge_type;
+		typedef graph::impl::EdgeComparator<edge_type> edge_comp;
 		public:
+			class iterator: public graph::impl::Graph<EdgeInfo>::Iterator
+			{	
+				private: 
+					typename Container::const_iterator iterator_to_element;
+				public:
+					explicit iterator
+			}
 			bool add(edge_type edge)
 			{
 				int old_size = Base::data.size();
 				Base::data.insert(edge);
 				return old_size != Base::data.size();
 			};
-			bool has(edge_type edge) const 
+			bool has(unsigned int vertex) const 
 			{
-				return Base::data.find(edge) != Base::data.end();
+				return Base::data.find(vertex) != Base::data.end();
 			}
-			bool del(edge_type edge)
+			bool del(unsigned int vertex)
 			{
 				int old_size = Base::data.size();
-				typename Container::iterator it = Base::data.find(edge);
+				typename Container::iterator it = Base::data.find(vertex);
 				if (it != Base::data.end())
 					Base::data.erase(it);
 				return old_size != Base::data.size();
 			}
 			const edge_type& get(unsigned int vertex) const 
 			{
-				if (!has(edge_type(vertex)))
+				if (!has(vertex))
 					throw std::logic_error("no such edge");
-				return *Base::data.find(edge_type(vertex));
+				return *Base::data.find(vertex);
 			}
 	};
 
 	template <class EdgeInfo = graph::tag::no_info>
-	class VertexWithSet: 	  public graph::VertexWithAbstractSet<std::set<typename graph::impl::Graph<EdgeInfo>::edge_type>, EdgeInfo> 
+	class VertexWithSet: 	  public graph::VertexWithAbstractSet<
+							  std::set<
+									  	typename graph::impl::Graph<EdgeInfo>::edge_type,
+										graph::impl::EdgeComparator<typename graph::impl::Graph<EdgeInfo>::edge_type>
+									  >, EdgeInfo> 
 	{
 		typedef typename graph::impl::Graph<EdgeInfo>::edge_type edge_type;
 		public:
@@ -176,12 +194,17 @@ namespace graph
 	};
 
 	template <class EdgeInfo = graph::tag::no_info>
-	class VertexWithMultiset: public graph::VertexWithAbstractSet<std::multiset<typename graph::impl::Graph<EdgeInfo>::edge_type>, EdgeInfo> 
+	class VertexWithMultiset: public graph::VertexWithAbstractSet<
+							  std::multiset<
+											typename graph::impl::Graph<EdgeInfo>::edge_type, 
+											graph::impl::EdgeComparator<typename graph::impl::Graph<EdgeInfo>::edge_type>
+							  >, EdgeInfo> 
 	{
 		typedef typename graph::impl::Graph<EdgeInfo>::edge_type edge_type;
 		public:
 			typename graph::impl::Graph<EdgeInfo>::Vertex* clone() const { return new graph::VertexWithMultiset<EdgeInfo>(*this); };
 	}; 
+*/
 
 };
 
