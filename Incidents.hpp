@@ -26,7 +26,7 @@ public:
 		Edge<Weight> operator * () const {
 			return **it;
 		}
-		bool operator != (Iterator& second) const {
+		bool operator != (const Iterator& second) const {
 			return (*it) != *(second.it);
 		}
 		Iterator (Iterator&& m){
