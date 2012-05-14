@@ -74,7 +74,7 @@ std::vector<int> make_graph3(Graph<Vertex<int>, int>& graph)
 class PlusPairInt
 {
 public:
-     std::pair<int, int> operator()(AccessPath<int, std::pair<int, int> > accessPath)
+     std::pair<int, int> operator()(const AccessPath<int, std::pair<int, int> >& accessPath)
      {
          std::pair<int, int> pair = accessPath.path();
          int integer = accessPath.weight();
@@ -82,16 +82,19 @@ public:
      }
 };
 
+
 void test(Graph<Vertex<int>, int>& graph, std::vector<int> ans)
 {
     //pair<int, int> взят просто так. В нем всегда first == second.
-    ShortestPath<Vertex<int>, int, std::pair<int, int>, PlusPairInt> shortestPath(graph);
-    std::vector<std::pair<int, int> > ansShortestPath = shortestPath.count(0, std::make_pair(-1, -1));
+    typedef ShortestPath<Vertex<int>, int, std::pair<int, int>, PlusPairInt> MyShortestPath;
+    MyShortestPath shortestPath(graph);
+    MyShortestPath::VectorAccessPath ansShortestPath = shortestPath.calculate(0, std::make_pair(-1, -1));
     for(int i = 0; i < graph.size(); i++)
     {
-        if(ans[i] != ansShortestPath[i].first || ansShortestPath[i].first != ansShortestPath[i].second)
+        std::pair<int, int> ansAlgo = PlusPairInt()(ansShortestPath[i]);
+        if(ans[i] != ansAlgo.first || ansAlgo.first != ansAlgo.second)
         {
-            std::cerr << ans[i] << " " << ansShortestPath[i].first << std::endl;
+            std::cerr << ans[i] << " " << ansAlgo.first << std::endl;
             exit(1);
         }
     }
