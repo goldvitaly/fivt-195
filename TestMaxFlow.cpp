@@ -38,13 +38,14 @@ void make_graph(Graph<Vertex<int>, int>& graph, int number = 0)
     }
 }
 
+std::vector<int> ans;
+
 void test(int number)
 {
-    std::cout << "test " << number << std::endl;
     Graph<Vertex<int>, int> graph;
     make_graph(graph, number);
-    MaxFlow<Vertex<int>, int> maxFlow(graph);
-   // std::cout << maxFlow.count(0, 3) << std::endl;
+    MaxFlow<Vertex<int>, int, std::less<int> > maxFlow(graph);
+   ans.push_back(maxFlow.calculate(0, 3));
 }
 
 int main()
@@ -53,6 +54,7 @@ int main()
     {
         test(i);
     }
-
+    if(ans != (std::vector<int>() = {2, 1, 2}))
+        exit(1);
     return 0;
 }
