@@ -36,6 +36,9 @@ public: // declaration and definition of methods
 	size_t vertexNum() const {
 		return IncidencePtrs.size();
 	}
+    size_t size() const { // the same as vertexNum but more usual
+        return IncidencePtrs.size();
+    }
 	const IIncidence<TEdge>& operator[] (size_t vertexId) const {
 		return *IncidencePtrs[vertexId];
 	}

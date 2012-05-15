@@ -15,7 +15,7 @@ public: // built-in iterator definition
 	{
 	public:
 		VectorIterator() {}
-		explicit VectorIterator(std::vector<size_t>::const_iterator it_): it(it_) {}
+		explicit VectorIterator(typename std::vector<TEdge>::const_iterator it_): it(it_) {}
 		virtual ~VectorIterator() {}
 		
 		virtual std::unique_ptr<graph::Iterator<TEdge>> clone() const {
@@ -34,7 +34,7 @@ public: // built-in iterator definition
 		}
 		
 	private:
-		std::vector<size_t>::const_iterator it;
+		typename std::vector<TEdge>::const_iterator it;
 	};
 	
 public: // definition of methods
@@ -45,11 +45,11 @@ public: // definition of methods
 		return std::unique_ptr<graph::IIncidence<TEdge>>(new VectorIncidence(*this));
 	}
 
-	virtual void addEdge(size_t to) {
-		adjacent.push_back(to);
+	virtual void addEdge(TEdge edge) {
+		adjacent.push_back(edge);
 	}
-	virtual void delEdge(size_t to) {
-		adjacent.erase(std::find(adjacent.begin(), adjacent.end(), to));
+	virtual void delEdge(TEdge edge) {
+		adjacent.erase(std::find(adjacent.begin(), adjacent.end(), edge));
 	}
 	
 	virtual size_t size() const {
@@ -64,7 +64,7 @@ public: // definition of methods
 	}
 
 private:
-	std::vector<size_t> adjacent;
+	std::vector<TEdge> adjacent;
 	
 };
 
