@@ -4,12 +4,13 @@
 #include <set>
 #include <algorithm>
 #include <ctime>
+#include <utility>
+
 
 #include "ctime"
 #include "graph.h"
 #include "VertexVector.h"
 #include "VertexMap.h"
-#include "utility"
 #include "ShortestPath.h"
 
 typedef unsigned int TypeNameVer;
@@ -82,22 +83,46 @@ public:
      }
 };
 
-
-void test(Graph<Vertex<int>, int>& graph, std::vector<int> ans)
+class PlusIntInt
 {
-    //pair<int, int> взят просто так. В нем всегда first == second.
-    typedef ShortestPath<Vertex<int>, int, std::pair<int, int>, PlusPairInt> MyShortestPath;
+public:
+     int operator()(const AccessPath<int, int>& accessPath)
+     {
+         return accessPath.path() + accessPath.weight();
+     }
+};
+
+
+template<class LengthPath, class CalculatePath>
+void test(const Graph<Vertex<int>, int>& graph, const std::vector<LengthPath>& ans, const LengthPath& notExistPath)
+{
+    typedef ShortestPath<Vertex<int>, int, LengthPath, CalculatePath> MyShortestPath;
     MyShortestPath shortestPath(graph);
-    MyShortestPath::VectorAccessPath ansShortestPath = shortestPath.calculate(0, std::make_pair(-1, -1));
+    typename MyShortestPath::VectorAccessPath ansAlgo = shortestPath.calculate(0, notExistPath);
     for(int i = 0; i < graph.size(); i++)
     {
-        std::pair<int, int> ansAlgo = PlusPairInt()(ansShortestPath[i]);
-        if(ans[i] != ansAlgo.first || ansAlgo.first != ansAlgo.second)
+        if(ans[i] != CalculatePath()(ansAlgo[i]))
         {
-            std::cerr << ans[i] << " " << ansAlgo.first << std::endl;
             exit(1);
         }
     }
+}
+
+template<class T>
+std::vector<std::pair<T, T> > duplication(const std::vector<T>& vector)
+{
+    std::vector<std::pair<T, T> > ans;
+    for(int i = 0; i < vector.size(); i++)
+    {
+        ans.push_back(std::make_pair(vector[i], vector[i]));
+    }
+    return ans;
+}
+
+void setTests(const Graph<Vertex<int>, int>& graph, const std::vector<int>& ans)
+{
+    test<int, PlusIntInt>(graph, ans, -1);
+    test<std::pair<int, int>, PlusPairInt>(graph, duplication(ans), std::make_pair(-1, -1));
 }
 
 int main()
@@ -105,13 +130,13 @@ int main()
     Graph<Vertex<int>, int> graph;
     std::vector<int> ans(5);
     ans = make_graph1(graph);
-    test(graph, ans);
+    setTests(graph, ans);
 
     ans = make_graph2(graph);
-    test(graph, ans);
+    setTests(graph, ans);
 
     ans = make_graph3(graph);
-    test(graph, ans);
+    setTests(graph, ans);
 
     return 0;
 }
