@@ -44,7 +44,7 @@ void test(int number)
     Graph<Vertex<int>, int> graph;
     make_graph(graph, number);
     MaxFlow<Vertex<int>, int> maxFlow(graph);
-    std::cout << maxFlow.count(0, 3) << std::endl;
+   // std::cout << maxFlow.count(0, 3) << std::endl;
 }
 
 int main()

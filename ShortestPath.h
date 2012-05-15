@@ -6,12 +6,12 @@
 #include <vector>
 #include <iostream>
 
-template<class Weight, class Path>
+template<class Weight, class LengthPath>
 class AccessPath
 {
     typedef unsigned int TypeNameVer;
     Weight weightEdge;
-    Path pathPrevVertex;
+    LengthPath pathPrevVertex;
     TypeNameVer vertex;
     AccessPath* prevAccessPath;
 public:
@@ -19,10 +19,10 @@ public:
         vertex = 0;
         prevAccessPath = NULL;
     }
-    AccessPath(const TypeNameVer& nameVer, AccessPath* accessPath_, Weight weight_, Path path_) {
+    AccessPath(const TypeNameVer& nameVer, AccessPath* accessPath_, Weight weight_, LengthPath lengthPath_) {
         vertex = nameVer;
         weightEdge = weight_;
-        pathPrevVertex = path_;
+        pathPrevVertex = lengthPath_;
         prevAccessPath = accessPath_;
     }
     TypeNameVer lastVertex() const {
@@ -34,59 +34,51 @@ public:
     Weight weight() const {
         return weightEdge;
     }
-    Path path() const {
+    LengthPath path() const {
         return pathPrevVertex;
     }
 };
 
 
-template<class StructVer, class Weight, class Path, class CalkPath, class Cmp = std::less<Path>,
-         class StayingPath = Path>
+template<class StructVer, class Weight, class LengthPath, class CalculatePath, class Cmp = std::less<LengthPath>,
+         class StayingPath = LengthPath>
 class ShortestPath
 {
 typedef unsigned int TypeNameVer;
-typedef typename std::set<std::pair<Path, TypeNameVer> >::iterator SetIterator;
-typedef std::pair<Path, TypeNameVer> CurPath;
+typedef typename std::set<std::pair<LengthPath, TypeNameVer> >::iterator SetIterator;
+typedef std::pair<LengthPath, TypeNameVer> CurLengthPath;
 public:
-    explicit ShortestPath(const Graph<StructVer, Weight>& graph_, CalkPath calkPath_ = CalkPath()) : graph(graph_), calkPath(calkPath_)
+    typedef std::vector<AccessPath<Weight, LengthPath> > VectorAccessPath;
+    explicit ShortestPath(const Graph<StructVer, Weight>& graph_, CalculatePath calculatePath_ = CalculatePath())
+        : graph(graph_), calculatePath(calculatePath_)
     {
 
     }
-    Path count(const TypeNameVer& vertexStart, const TypeNameVer& vertexEnd, const Path& notPath)
+    VectorAccessPath calculate(const TypeNameVer& vertex, const LengthPath& notExistPath)
     {
-        init(notPath);
-        begin(vertexStart);
-        return (mark[vertexEnd] == 2) ? dist[vertexEnd] : notPath;
-    }
-    std::vector<Path> count(const TypeNameVer& vertex, const Path& notPath)
-    {
-        init(notPath);
-        begin(vertex);
-        return dist;
-    }
-    AccessPath<Weight, Path> path(const TypeNameVer& vertex) const
-    {
-        return accessPath[vertex];
+        init(notExistPath);
+        beginSearchShortestPath(vertex);
+        return std::move(accessPath);
     }
 private:
-    void init(const Path& notPath)
+    void init(const LengthPath& notExistPath)
     {
         mark.clear();
         accessPath.clear();
         dist.clear();
 
         mark.resize(graph.size());
-        accessPath.resize(graph.size());
-        dist.resize(graph.size(), notPath);
+        accessPath.resize(graph.size(), AccessPath<Weight, LengthPath>(0, 0, Weight(), notExistPath));
+        dist.resize(graph.size(), notExistPath);
     }
 
     class CmpPath{
     public:
-        bool operator()(const CurPath& a, const CurPath& b) const
+        bool operator()(const CurLengthPath& a, const CurLengthPath& b) const
         {
             if(Cmp()(a.first, b.first))
                 return true;
-            else if((Cmp()(a.first, b.first) == Cmp()(b.first, a.first)) && a.second < b.second)
+            else if(!Cmp()(b.first, a.first) && a.second < b.second)
                 return true;
             else
                 return false;
@@ -94,25 +86,24 @@ private:
     };
 
     const Graph<StructVer, Weight>& graph;
-    std::vector<AccessPath<Weight, Path> > accessPath;
-    std::vector<Path> dist;
+    VectorAccessPath accessPath;
+    std::vector<LengthPath> dist;
     std::vector<int> mark;
-    std::set<CurPath, CmpPath> set;
-    CalkPath calkPath;
+    std::set<CurLengthPath, CmpPath> setGreyVertex;
+    CalculatePath calculatePath;
 
-    void begin(const TypeNameVer& vertex)
+    void beginSearchShortestPath(const TypeNameVer& vertex)
     {
         dist[vertex] = StayingPath();
-        set.insert(std::make_pair(StayingPath(), vertex));
-        accessPath[vertex] = AccessPath<Weight, Path>(vertex, 0, Weight(), StayingPath());
+        setGreyVertex.insert(std::make_pair(StayingPath(), vertex));
+        accessPath[vertex] = AccessPath<Weight, LengthPath>(vertex, 0, Weight(), StayingPath());
         mark[vertex] = 1;
-        while(1)
+
+        while(!setGreyVertex.empty())
         {
-            if(set.empty())
-                break;
-            CurPath minElem = *set.begin();
+            CurLengthPath minElem = *setGreyVertex.begin();
             mark[minElem.second] = 2;
-            set.erase(set.begin());
+            setGreyVertex.erase(setGreyVertex.begin());
             Relax relax(*this, minElem.second);
             graph.for_each_neighbour(minElem.second, relax);
         }
@@ -129,22 +120,20 @@ private:
         }
         void operator()(const TypeNameVer& vertex, const Weight& weight)
         {
-            AccessPath<Weight, Path> newAccessPath =
-                AccessPath<Weight, Path>(vertex, &shortestPath.accessPath[root], weight, shortestPath.dist[root]);
-            Path newPath = shortestPath.calkPath(newAccessPath);
-            if(shortestPath.mark[vertex] == 0)
+            AccessPath<Weight, LengthPath> newAccessPath =
+                AccessPath<Weight, LengthPath>(vertex, &shortestPath.accessPath[root], weight, shortestPath.dist[root]);
+            LengthPath newPath = shortestPath.calculatePath(newAccessPath);
+            if(shortestPath.mark[vertex] == 0
+               || (shortestPath.mark[vertex] == 1 && Cmp()(newPath, shortestPath.dist[vertex])))
             {
-                shortestPath.mark[vertex] = 1;
-                shortestPath.accessPath[vertex] = newAccessPath;
-                shortestPath.dist[vertex] = newPath;
-                shortestPath.set.insert(std::make_pair(shortestPath.dist[vertex], vertex));
-            }
-            else if(shortestPath.mark[vertex] == 1 && Cmp()(newPath, shortestPath.dist[vertex]))
-            {
-                shortestPath.set.erase(std::make_pair(shortestPath.dist[vertex], vertex));
+                if(shortestPath.mark[vertex] == 1)
+                    shortestPath.setGreyVertex.erase(std::make_pair(shortestPath.dist[vertex], vertex));
+                else
+                    shortestPath.mark[vertex] = 1;
+
                 shortestPath.dist[vertex] = newPath;
                 shortestPath.accessPath[vertex] = newAccessPath;
-                shortestPath.set.insert(std::make_pair(shortestPath.dist[vertex], vertex));
+                shortestPath.setGreyVertex.insert(std::make_pair(shortestPath.dist[vertex], vertex));
             }
         }
     };
