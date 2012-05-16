@@ -18,11 +18,10 @@ typedef unsigned int TypeNameVer;
 Weight notExistsPath;
 public:
     explicit MaxFlow(const Graph<StructVer, Weight>& graph_)
-    : graph(graph_), runDFS(*this)
+    : graph(graph_), runDFS(*this), notExistsPath(0), calculatePath(*this, notExistsPath)
     {
         mark.resize(graph.size());
         make_copy_graph();
-        notExistsPath = 0;
     }
     Weight calculate(const TypeNameVer& source_, const TypeNameVer& target_)
     {
@@ -42,7 +41,7 @@ private:
         typedef unsigned int TypeNameVer;
         MaxFlow& maxFlow;
     public:
-        RunDFS(MaxFlow& maxFlow_) : maxFlow(maxFlow_)
+        explicit RunDFS(MaxFlow& maxFlow_) : maxFlow(maxFlow_)
         {
         }
         void operator()(const TypeNameVer& vertex)
@@ -86,24 +85,14 @@ private:
         Weight operator()(AccessPath<Weight, Weight> accessPath)
         {
             if(accessPath.prev() == NULL)
-            {
-                return  accessPath.path();
-            }
+                return accessPath.path();
             else if(accessPath.prev()->prev() == NULL)
                 return maxFlow.capacityEdge[accessPath.weight()];
             else
                 return std::min(accessPath.path(), maxFlow.capacityEdge[accessPath.weight()]);
         }
     };
-
-    class InvCmp
-    {
-    public:
-        bool operator()( Weight elem1, Weight elem2)
-        {
-            return Cmp()(elem2, elem1);
-        }
-    };
+    CalculatePath calculatePath;
 
     void make_copy_graph()
     {
@@ -119,29 +108,40 @@ private:
         graph.for_each_neighbour(vertex, addEdge);
     }
 
+    class InvCmp
+    {
+    public:
+        bool operator()( Weight elem1, Weight elem2)
+        {
+            return Cmp()(elem2, elem1);
+        }
+    };
+
     Weight searchMaxFlow()
     {
         Weight maxFlow = 0;
         Weight delta;
-        int id = 0;
         do
         {
-            id++;
             typedef ShortestPath<Vertex<int>, int, Weight, CalculatePath, InvCmp> MyShortestPath;
-            MyShortestPath shortestPath(residualGraph, CalculatePath(*this, notExistsPath));
+            MyShortestPath shortestPath(residualGraph, calculatePath);
             typename MyShortestPath::VectorAccessPath vectorAccessPath = shortestPath.calculate(source, notExistsPath);
             AccessPath<int, int> accessPath = vectorAccessPath[target];
-            delta = CalculatePath(*this, notExistsPath)(accessPath);
+            delta = calculatePath(accessPath);
             while(accessPath.prev() != NULL)
             {
                 capacityEdge[accessPath.weight()] -= delta;
-                capacityEdge[(accessPath.weight() % 2 == 0) ? (accessPath.weight() + 1) : (accessPath.weight() - 1)] += delta;
+                capacityEdge[inv_edge(accessPath.weight())] += delta;
                 accessPath = *accessPath.prev();
             }
             maxFlow += delta;
 
         }while(Cmp()(0, delta));
         return maxFlow;
+    }
+    int inv_edge(int numEdge)
+    {
+        return (numEdge % 2 == 0) ? (numEdge + 1) : (numEdge - 1);
     }
 };
 
