@@ -9,8 +9,8 @@
 class Path
 {
 private:
-    std::vector<char>& isReached;
-    std::vector<size_t>& previous;
+    const std::vector<char>& isReached;
+    const std::vector<size_t>& previous;
 
 public:
     size_t to;
@@ -18,7 +18,7 @@ public:
         isReached(_isReached), previous(_previous) {}
     Path(std::vector<char>& _isReached, std::vector<size_t>& _previous, size_t _to):
         isReached(_isReached), previous(_previous), to(_to) {}
-    std::vector<size_t> getPath()
+    std::vector<size_t> getPath() const
     {
         std::vector<size_t> res;
 		size_t curVertex = to, prevVertex = previous[to];
@@ -39,28 +39,29 @@ public:
 	}
 };
 
+// поменять методы, завести структуры соответствующие
 template<typename TLength>
 class ShortestPathInfo
 {
 private:
-	std::vector<char> isReached;
-	std::vector<TLength> distances;
-	std::vector<size_t> previous;
+	const std::vector<char> isReached;
+	const std::vector<TLength> distances;
+	const std::vector<size_t> previous;
 public:
-	ShortestPathInfo(std::vector<char>& _isReached, std::vector<TLength>& _distances, std::vector<size_t> _previous) : 
+	ShortestPathInfo(std::vector<char>& _isReached, std::vector<TLength>& _distances, std::vector<size_t>& _previous) : 
 	distances(_distances), isReached(_isReached), previous(_previous){}
 	
-	std::pair< std::vector<TLength>, std::vector<char> > getLengths() const 
+	TLength getLength(size_t v) const 
 	{
-		return std::make_pair(distances, isReached);
+		return distances[v];
 	}
 	
-	std::pair<TLength, char> getLength(size_t v) const 
+	bool isReach(size_t v) const 
 	{
-		return std::make_pair(distances[v], isReached[v]);
+		return isReached[v];
 	}
-	
-	Path calcPath()
+
+	Path calcPath() const
 	{
 		Path path(isReached, previous);
 		return path;
