@@ -39,7 +39,6 @@ public:
 	}
 };
 
-
 template<typename TLength>
 class ShortestPathInfo
 {
