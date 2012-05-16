@@ -15,7 +15,6 @@ template<class StructVer, class Weight, class Cmp>
 class MaxFlow
 {
 typedef unsigned int TypeNameVer;
-Weight notExistsPath;
 public:
     explicit MaxFlow(const Graph<StructVer, Weight>& graph_)
     : graph(graph_), runDFS(*this), notExistsPath(0), calculatePath(*this, notExistsPath)
@@ -35,6 +34,7 @@ private:
     TypeNameVer source, target;
     std::vector<int> mark;
     std::vector<Weight> capacityEdge;
+    Weight notExistsPath;
 
     class RunDFS : public UnaryFunc
     {

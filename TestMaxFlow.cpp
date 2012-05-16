@@ -32,7 +32,8 @@ void make_random_graph(Graph<Vertex<int>, int>& graph, std::vector<std::vector<i
 }
 
 
-bool dfs(int prevVertex, int vertex, std::vector<std::vector<int>>& tableEdge, std::vector<int>& mark, std::vector<int>& from)
+bool dfs(int prevVertex, int vertex, std::vector<std::vector<int>>& tableEdge,
+         std::vector<int>& mark, std::vector<int>& from)
 {
     mark[vertex] = 1;
     from[vertex] = prevVertex;
