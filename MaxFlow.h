@@ -111,7 +111,7 @@ private:
     class InvCmp
     {
     public:
-        bool operator()( Weight elem1, Weight elem2)
+        bool operator()( Weight elem1, Weight elem2) const
         {
             return Cmp()(elem2, elem1);
         }
@@ -139,7 +139,8 @@ private:
         }while(Cmp()(0, delta));
         return maxFlow;
     }
-    int inv_edge(int numEdge)
+
+    int inv_edge(int numEdge) const
     {
         return (numEdge % 2 == 0) ? (numEdge + 1) : (numEdge - 1);
     }
