@@ -15,12 +15,14 @@ template<class StructVer, class Weight, class Cmp>
 class MaxFlow
 {
 typedef unsigned int TypeNameVer;
+Weight notExistsPath;
 public:
     explicit MaxFlow(const Graph<StructVer, Weight>& graph_)
     : graph(graph_), runDFS(*this)
     {
         mark.resize(graph.size());
         make_copy_graph();
+        notExistsPath = 0;
     }
     Weight calculate(const TypeNameVer& source_, const TypeNameVer& target_)
     {
@@ -126,10 +128,10 @@ private:
         {
             id++;
             typedef ShortestPath<Vertex<int>, int, Weight, CalculatePath, InvCmp> MyShortestPath;
-            MyShortestPath shortestPath(residualGraph, CalculatePath(*this, -1));
-            typename MyShortestPath::VectorAccessPath vectorAccessPath = shortestPath.calculate(source, -1);
+            MyShortestPath shortestPath(residualGraph, CalculatePath(*this, notExistsPath));
+            typename MyShortestPath::VectorAccessPath vectorAccessPath = shortestPath.calculate(source, notExistsPath);
             AccessPath<int, int> accessPath = vectorAccessPath[target];
-            delta = CalculatePath(*this, -1)(accessPath);
+            delta = CalculatePath(*this, notExistsPath)(accessPath);
             while(accessPath.prev() != NULL)
             {
                 capacityEdge[accessPath.weight()] -= delta;
@@ -138,7 +140,7 @@ private:
             }
             maxFlow += delta;
 
-        }while(Cmp()(0, delta) && id <10);
+        }while(Cmp()(0, delta));
         return maxFlow;
     }
 };
