@@ -39,7 +39,7 @@ public:
 	}
 };
 
-// поменять методы, завести структуры соответствующие
+
 template<typename TLength>
 class ShortestPathInfo
 {
