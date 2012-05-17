@@ -18,8 +18,8 @@ public:
 template<typename Weight, typename Length = Weight, typename CalcLength = SumShortestPathsFunctor<Length> , typename CompLength = std::less<Length> >
 class ShortestPaths{
 public: 
-	explicit ShortestPaths(const Graph<Weight>& graph, const CalcLength& calcLength = CalcLength(), const CompLength& compLength = CompLength())
-		:graph(graph), calcLength(calcLength), compLength(compLength){}
+	explicit ShortestPaths(const Graph<Weight>& graph, const Length& defaultLen = Length(), const CalcLength& calcLength = CalcLength(), const CompLength& compLength = CompLength())
+		:graph(graph), calcLength(calcLength), compLength(compLength), defaultLen(defaultLen){}
 	
 	ShortestPathsInfo<Length,Weight> calculate(size_t from){
 		std::set<State, StateComparator> queue(compLength);
@@ -28,7 +28,7 @@ public:
 		for(size_t i=0;i<graph.size();++i){
 			lastEdge.push_back(std::move(Iterator()));
 		}
-		curLen[from] = Length();
+		curLen[from] = defaultLen;
 		queue.insert(State(from, *curLen[from]));
 		while(!queue.empty()){
 			auto firstIterator = queue.begin();
@@ -77,6 +77,8 @@ private:
 	std::vector<boost::optional<size_t> > previous;
 	typedef typename Incidents<Weight>::Iterator Iterator;
 	std::vector<Iterator> lastEdge;
+	
+	Length defaultLen;
 	
 };
 

@@ -8,6 +8,7 @@
 #include "StronglyConnectedComponentsInfo.hpp"
 #include "TrivialStronglyConnectedComponents.hpp"
 #include "VectorIncidents.hpp"
+#include "MaxFlow.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <set>
@@ -114,9 +115,63 @@ void stressTestDijkstra(int n){
 		assert(expected == received);
 	}
 }
+
+	
+void testFlow(int times){
+	for(int z=0;z<times;++z){
+		Graph<int> g;
+		int n = rand()%100;
+		if(n<2){
+			--z;
+			continue;
+		}
+		for(int i=0;i<n;++i){
+			g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+		}
+		vector<size_t> a;
+		size_t start = rand() % g.size();
+		for(int i=0;i<n;++i){
+			if((size_t)i!=start)
+				a.push_back(i);
+		}
+		size_t end = start;
+		while(end == start)
+			end = rand() % g.size();
+		int flow = 0;
+		for(int i=0;i<20;++i){
+			int w = rand() % 1000;
+			flow += w;
+			random_shuffle(a.begin(), a.end());
+			size_t prev = start;
+			for(int t=0;prev!=end;++t){
+				if(start == a[t])
+					continue;
+				g.addEdge(prev, a[t], w);
+				prev = a[t];
+			}
+		}
+		int foundFlow = MaxFlow<int>(g).flow(start, end);
+		assert(foundFlow == flow);
+	}
+}
+
+void handMadeTestFlow(){
+	Graph<int> g;
+	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+	assert(MaxFlow<int>(g).flow(0,1) == 0);
+	g.addEdge(0,1, 42);
+	assert(MaxFlow<int>(g).flow(0,1) == 42);
+	assert(MaxFlow<int>(g).flow(1,0) == 0);
+	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
+	g.addEdge(2,0, 423);
+	assert(MaxFlow<int>(g).flow(2, 1) == 42);
+}
 int main() {
 	//testTarjan();
 	//stressTestDijkstra(1000);
-	testDijkstraPathes(1);
+	//testDijkstraPathes(100);
+	handMadeTestFlow();
+	testFlow(100);
 	return 0;
 }
