@@ -2,6 +2,7 @@
 #define TEST_DIJKSTRA_H_INCLUDED
 
 #include <iostream>
+#include <ostream>
 #include <algorithm>
 #include <vector>
 #include <set>
@@ -60,7 +61,7 @@ inline void trueAlgoFloyd(TypeTestGraph& tG, size_t from, std::vector<int>* outD
 {
     size_t n = tG.size();
     std::vector< std::vector<char> > isReached(n);
-    for (size_t i = 0; i < n; i++)
+	for (size_t i = 0; i < n; i++)
 		isReached[i].assign(n, false);
     std::vector< std::vector<int> > d(n);
     for (size_t i = 0; i < n; i++)
@@ -92,7 +93,7 @@ inline void trueAlgoFloyd(TypeTestGraph& tG, size_t from, std::vector<int>* outD
 		(*outIsReached)[i] = isReached[from][i];
 	}
 }
-inline bool runTestDijkstra(size_t numVertices, size_t numEdges, int maxWeight)
+inline bool runTestDijkstra(size_t numVertices, size_t numEdges, int maxWeight, std::ofstream& out)
 {
     time_t start = clock();
     Graph<int> G;
@@ -104,8 +105,8 @@ inline bool runTestDijkstra(size_t numVertices, size_t numEdges, int maxWeight)
     Dijkstra<int, int> dijkstra(G);
     size_t from = rand() % numVertices;
     ShortestPathInfo<int> pathInfo =  dijkstra.calcDist(from);
-	std::cout << numVertices << " " << numEdges << " ";
-    std::cout << (double (clock()) - start) / CLOCKS_PER_SEC << " ";
+	out << numVertices << " " << numEdges << " ";
+    out << (double (clock()) - start) / CLOCKS_PER_SEC << " ";
    
     //trueAlgoDijkstra(tG, from, &trueDist, &trueIsReached);
     trueAlgoFloyd(tG, from, &trueDist, &trueIsReached);
@@ -137,19 +138,24 @@ inline void testDijkstra()
     srand(51518905);
     const size_t qTests = 20, maxN = 100, maxM = 1000, maxWeight = 10000;
     bool res;
-    std::cout << "numVertices numEdges time(sec) result" << std::endl;
+    std::ofstream out;
+	out.open("Test_Dijkstra.log");
+	out << "numVertices numEdges time(sec) result" << std::endl;
     for (size_t i = 0; i < qTests; i++)
     {
         srand(rand());
         size_t numVertices = (rand() % maxN) + 1;
         size_t numEdges = (rand() % maxM) + 1;
         size_t curMaxWeight = (rand() % maxWeight) + 1;
-        res = runTestDijkstra(numVertices, numEdges, curMaxWeight);
+        res = runTestDijkstra(numVertices, numEdges, curMaxWeight, out);
         if (res)
-            std::cout << "OK";
+            out << "OK";
         else
-            std::cout << "Incorrect";
-        std::cout << std::endl;
+		{
+			std::cerr << "Incorrect" << std::endl;
+            out << "Incorrect";
+        }
+		out << std::endl;
     }
 }
 
