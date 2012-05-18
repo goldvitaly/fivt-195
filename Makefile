@@ -1,16 +1,24 @@
-CFLAGS = -std=c++0x -Wall -O2
+CFLAGS = -std=c++0x -Wall -Werror -O2
 LFLAGS = 
-test: test.o base.o dfs.o kosaraju.o tarjan.o
-	g++ -o test test.o base.o dfs.o kosaraju.o tarjan.o $(LFLAGS)
-test.o: test.cpp graph.hpp dfs.hpp kosaraju.hpp tarjan.hpp weighted.hpp dijkstra.hpp adapter.hpp
-	g++ -c test.cpp $(CFLAGS)
+dist/test: dist/libgraph.a
+	cd dist && g++ -o test test.cpp -Iinclude -L. -lgraph $(CFLAGS)
+dist/libgraph.a: base.o dfs.o kosaraju.o tarjan.o adapter.hpp dijkstra.hpp graph.hpp test.cpp weighted.hpp
+	mkdir -p dist
+	mkdir -p dist/include
+	cp *.hpp dist/include
+	ar rcs libgraph.a base.o dfs.o kosaraju.o tarjan.o
+	mv libgraph.a dist
+	cp test.cpp dist
 base.o: base.hpp base.cpp
 	g++ -c base.cpp $(CFLAGS)
 dfs.o: dfs.hpp dfs.cpp
 	g++ -c dfs.cpp $(CFLAGS)
 kosaraju.o: kosaraju.hpp kosaraju.cpp
 	g++ -c kosaraju.cpp $(CFLAGS)
-tarjan.o: tarjan.hpp tarjan.cpp
+tarjan.o: tarjan.hpp tarjan.cpp path.hpp
 	g++ -c tarjan.cpp $(CFLAGS)
-clean:
+distclean:
+	rm -rf dist
+clean: 
 	rm -f *.o
+.PHONY: clean

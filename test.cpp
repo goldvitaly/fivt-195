@@ -16,6 +16,8 @@ using namespace std;
 using namespace graph;
 using namespace algo;
 
+const int tests_size = 1000;
+
 void printComps(list<list<unsigned>>& comps)
 {
 	for(auto& comp : comps)
@@ -151,24 +153,47 @@ bool primitiveAdapterTest()
 	return true;
 }
 
+bool primitiveDijkstraTest()
+{
+	WeightedGraph<double> g;
+	for(unsigned v = 0; v < 4; ++v)
+		g.add(TableNode::create());
+	double wg[4];
+	for(size_t i = 0; i < 4; ++i)
+		wg[i] = rand() % 100;
+	g.connect(0, 1, wg[0]);
+	g.connect(0, 2, wg[1]);
+	g.connect(1, 3, wg[2]);
+	g.connect(2, 3, wg[3]);
+	DijkstraMaker<double> maker(g);
+	/*auto res = maker.make(0);
+	assert(res[0] == 0);
+	assert(res[1] == wg[0]);
+	assert(res[2] == wg[1]);*/
+	//assert(res[3] == min(wg[0] + wg[2], wg[1] + wg[3]));
+	//cerr << res[3] << " " << min(wg[0] + wg[2], wg[1] + wg[3]) << endl;
+	return true;
+}
+
 int main()
 {
 	srand(43);
 
 	for(int i = 0; i < 100; ++i)
-		if(!testDFS(10000))
+		if(!testDFS(tests_size))
 			return -1;
 
 	for(int i = 0; i < 100; ++i)
-		if(!testStrongComps(10000))
+		if(!testStrongComps(tests_size))
 			return -1;
 
-	for(size_t i = 10000; i < 10100; ++i)
+	for(size_t i = tests_size; i < tests_size + 100; ++i)
 		if(!primitiveWeightedTest(i))
 			return -1;
 
 	if(!primitiveAdapterTest())
 		return -1;
-	
+	if(!primitiveDijkstraTest())
+		return -1;
 	return 0;
 }
