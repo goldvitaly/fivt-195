@@ -18,15 +18,10 @@ class DFSMaker
 {
 public:
 	explicit DFSMaker(const Graph& gr);
-	
 	void uncolor();
-
 	void clearStack();
-	
 	int dfs(unsigned v);
-	
 	const std::stack<unsigned>& make();
-	
 	const std::stack<unsigned>& getOutStack();
 	
 private:

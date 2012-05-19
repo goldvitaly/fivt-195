@@ -136,12 +136,12 @@ bool primitiveAdapterTest()
 {
 	Graph gr;
 	Adapter<string> g(gr, {});
-	g.add(TableNode::create(), "A");
-	g.add(TableNode::create(), "B");
-	g.add(TableNode::create(), "C", {"B"});
-	g.add(TableNode::create(), "D");
-	g.add(TableNode::create(), "E", {"A", "B"});
-	g.add(TableNode::create(), "F", {"A", "B", "C", "D", "E"});
+	g.add(std::unique_ptr<Node>(new TableNode()), "A");
+	g.add(std::unique_ptr<Node>(new TableNode()), "B");
+	g.add(std::unique_ptr<Node>(new TableNode()), "C", {"B"});
+	g.add(std::unique_ptr<Node>(new TableNode()), "D");
+	g.add(std::unique_ptr<Node>(new TableNode()), "E", {"A", "B"});
+	g.add(std::unique_ptr<Node>(new TableNode()), "F", {"A", "B", "C", "D", "E"});
 	assert(g.areConnected("C", "B"));
 	assert(g.areConnected("F", "D"));
 	assert(g.areConnected("E", "A"));
@@ -157,7 +157,7 @@ bool primitiveDijkstraTest()
 {
 	WeightedGraph<double> g;
 	for(unsigned v = 0; v < 4; ++v)
-		g.add(TableNode::create());
+		g.add(std::unique_ptr<Node>(new TableNode()));
 	double wg[4];
 	for(size_t i = 0; i < 4; ++i)
 		wg[i] = rand() % 100;

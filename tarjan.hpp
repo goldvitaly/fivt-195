@@ -21,7 +21,6 @@ class TarjanMaker
 {
 public:
 	explicit TarjanMaker(const Graph& gr);
-
 	const std::list<std::list<unsigned>>& make();
 
 private:

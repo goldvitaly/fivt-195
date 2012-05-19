@@ -14,16 +14,12 @@ class Adapter
 {
 public:
 	Adapter(Graph& gr, const std::vector<VType>& values);
-
 	unsigned add(std::unique_ptr<Node> node, const VType& name);
-
 	unsigned add(std::unique_ptr<Node> node, const VType& name, const std::vector<VType>& friends);
-
 	void connect(const VType& v1, const VType& v2);
-
 	bool areConnected(const VType& v1, const VType& v2) const;
-
 	const Node& getNode(const VType& v) const;
+
 private:
 	Graph& g;
 	std::map<VType, unsigned> index;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <algorithm>
 #include <memory>
 
 namespace graph
@@ -15,48 +14,19 @@ public:
 	virtual unsigned operator*() const = 0;
 	virtual bool operator==(const NodeIterator& it) const = 0;
 	virtual bool operator!=(const NodeIterator& it) const = 0;
-	virtual ~NodeIterator() {}
+	virtual ~NodeIterator();
 };
 
 class IteratorWrapper
 {
 public:
-	explicit IteratorWrapper(std::unique_ptr<NodeIterator> it)
-	{
-		base = std::move(it);
-	}
-	
-	IteratorWrapper& operator++()
-	{
-		++(*base);
-		return *this;
-	}
-	
-	IteratorWrapper& operator--()
-	{
-		--(*base);
-		return *this;
-	}
-	
-	unsigned operator*() const
-	{
-		return **base;
-	}
-	
-	bool operator==(const IteratorWrapper& iw) const
-	{
-		return *base == *iw.base;
-	}
-	
-	bool operator!=(const IteratorWrapper& iw) const
-	{
-		return *base != *iw.base;
-	}
-
-	std::unique_ptr<NodeIterator>& getBaseIterator()
-	{
-		return base;
-	}
+	explicit IteratorWrapper(std::unique_ptr<NodeIterator> it);
+	IteratorWrapper& operator++();
+	IteratorWrapper& operator--();
+	unsigned operator*() const;
+	bool operator==(const IteratorWrapper& iw) const;
+	bool operator!=(const IteratorWrapper& iw) const;
+	std::unique_ptr<NodeIterator>& getBaseIterator();
 	
 private:
 	std::unique_ptr<NodeIterator> base;
@@ -70,44 +40,18 @@ public:
 	virtual std::vector<unsigned> getFriends() const = 0;
 	virtual IteratorWrapper begin() const = 0;
 	virtual IteratorWrapper end() const = 0;
-	virtual ~Node() {}
-	static std::unique_ptr<Node> create();
+	virtual ~Node();
 };
 
 class ListNodeIterator : public NodeIterator
 {
 public:
-	explicit ListNodeIterator(std::vector<unsigned>::const_iterator it)
-	{
-		base = it;
-	}
-	
-	virtual ListNodeIterator& operator++()
-	{
-		++base;
-		return *this;
-	}
-	
-	virtual ListNodeIterator& operator--()
-	{
-		--base;
-		return *this;
-	}
-	
-	virtual unsigned operator*() const
-	{
-		return *base;
-	}
-	
-	virtual bool operator==(const NodeIterator& it) const
-	{
-		return base == ((ListNodeIterator&)it).base;
-	}
-	
-	virtual bool operator!=(const NodeIterator& it) const
-	{
-		return base != ((ListNodeIterator&)it).base;
-	}		
+	explicit ListNodeIterator(std::vector<unsigned>::const_iterator it);
+	virtual ListNodeIterator& operator++();
+	virtual ListNodeIterator& operator--();
+	virtual unsigned operator*() const;
+	virtual bool operator==(const NodeIterator& it) const;
+	virtual bool operator!=(const NodeIterator& it) const;
 	
 private:
 	std::vector<unsigned>::const_iterator base;
@@ -116,35 +60,11 @@ private:
 class ListNode : public Node
 {
 public:
-	virtual void linkTo(unsigned v)
-	{
-		friends.push_back(v);
-	}
-	
-	virtual bool isConnected(unsigned v) const
-	{
-		return std::find(friends.begin(), friends.end(), v) != friends.end();
-	}
-	
-	virtual std::vector<unsigned> getFriends() const
-	{
-		return friends;
-	}
-	
-	virtual IteratorWrapper begin() const
-	{
-		return IteratorWrapper(std::unique_ptr<NodeIterator>(new ListNodeIterator(friends.begin())));
-	}
-	
-	virtual IteratorWrapper end() const
-	{
-		return IteratorWrapper(std::unique_ptr<NodeIterator>(new ListNodeIterator(friends.end())));
-	}
-	
-	static std::unique_ptr<Node> create()
-	{
-		return std::unique_ptr<Node>(new ListNode());
-	}
+	virtual void linkTo(unsigned v);
+	virtual bool isConnected(unsigned v) const;
+	virtual std::vector<unsigned> getFriends() const;
+	virtual IteratorWrapper begin() const;
+	virtual IteratorWrapper end() const;
 	
 private:
 	std::vector<unsigned> friends;
@@ -155,42 +75,12 @@ class TableNodeIterator : public NodeIterator
 	typedef std::vector<bool>::const_iterator v_iter;
 
 public:
-	TableNodeIterator(v_iter it, v_iter vbegin, v_iter vend)
-	{
-		base = it;
-		begin = vbegin;
-		end = vend;
-		for(;base != end && !(*base); ++base);
-	}
-	
-	virtual TableNodeIterator& operator++()
-	{
-		++base;
-		for(;base != end && !(*base); ++base);
-		return *this;
-	}
-	
-	virtual TableNodeIterator& operator--()
-	{
-		--base;
-		for(;base != begin && !(*base); --base);
-		return *this;
-	}
-	
-	virtual unsigned operator*() const
-	{
-		return base - begin;
-	}
-	
-	virtual bool operator==(const NodeIterator& it) const
-	{
-		return base == ((TableNodeIterator&)it).base;
-	}
-	
-	virtual bool operator!=(const NodeIterator& it) const
-	{
-		return base != ((TableNodeIterator&)it).base;
-	}
+	TableNodeIterator(v_iter it, v_iter vbegin, v_iter vend);
+	virtual TableNodeIterator& operator++();
+	virtual TableNodeIterator& operator--();
+	virtual unsigned operator*() const;
+	virtual bool operator==(const NodeIterator& it) const;
+	virtual bool operator!=(const NodeIterator& it) const;
 	
 private:
 	v_iter base, begin, end;
@@ -199,43 +89,11 @@ private:
 class TableNode : public Node
 {
 public:
-	virtual void linkTo(unsigned v)
-	{
-		if(friends.size() <= v)
-			friends.resize(v + 1);
-		friends[v] = true;
-	}
-	
-	virtual bool isConnected(unsigned v) const
-	{
-		if(friends.size() <= v)
-			return false;
-		return friends[v];
-	}
-	
-	virtual std::vector<unsigned> getFriends() const
-	{
-		std::vector<unsigned> result;
-		for(auto it : friends)
-			if(it)
-				result.push_back(it);
-		return result;
-	}
-	
-	virtual IteratorWrapper begin() const
-	{
-		return IteratorWrapper(std::unique_ptr<NodeIterator>(new TableNodeIterator(friends.begin(), friends.begin(), friends.end())));
-	}
-	
-	virtual IteratorWrapper end() const
-	{
-		return IteratorWrapper(std::unique_ptr<NodeIterator>(new TableNodeIterator(friends.end(), friends.begin(), friends.end())));
-	}
-
-	static std::unique_ptr<Node> create()
-	{
-		return std::unique_ptr<Node>(new TableNode());
-	}
+	virtual void linkTo(unsigned v);
+	virtual bool isConnected(unsigned v) const;
+	virtual std::vector<unsigned> getFriends() const;
+	virtual IteratorWrapper begin() const;
+	virtual IteratorWrapper end() const;
 	
 private:
 	std::vector<bool> friends;
@@ -244,39 +102,12 @@ private:
 class Graph
 {
 public:
-	unsigned add(std::unique_ptr<Node> node)
-	{
-		nodes.push_back(std::move(node));
-		return nodes.size() - 1;
-	}
-	
-	unsigned add(std::unique_ptr<Node> node, const std::vector<unsigned>& friends)
-	{
-		for(auto v : friends)
-			node->linkTo(v);
-		nodes.push_back(std::move(node));
-		return nodes.size() - 1;
-	}
-	
-	void connect(unsigned v1, unsigned v2)
-	{
-		nodes[v1]->linkTo(v2);
-	}
-	
-	bool areConnected(unsigned v1, unsigned v2) const
-	{
-		return nodes[v1]->isConnected(v2);
-	}
-
-	const Node& getNode(unsigned v) const
-	{
-		return *nodes[v];
-	}
-	
-	size_t size() const
-	{
-		return nodes.size();
-	}
+	unsigned add(std::unique_ptr<Node> node);
+	unsigned add(std::unique_ptr<Node> node, const std::vector<unsigned>& friends);
+	void connect(unsigned v1, unsigned v2);
+	bool areConnected(unsigned v1, unsigned v2) const;
+	const Node& getNode(unsigned v) const;
+	size_t size() const;
 	
 private:
 	std::vector<std::unique_ptr<Node>> nodes;
