@@ -1,4 +1,4 @@
-CFLAGS = -std=c++0x -Wall -Werror -O2
+CFLAGS = -std=c++0x -Wall -O2
 LFLAGS = 
 dist/test: dist/libgraph.a
 	cd dist && g++ -o test test.cpp -Iinclude -L. -lgraph $(CFLAGS)

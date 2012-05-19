@@ -16,7 +16,7 @@ using namespace std;
 using namespace graph;
 using namespace algo;
 
-const int tests_size = 1000;
+const int tests_size = 3000;
 
 void printComps(list<list<unsigned>>& comps)
 {
@@ -165,12 +165,10 @@ bool primitiveDijkstraTest()
 	g.connect(0, 2, wg[1]);
 	g.connect(1, 3, wg[2]);
 	g.connect(2, 3, wg[3]);
-	DijkstraMaker<double> maker(g);
-	/*auto res = maker.make(0);
-	assert(res[0] == 0);
-	assert(res[1] == wg[0]);
-	assert(res[2] == wg[1]);*/
-	//assert(res[3] == min(wg[0] + wg[2], wg[1] + wg[3]));
+	DijkstraMaker<double> maker = DijkstraMaker<double>(g);
+	auto& res = maker.make<SumPath<double>>(0);
+	auto& p1 = res[0];
+
 	//cerr << res[3] << " " << min(wg[0] + wg[2], wg[1] + wg[3]) << endl;
 	return true;
 }
@@ -193,6 +191,7 @@ int main()
 
 	if(!primitiveAdapterTest())
 		return -1;
+
 	if(!primitiveDijkstraTest())
 		return -1;
 	return 0;

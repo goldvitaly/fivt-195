@@ -14,13 +14,6 @@ public:
 	virtual bool operator<(const Path<WeightType>& path) const = 0;
 }; 
 
-template<typename T>
-class PtrFactory
-{
-public:
-	std::unique_ptr<T> create() const;
-};
-
 template<typename WeightType>
 class SumPath : public Path<WeightType>
 {
@@ -33,12 +26,6 @@ public:
 private:
 	WeightType sum;
 };
-
-template<typename T>
-std::unique_ptr<T> PtrFactory<T>::create() const
-{
-	return std::unique_ptr<T>(new T());
-}
 
 template<typename WeightType>
 SumPath<WeightType>::SumPath() : sum(0)
