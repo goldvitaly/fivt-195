@@ -12,17 +12,17 @@
 
 typedef std::vector< std::vector< std::pair<size_t, size_t> > > TypeTestGraph;
 
-inline void makeGraph(size_t numVertices, size_t numEdges, int maxWeight, Graph<int> &G, TypeTestGraph &testG)
+inline void makeGraph(size_t numVertices, size_t numEdges, int maxWeight, Graph<int>* G, TypeTestGraph* testG)
 {
-    testG.resize(numVertices);
-    G.resize(numVertices);
+    testG->resize(numVertices);
+    G->resize(numVertices);
     for (size_t i = 0; i < numEdges; i++)
     {
         size_t from = rand() % numVertices;
         size_t to = rand() % numVertices;
         int weight = rand() % maxWeight;
-        G.addEdge(from, to, weight);
-        testG[from].push_back(std::make_pair(to, weight));
+        G->addEdge(from, to, weight);
+        (*testG)[from].push_back(std::make_pair(to, weight));
     }
 }
 
@@ -98,7 +98,7 @@ inline bool runTestDijkstra(size_t numVertices, size_t numEdges, int maxWeight, 
     time_t start = clock();
     Graph<int> G;
     TypeTestGraph tG;
-    makeGraph(numVertices, numEdges, maxWeight, G, tG);
+    makeGraph(numVertices, numEdges, maxWeight, &G, &tG);
     std::vector<int> trueDist(numVertices);
     std::vector<char> trueIsReached(numVertices);
 
