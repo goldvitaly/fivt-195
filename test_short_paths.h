@@ -15,7 +15,7 @@ public:
 
 
 
-    int run()
+    void run(PathLen empty_path = PathLen())
     {
         for(int test_num = 0; test_num < 500; test_num++)
         {
@@ -27,8 +27,11 @@ public:
                 simple_shortest_paths[i].resize(graph_->size());
                 BaseNode<Weight>* curr_node = graph_->graph_[i].get();
                 for(typename BaseNode<Weight>::Iterator it = curr_node->begin(); it != curr_node->end(); ++it)
-                if(!simple_shortest_paths[i][**it]  ||  comp_path_((*it).get_weight(), simple_shortest_paths[i][**it].get()))
-                    simple_shortest_paths[i][**it] = (*it).get_weight();
+                {
+                    PathLen new_len = calc_path_(empty_path, (*it).get_weight());
+                    if(!simple_shortest_paths[i][**it]  ||  comp_path_(new_len, simple_shortest_paths[i][**it].get()))
+                        simple_shortest_paths[i][**it] = new_len;
+                }
                 simple_shortest_paths[i][i] = PathLen();
             }
             for(int k = 0; k < graph_->size(); k++)
@@ -43,14 +46,14 @@ public:
             ShortestPathFinder<Data, Weight, PathLen, CalcPath, CompPath> my_shortest_paths(*graph_);
             for(int k = 0; k < graph_->size(); k++)
             {
-                my_shortest_paths.calculate(k);
+                my_shortest_paths.calculate(k, empty_path);
                 for(int j = 0; j < graph_->size(); j++)
                     if(my_shortest_paths.get_dist(j) != simple_shortest_paths[k][j])
-                        return -1;
+                        return;
             }
         }
         printf("OK\n");
-        return 0;
+        return;
     }
 private:
 

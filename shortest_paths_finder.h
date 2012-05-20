@@ -1,8 +1,5 @@
 #ifndef SHORTEST_PATHS_FINDER_H_INCLUDED
 #define SHORTEST_PATHS_FINDER_H_INCLUDED
-
-
-
 #include "graph.h"
 #include <boost/optional.hpp>
 #include <vector>
@@ -13,14 +10,13 @@ class ShortestPathFinder
 {
 public:
     explicit ShortestPathFinder(const Graph<Data, Weight>& graph):graph_(graph){}
-
-    void calculate(size_t node_num)
+    void calculate(size_t node_num, PathLen empty_path = PathLen())
     {
         info_.clear();
         info_.resize(graph_.size());
         CompState queue_comp(comp_path_);
         queue_comp.set_curr_finder(this);
-        info_[node_num].dist = PathLen();
+        info_[node_num].dist = empty_path;
         info_[node_num].prev_node = node_num;
         std::set<size_t, CompState> queue(queue_comp);
         queue.insert(node_num);
