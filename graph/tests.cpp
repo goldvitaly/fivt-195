@@ -40,7 +40,7 @@ int test_graph_realization(unsigned int vertex_number, unsigned int requests)
 				std::cerr << ": existing edge (" << v << ", " << u << ") not found" << std::endl;
 			else
 				std::cerr << " non-existing edge (" << v << ", " << u << ") found" << std::endl;
-			return 0;
+			return -1;
 		}
 		if (has_in_model)
 		{
@@ -59,14 +59,14 @@ int test_graph_realization(unsigned int vertex_number, unsigned int requests)
 		{
 
 			std::cerr << "Test failed on step " << i << std::endl << "Expected adjacency list: " << model_realization[v] << ", got: " << adjacency_list << std::endl; 
-			for (graph::Graph::iterator it = testing_realization[v].begin(); it != testing_realization[v].end(); it ++)
+			for (auto it = testing_realization[v].begin(); it != testing_realization[v].end(); it ++)
 				std::cerr << v << " ";
 			std::cerr << std::endl;
-			return 0;
+			return -1;
 		}
 	}
 	std::cerr << "Test OK" << " within " << t.get_time() << " seconds" << std::endl;
-	return 1;
+	return 0;
 };
 
 int strongly_connection_test(int vertex_number, int requests)
@@ -154,12 +154,12 @@ int strongly_connection_test(int vertex_number, int requests)
 				std::cerr << vertices << std::endl;
 			}
 			std::cerr << "Test failed on step " << step << std::endl << "Expected: " << model_coloring << std::endl << "Got: " << testing_coloring << std::endl;
-			return 0;
+			return -1;
 		}
 	}
 	std::cerr.precision(2);
 	std::cerr << "Test OK" << " within " << t.get_time() << " seconds" << std::endl;
-	return 1;
+	return 0;
 }
 
 template <class Weight, class WeightGen>
@@ -224,7 +224,7 @@ int test_shortest_path_finding(
 	graph::WeightedGraph<Weight> g = generate_graph<Weight>(vertex_number, edge_number, gen);
 	unsigned int from = rand() % vertex_number;
 	unsigned int to = rand() % vertex_number;
-	graph::algorithm::Path<PathInfo> shortest_path = graph::algorithm::find_shortest_path(g, from, to, recount_func, comp, initial_dist);
+	graph::algorithm::Path<PathInfo, Weight> shortest_path = graph::algorithm::find_shortest_path(g, from, to, recount_func, comp, initial_dist);
 	bool path_found = shortest_path.path.size() > 0;
 	if (path_found)
 	{
@@ -239,7 +239,7 @@ int test_shortest_path_finding(
 		PathInfo path_len = initial_dist;
 		for (unsigned int i = 1; i < shortest_path.path.size(); i ++)
 			path_len = recount_func(path_len, g.get_edge(shortest_path.path[i-1], shortest_path.path[i]));
-		if (path_len != shortest_path.path_length)
+		if (path_len != shortest_path.path_length.get())
 		{
 			std::cerr << "Test failed. Provided length doesn't correspond to real length" << std::endl;
 			return 1;
@@ -251,12 +251,12 @@ int test_shortest_path_finding(
 		std::cerr << "Test failed: path wasn't found when it exists" << std::endl;
 		return 1;
 	}
-	if (path_found && comp(correct_shortest_path.second, shortest_path.path_length))
+	if (path_found && comp(correct_shortest_path.second, shortest_path.path_length.get()))
 	{
 		std::cerr << "Test failed: shorter path exists" << std::endl;
 		return 1;
 	}
-	if (path_found && comp(shortest_path.path_length, correct_shortest_path.second))
+	if (path_found && comp(shortest_path.path_length.get(), correct_shortest_path.second))
 	{
 		std::cerr << "Test failed: naive algorithm failed" << std::endl;
 		return 1;
@@ -288,20 +288,70 @@ bool operator != (const Int& lhs, const Int& rhs)
 	return lhs.value != rhs.value;
 }
 
+std::vector<unsigned int> generate_random_path(int n, int k, int from, int to)
+{
+	assert(k >= 2);
+	std::set<unsigned int> cur;
+	cur.insert(from);
+	cur.insert(to);
+	std::vector<unsigned int> ans;
+	ans.reserve(k);
+	ans.push_back(from);
+	for (int i = 0; i < k - 2; i ++)
+	{
+		int u = from;
+		while (cur.count(u) != 0)
+			u = rand() % n;
+		ans.push_back(u);
+		cur.insert(u);
+	}
+	ans.push_back(to);
+	return ans;
+}
+
+int test_int_flow(int n, int paths)
+{
+	assert(n >= 2);
+	int from = rand() % n;
+	int to = from;
+	while (from == to)
+		to = rand() % n;
+	graph::WeightedGraph<int> g(n);
+	std::vector < std::vector <int> > t(n, std::vector<int>(n,0));
+	int real_flow = 0;
+	for (int j = 0; j < paths; j ++)
+	{
+		int vertexes_in_path = 2 + rand() % (n - 1);
+		int flow = rand() % 100;
+		real_flow += flow;
+		std::vector<unsigned int> path = generate_random_path(n, vertexes_in_path, from, to);
+		for (int i = 1; i < path.size(); i++)
+			t[path[i-1]][path[i]] += flow;
+	}
+	for (int i = 0; i < n; i ++)
+		for (int j = 0; j < n; j++)
+			if (t[i][j] > 0) 
+				g.add_edge(i, j, t[i][j]);
+	int found_flow = graph::algorithm::find_maximal_flow(g, from, to);
+	if (found_flow != real_flow)
+	{
+		std::cerr << "Testing flow finding failed" << std::endl << "Expected: " << real_flow << ", got: " << found_flow << std::endl;
+		return 1;
+	}
+	return 0;
+}
+
 int main()
 {
-	int CODE = 0;
 	std::cerr << "Testing graph realization" << std::endl;
-	if (!(CODE = test_graph_realization<graph::VertexWithUnsortedVector<>>(3,1e5))) return CODE;
-	if (!(CODE = test_graph_realization<graph::VertexWithUnsortedVector<>>(100,1e5))) return CODE;
-	if (!(CODE = test_graph_realization<graph::VertexWithSortedVector<>>(100,1e5))) return CODE;
-//	if (!(CODE = test_graph_realization<graph::VertexWithSet<>>(100,1e5))) return CODE;
-//	if (!(CODE = test_graph_realization<graph::VertexWithMultiset<>>(100,1e5))) return CODE;
+	if (test_graph_realization<graph::VertexWithUnsortedVector<>>(3,1e5) != 0) return 1;
+	if (test_graph_realization<graph::VertexWithUnsortedVector<>>(100,1e5) != 0) return 1;
+	if (test_graph_realization<graph::VertexWithSortedVector<>>(100,1e5) != 0) return 1;
 	std::cerr << "Graph realization seemes to be OK" << std::endl << "Testing Tarjan algorithm realization" << std::endl;
-	if (!(CODE = strongly_connection_test(5,   1e3))) return CODE;
-	if (!(CODE = strongly_connection_test(10,  1e3))) return CODE;
-	if (!(CODE = strongly_connection_test(50,  1e3))) return CODE;
-	if (!(CODE = strongly_connection_test(100, 1e3))) return CODE;
+	if (strongly_connection_test(5,   1e3) != 0) return 1;
+	if (strongly_connection_test(10,  1e3) != 0) return 1;
+	if (strongly_connection_test(50,  1e3) != 0) return 1;
+	if (strongly_connection_test(100, 1e3) != 0) return 1;
 	std::cerr << "Tarjan algorithm seemes to be OK" << std::endl; 
 	for (int i = 0; i < 100; i ++)
 		if (test_shortest_path_finding<int, int>(5, 15, [](){ return rand() % 100; }, std::plus<int>(), std::less<int>(), 0) != 0) 
@@ -316,6 +366,11 @@ int main()
 					[](double a, double b){ return a < b - 1e-8; }, 
 					double(0)) != 0) 
 			return 1;
-	std::cerr << "Dijkstra with doubles seemes to be OK" << std::endl;
+	std::cerr << "Dijkstra with doubles seemes to be OK" << std::endl; 
+	for (int i = 1; i <= 10; i ++) if (test_int_flow(3, i) != 0)	return 1;
+	for (int i = 0; i < 10; i ++) if (test_int_flow(3, 100) != 0)	return 1;
+	for (int i = 0; i < 10; i ++) if (test_int_flow(5, 100) != 0)	return 1;
+	for (int i = 0; i < 10; i ++) if (test_int_flow(100, 1000) != 0)	return 1;
+	std::cerr << "Flow finding seemes to be OK" << std::endl;
 	return 0;
 }

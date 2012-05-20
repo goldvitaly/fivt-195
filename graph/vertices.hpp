@@ -22,12 +22,14 @@ namespace graph
 			class iterator: public graph::impl::Graph<EdgeInfo>::Iterator
 			{
 				private:
-					typename Container::const_iterator iterator_to_element;
+					typename Container::iterator iterator_to_element;
 				public:
-					explicit iterator(typename Container::const_iterator it): iterator_to_element(it) {};
+					explicit iterator(typename Container::iterator it): iterator_to_element(it) {}
 					void next() { iterator_to_element ++; };
-//					void prev() { iterator_to_element --; };
-					const typename impl::Graph<EdgeInfo>::edge_type& get() const { return *iterator_to_element; };
+					typename impl::Graph<EdgeInfo>::edge_type& get() 
+					{
+						return *iterator_to_element; 
+					};
 					bool operator == (const typename graph::impl::Graph<EdgeInfo>::Iterator& it) const
 					{
 						try
@@ -45,15 +47,54 @@ namespace graph
 						return new iterator(iterator_to_element);
 					}
 			};
+
+			class const_iterator: public graph::impl::Graph<EdgeInfo>::ConstIterator
+			{
+				private:
+					typename Container::const_iterator iterator_to_element;
+				public:
+					explicit const_iterator(typename Container::const_iterator it): iterator_to_element(it){}
+					void next() { iterator_to_element ++; };
+					const typename impl::Graph<EdgeInfo>::edge_type& get() const 
+					{
+						return *iterator_to_element; 
+					};
+					bool operator == (const typename graph::impl::Graph<EdgeInfo>::ConstIterator& it) const
+					{
+						try
+						{
+							const const_iterator& real_it = dynamic_cast<const const_iterator&>(it);
+							return iterator_to_element == real_it.iterator_to_element;
+						}
+						catch (const std::bad_cast& e)
+						{
+							return false;
+						}
+					}
+					typename graph::impl::Graph<EdgeInfo>::ConstIterator* clone() const
+					{
+						return new const_iterator(iterator_to_element);
+					}
+			};
+
+
 			size_t size() const { return data.size(); };
-			typename graph::impl::Graph<EdgeInfo>::iterator begin() const 
+			typename graph::impl::Graph<EdgeInfo>::iterator begin()
 			{
 				return typename graph::impl::Graph<EdgeInfo>::iterator(new iterator(data.begin()));
 			}
-			typename graph::impl::Graph<EdgeInfo>::iterator end() const
+			typename graph::impl::Graph<EdgeInfo>::iterator end()
 			{
 				return typename graph::impl::Graph<EdgeInfo>::iterator(new iterator(data.end()));
-			};
+			}
+			typename graph::impl::Graph<EdgeInfo>::const_iterator begin() const 
+			{
+				return typename graph::impl::Graph<EdgeInfo>::const_iterator(new const_iterator(data.begin()));
+			}
+			typename graph::impl::Graph<EdgeInfo>::const_iterator end() const
+			{
+				return typename graph::impl::Graph<EdgeInfo>::const_iterator(new const_iterator(data.end()));
+			}
 	};
 
 	template <class EdgeInfo>
@@ -85,6 +126,14 @@ namespace graph
 			const edge_type& get(unsigned int vertex) const
 			{
 				typename std::vector<edge_type>::const_iterator it = std::find_if(Base::data.begin(), Base::data.end(), 
+						graph::impl::EdgeIsEqualPred<edge_type>(vertex));
+				if (it == Base::data.end())
+					throw std::out_of_range("No such edge");
+				return *it;
+			}
+			edge_type& get(unsigned int vertex)
+			{
+				typename std::vector<edge_type>::iterator it = std::find_if(Base::data.begin(), Base::data.end(), 
 						graph::impl::EdgeIsEqualPred<edge_type>(vertex));
 				if (it == Base::data.end())
 					throw std::out_of_range("No such edge");
@@ -125,6 +174,13 @@ namespace graph
 			const edge_type& get(unsigned int vertex) const
 			{
 				typename std::vector<edge_type>::const_iterator it = std::lower_bound(Base::data.begin(), Base::data.end(), vertex, edge_comp());
+				if (it == Base::data.end() || it->to != vertex)
+					throw std::out_of_range("No such edge");
+				return *it;
+			}
+			edge_type& get(unsigned int vertex) 
+			{
+				typename std::vector<edge_type>::iterator it = std::lower_bound(Base::data.begin(), Base::data.end(), vertex, edge_comp());
 				if (it == Base::data.end() || it->to != vertex)
 					throw std::out_of_range("No such edge");
 				return *it;

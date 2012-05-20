@@ -8,32 +8,68 @@ namespace graph
 namespace algorithm
 {
 
-	template <class PathInfo> 
+	template <class PathInfo, class GraphEdgeType> 
 	class Path
 	{
 		public:
 			std::vector<unsigned int> path; // vertices in path
-			PathInfo path_length;
-			Path(std::vector<unsigned int>path, PathInfo path_length): path(path), path_length(path_length)
+			std::vector<typename graph::impl::Graph<GraphEdgeType>::edge_type*> edges;
+			boost::optional<PathInfo> path_length;
+			Path(const std::vector<unsigned int>& path, 
+					std::vector<typename graph::impl::Graph<GraphEdgeType>::edge_type*> edges,
+					PathInfo path_length): path(path), edges(edges), path_length(path_length)
 			{
 			}
-			operator bool() { 
+			explicit Path(const std::vector<unsigned int>& path, 
+					std::vector<typename graph::impl::Graph<GraphEdgeType>::edge_type*> edges): path(path), edges(edges)
+			{
+			}
+			operator bool() const { 
 				return path.size() > 0; 
 			} 
 	};
 
-namespace impl
-{	
-	template <class PathInfo> 
+	template <class PathInfo, class GraphEdgeType> 
 	class ShortestPathsInfo
 	{
-		public:
+		template <class _PathInfo, class PathRecountFunc, class PathInfoComparator, class WeightType>
+		friend ShortestPathsInfo<_PathInfo,WeightType> find_shortest_paths(WeightedGraph<WeightType>&, unsigned int, 
+				PathRecountFunc, PathInfoComparator, _PathInfo);
+		private:
 			unsigned int from;
 			std::vector <PathInfo> dist;
 			std::vector<char> used;
+			std::vector< typename graph::impl::Graph<GraphEdgeType>::edge_type* > edges_to_vertex;
 			std::vector <unsigned int> parents; // parent[from] == from
+			ShortestPathsInfo() {};
+			ShortestPathsInfo(size_t len, PathInfo initial_dist, unsigned int from): 
+				used(len, 0), parents(len, 0), from(from), dist(len, initial_dist), edges_to_vertex(len, NULL)
+			{
+			}
+		public:
+			Path<PathInfo, GraphEdgeType> get_path(int to) const
+			{
+				if (!used[to])
+					return Path<PathInfo,GraphEdgeType>(std::vector<unsigned int>(), 
+							std::vector<typename graph::impl::Graph<GraphEdgeType>::edge_type*>());
+				std::vector<unsigned int> resulted_path;
+				std::vector<typename graph::impl::Graph<GraphEdgeType>::edge_type*> edges;
+				int v = to;
+				while (parents[v] != v)
+				{
+					resulted_path.push_back(v);
+					edges.push_back(edges_to_vertex[v]);
+					v = parents[v];
+				}
+				resulted_path.push_back(v);
+				std::reverse(edges.begin(), edges.end());
+				std::reverse(resulted_path.begin(), resulted_path.end());
+				return Path<PathInfo, GraphEdgeType>(resulted_path, edges, dist[to]);
+			}
 	};
 
+namespace impl
+{
 	template <class T, class Comp = std::less<T> >
 	class IntsByVectorComparator
 	{
@@ -49,20 +85,17 @@ namespace impl
 				return ls;
 			}
 	};
+}
 
 	//Weight Func: path + weight -> path 
 	template <class PathInfo, class PathRecountFunc, class PathInfoComparator = std::less<PathInfo>, class WeightType>
-	ShortestPathsInfo<PathInfo> find_shortest_paths(const WeightedGraph<WeightType>& g, unsigned int from, 
+	ShortestPathsInfo<PathInfo, WeightType> find_shortest_paths(WeightedGraph<WeightType>& g, unsigned int from, 
 			PathRecountFunc recount_func, PathInfoComparator comp = PathInfoComparator(), PathInfo initial_dist = PathInfo())
 	{
-		ShortestPathsInfo<PathInfo> result; 
-		result.used.assign(g.size(), 0);
+		ShortestPathsInfo<PathInfo, WeightType> result(g.size(), initial_dist, from); 
 		std::vector<char> proceeded(g.size(), 0);
-		result.parents.assign(g.size(), 0);
-		result.dist.assign(g.size(), initial_dist);
-		result.from = from;
-		std::set<unsigned int, IntsByVectorComparator<PathInfo,PathInfoComparator>> active 
-			(IntsByVectorComparator<PathInfo, PathInfoComparator>(result.dist,comp));
+		std::set<unsigned int, impl::IntsByVectorComparator<PathInfo,PathInfoComparator>> active 
+			(impl::IntsByVectorComparator<PathInfo, PathInfoComparator>(result.dist,comp));
 		active.insert(from);
 		result.parents[from] = from;
 		result.used[from] = 1;
@@ -71,7 +104,7 @@ namespace impl
 			unsigned int current_vertex = *active.begin();
 			active.erase(active.begin());
 			proceeded[current_vertex] = 1;
-			for (auto it = g[current_vertex].begin(); it != g[current_vertex].end(); it ++)
+			for (typename WeightedGraph<WeightType>::iterator it = g[current_vertex].begin(); it != g[current_vertex].end(); it ++)
 			{
 				unsigned int updating_vertex = it->to;
 				PathInfo new_path = recount_func(result.dist[current_vertex], it->info);
@@ -81,31 +114,19 @@ namespace impl
 					active.erase(updating_vertex);
 					result.dist[updating_vertex] = new_path;
 					result.parents[updating_vertex] = current_vertex;
+					result.edges_to_vertex[updating_vertex] = it.get_pointer();
 					active.insert(updating_vertex);
 				}
 			}
 		}
 		return result;
 	}
-}
 
 	template <class PathInfo, class PathRecountFunc, class PathInfoComparator = std::less<PathInfo>, class WeightType>
-	Path<PathInfo> find_shortest_path(const WeightedGraph<WeightType>& g, unsigned int from, unsigned int to, 
+	Path<PathInfo, WeightType> find_shortest_path(WeightedGraph<WeightType>& g, unsigned int from, unsigned int to, 
 			PathRecountFunc recount_func, PathInfoComparator comp = PathInfoComparator(), PathInfo initial_dist = PathInfo())
 	{
-		impl::ShortestPathsInfo<PathInfo> shortest_paths = impl::find_shortest_paths(g, from, recount_func, comp, initial_dist);
-		if (!shortest_paths.used[to])
-			return Path<PathInfo>(std::vector<unsigned int>(), shortest_paths.dist[to]);
-		std::vector<unsigned int> resulted_path;
-		int v = to;
-		while (shortest_paths.parents[v] != v)
-		{
-			resulted_path.push_back(v);
-			v = shortest_paths.parents[v];
-		}
-		resulted_path.push_back(v);
-		std::reverse(resulted_path.begin(), resulted_path.end());
-		return Path<PathInfo>(resulted_path, shortest_paths.dist[to]);
+		return find_shortest_paths(g, from, recount_func, comp, initial_dist).get_path(to);
 	}
 
 }

@@ -5,6 +5,7 @@
 
 #include "graphalgo/shortest_paths.hpp"
 #include "graphalgo/strongly_connected_components.hpp"
+#include "graphalgo/flow.hpp"
 
 
 #endif // GRAPHALGO_H

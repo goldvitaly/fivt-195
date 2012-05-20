@@ -69,9 +69,11 @@ class Graph
 {
 	private:
 		class IteratorWrapper;
+		class ConstIteratorWrapper;
 	public:
 		typedef Edge<EdgeInfo> edge_type;
 		typedef IteratorWrapper iterator;		
+		typedef ConstIteratorWrapper const_iterator;		
 		void add_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) { edges_count += this->get(from).add(edge_type(to, edge_info)); };
 		void del_edge(unsigned int from, unsigned int to, EdgeInfo edge_info) { edges_count -= this->get(from).del(to); };
 		bool has_edge(unsigned int from, unsigned int to) const { return this->get(from).has(to); };
@@ -105,8 +107,10 @@ class Graph
 		class Vertex
 		{
 			public:
-				virtual iterator begin() const = 0;
-				virtual iterator end() const = 0;
+				virtual iterator begin() = 0;
+				virtual iterator end() = 0;
+				virtual const_iterator begin() const = 0;
+				virtual const_iterator end() const = 0;
 				virtual unsigned int size() const = 0;
 				virtual bool add(edge_type) = 0;
 				virtual bool del(unsigned int) = 0;
@@ -125,15 +129,24 @@ class Graph
 			vertices[vertex].reset(realization);
 		}
 		const Vertex& operator [](unsigned int vertex) const { return *vertices[vertex]; };
+		Vertex& operator [](unsigned int vertex) { return *vertices[vertex]; };
 		class Iterator
 		{
 			public:
 				virtual void next() = 0;
-//				virtual void prev() = 0;
-				virtual const edge_type& get() const = 0;
+				virtual edge_type& get() = 0;
 				virtual Iterator* clone() const = 0;
 				virtual ~Iterator() {};
 				virtual bool operator == (const Iterator& it) const = 0;
+		};
+		class ConstIterator
+		{
+			public:
+				virtual void next() = 0;
+				virtual const edge_type& get() const = 0;
+				virtual ConstIterator* clone() const = 0;
+				virtual ~ConstIterator() {};
+				virtual bool operator == (const ConstIterator& it) const = 0;
 		};
 	protected:
 		std::vector < std::unique_ptr <Vertex> > vertices;
@@ -152,15 +165,14 @@ class Graph
 				typedef ptrdiff_t difference_type;
 				typedef edge_type& reference;
 				typedef edge_type* pointer;
-				
-				const edge_type& operator * () const { return pointer_to_iterator->get(); }
-				const edge_type* operator -> () const { return &pointer_to_iterator->get(); };
+
+				edge_type& operator * () { return pointer_to_iterator->get(); }
+				edge_type* operator -> () { return &pointer_to_iterator->get(); }
+
+				edge_type* get_pointer() { return &pointer_to_iterator->get(); }
+
 				IteratorWrapper& operator ++ ()	{ pointer_to_iterator->next(); return *this; }
 				IteratorWrapper& operator ++ (int) { pointer_to_iterator->next(); return *this; }
-//				IteratorWrapper& operator -- ()
-//				{
-//					pointer_to_iterator->prev();
-//				}			
 				IteratorWrapper& operator = (const IteratorWrapper& it)
 				{
 					pointer_to_iterator.reset(it.pointer_to_iterator->clone());
@@ -178,6 +190,44 @@ class Graph
 				IteratorWrapper(const IteratorWrapper& it) { *this = it; }
 				IteratorWrapper(Iterator* pointer): pointer_to_iterator(pointer) {};
 				~IteratorWrapper() {};
+		};
+
+		class ConstIteratorWrapper
+		{
+			private:
+				std::unique_ptr<ConstIterator> pointer_to_iterator;
+			public:
+				// typedefs for enabling iterator_traits for this iterator
+				typedef std::forward_iterator_tag iterator_category;
+				typedef const edge_type value_type;
+				typedef ptrdiff_t difference_type;
+				typedef const edge_type& reference;
+				typedef const edge_type* pointer;
+
+				const edge_type& operator * () const { return pointer_to_iterator->get(); }
+				const edge_type* operator -> () const { return &pointer_to_iterator->get(); }
+
+				const edge_type* get_pointer() { return &pointer_to_iterator->get(); }
+
+				ConstIteratorWrapper& operator ++ ()	{ pointer_to_iterator->next(); return *this; }
+				ConstIteratorWrapper& operator ++ (int) { pointer_to_iterator->next(); return *this; }
+				ConstIteratorWrapper& operator = (const ConstIteratorWrapper& it)
+				{
+					pointer_to_iterator.reset(it.pointer_to_iterator->clone());
+					return *this;
+				}
+				bool operator == (const ConstIteratorWrapper& it)
+				{
+					if (!pointer_to_iterator && !it.pointer_to_iterator)
+						return true;
+					if (!(pointer_to_iterator && it.pointer_to_iterator))
+						return false;
+					return *pointer_to_iterator == *it.pointer_to_iterator;
+				}
+				bool operator != (const ConstIteratorWrapper& it) { return !(*this == it); }
+				ConstIteratorWrapper(const ConstIteratorWrapper& it) { *this = it; }
+				ConstIteratorWrapper(ConstIterator* pointer): pointer_to_iterator(pointer) {};
+				~ConstIteratorWrapper() {};
 		};
 };
 
