@@ -1,40 +1,39 @@
 #ifndef MAXFLOW_H_INCLUDED
 #define MAXFLOW_H_INCLUDED
 
-#include <map>
 #include <utility>
 #include <algorithm>
-
+#include <vector>
 
 #include "graph.h"
 #include "VertexVector.h"
 #include "ShortestPath.h"
 
 
-template<class StructVer, class Weight, class Cmp>
+template<class StructVer, class Capacity, class Cmp>
 class MaxFlow
 {
 typedef unsigned int TypeNameVer;
 public:
-    explicit MaxFlow(const Graph<StructVer, Weight>& graph_)
+    explicit MaxFlow(const Graph<StructVer, Capacity>& graph_)
     : graph(graph_), runDFS(*this), notExistsPath(0), calculatePath(*this, notExistsPath)
     {
         mark.resize(graph.size());
         make_copy_graph();
     }
-    Weight calculate(const TypeNameVer& source_, const TypeNameVer& target_)
+    Capacity calculate(const TypeNameVer& source_, const TypeNameVer& target_)
     {
         source = source_;
         target = target_;
         return searchMaxFlow();
     }
 private:
-    const Graph<StructVer, Weight>& graph;
+    const Graph<StructVer, Capacity>& graph;
     Graph<Vertex<int>, int> residualGraph;
     TypeNameVer source, target;
     std::vector<int> mark;
-    std::vector<Weight> capacityEdge;
-    Weight notExistsPath;
+    std::vector<Capacity> capacityEdge;
+    Capacity notExistsPath;
 
     class RunDFS : public UnaryFunc
     {
@@ -62,9 +61,9 @@ private:
         : maxFlow(maxFlow_) , root(root_)
         {
         }
-        void operator()(const TypeNameVer& vertex, const Weight& weight)
+        void operator()(const TypeNameVer& vertex, const Capacity& capacity)
         {
-            maxFlow.capacityEdge.push_back(weight);
+            maxFlow.capacityEdge.push_back(capacity);
             maxFlow.residualGraph.add_edge(root, vertex, maxFlow.capacityEdge.size()-1);
             maxFlow.capacityEdge.push_back(0);
             maxFlow.residualGraph.add_edge(vertex, root, maxFlow.capacityEdge.size()-1);
@@ -76,13 +75,13 @@ private:
     class CalculatePath
     {
         const MaxFlow& maxFlow;
-        Weight notExistPath;
+        Capacity notExistPath;
     public:
-        CalculatePath(const MaxFlow& maxFlow_, Weight notExistPath_) : maxFlow(maxFlow_)
+        CalculatePath(const MaxFlow& maxFlow_, const Capacity& notExistPath_) : maxFlow(maxFlow_)
         {
             notExistPath = notExistPath_;
         }
-        Weight operator()(AccessPath<Weight, Weight> accessPath)
+        Capacity operator()(const AccessPath<Capacity, Capacity>& accessPath)
         {
             if(accessPath.prev() == NULL)
                 return accessPath.path();
@@ -111,22 +110,24 @@ private:
     class InvCmp
     {
     public:
-        bool operator()( Weight elem1, Weight elem2) const
+        bool operator()(const Capacity& elem1, const Capacity& elem2) const
         {
             return Cmp()(elem2, elem1);
         }
     };
 
-    Weight searchMaxFlow()
+    Capacity searchMaxFlow()
     {
-        Weight maxFlow = 0;
-        Weight delta;
+        Capacity maxFlow = 0;
+        Capacity delta;
         do
         {
-            typedef ShortestPath<Vertex<int>, int, Weight, CalculatePath, InvCmp> MyShortestPath;
+            typedef ShortestPath<Vertex<int>, int, Capacity, CalculatePath, InvCmp> MyShortestPath;
+
             MyShortestPath shortestPath(residualGraph, calculatePath);
             typename MyShortestPath::VectorAccessPath vectorAccessPath = shortestPath.calculate(source, notExistsPath);
             AccessPath<int, int> accessPath = vectorAccessPath[target];
+
             delta = calculatePath(accessPath);
             while(accessPath.prev() != NULL)
             {

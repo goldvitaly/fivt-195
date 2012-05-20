@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ctime>
 #include <stdlib.h>
+#include <vector>
 
 #include "graph.h"
 #include "MaxFlow.h"
