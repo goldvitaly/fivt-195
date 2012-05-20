@@ -2,7 +2,7 @@ CFLAGS = -std=c++0x -Wall -O2
 LFLAGS = 
 dist/test: dist/libgraph.a
 	cd dist && g++ -o test test.cpp -Iinclude -L. -lgraph $(CFLAGS)
-dist/libgraph.a: base.o dfs.o kosaraju.o tarjan.o graph.o adapter.hpp dijkstra.hpp test.cpp weighted.hpp
+dist/libgraph.a: base.o dfs.o kosaraju.o tarjan.o graph.o adapter.hpp dijkstra.hpp test.cpp weighted.hpp dijkstra_util.hpp path.hpp
 	mkdir -p dist
 	mkdir -p dist/include
 	cp *.hpp dist/include

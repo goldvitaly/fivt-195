@@ -16,7 +16,8 @@ using namespace std;
 using namespace graph;
 using namespace algo;
 
-const int tests_size = 3000;
+const size_t tests_size = 1000;
+const size_t tests_count = 1000;
 
 void printComps(list<list<unsigned>>& comps)
 {
@@ -136,12 +137,20 @@ bool primitiveAdapterTest()
 {
 	Graph gr;
 	Adapter<string> g(gr, {});
+	/*
 	g.add(std::unique_ptr<Node>(new TableNode()), "A");
 	g.add(std::unique_ptr<Node>(new TableNode()), "B");
 	g.add(std::unique_ptr<Node>(new TableNode()), "C", {"B"});
 	g.add(std::unique_ptr<Node>(new TableNode()), "D");
 	g.add(std::unique_ptr<Node>(new TableNode()), "E", {"A", "B"});
 	g.add(std::unique_ptr<Node>(new TableNode()), "F", {"A", "B", "C", "D", "E"});
+	*/
+	g.add<TableNode>("A");
+	g.add<TableNode>("B");
+	g.add<TableNode>("C", {"B"});
+	g.add<TableNode>("D");
+	g.add<TableNode>("E", {"A", "B"});
+	g.add<TableNode>("F", {"A", "B", "C", "D", "E"});
 	assert(g.areConnected("C", "B"));
 	assert(g.areConnected("F", "D"));
 	assert(g.areConnected("E", "A"));
@@ -157,19 +166,70 @@ bool primitiveDijkstraTest()
 {
 	WeightedGraph<double> g;
 	for(unsigned v = 0; v < 4; ++v)
-		g.add(std::unique_ptr<Node>(new TableNode()));
+		g.add<TableNode>();
 	double wg[4];
 	for(size_t i = 0; i < 4; ++i)
-		wg[i] = rand() % 100;
+		wg[i] = rand() % 100 / 3.0;
 	g.connect(0, 1, wg[0]);
 	g.connect(0, 2, wg[1]);
 	g.connect(1, 3, wg[2]);
 	g.connect(2, 3, wg[3]);
-	DijkstraMaker<double> maker = DijkstraMaker<double>(g);
-	auto& res = maker.make<SumPath<double>>(0);
-	auto& p1 = res[0];
+	DijkstraMaker<double, SumPath<double>> maker = DijkstraMaker<double, SumPath<double>>(g);
+	auto& res = maker.make(0);
+	double dist[4];
+	for(size_t i = 0; i < 4; ++i)
+		dist[i] = res[i].value();
+	assert(dist[0] == 0);
+	assert(dist[1] == wg[0]);
+	assert(dist[2] == wg[1]);
+	assert(dist[3] == min(wg[0] + wg[2], wg[1] + wg[3]));
+	cerr << "Primitive Dijkstra test OK" << endl;
+	return true;
+}
 
-	//cerr << res[3] << " " << min(wg[0] + wg[2], wg[1] + wg[3]) << endl;
+bool monoDijkstraTest(size_t testSize)
+{
+	WeightedGraph<double> g;
+	for(unsigned v = 0; v < testSize; ++v)
+		g.add<TableNode>();
+	int b = rand() % 1000 + 1;
+	int a = b + rand() % b;
+	size_t edges = testSize * a / b;
+	for(size_t e = 0; e < edges; ++e)
+	{
+		unsigned from = rand() % g.size();
+		unsigned to = rand() % g.size();
+		g.connect(from, to, 1.0);
+	}
+	DijkstraMaker<double, SumPath<double>> maker(g);
+	auto& res = maker.make(0);
+	vector<double> iter;
+	iter.assign(g.size(), HUGE_VAL);
+	iter[0] = 0;
+	queue<unsigned> q;
+	q.push(0);
+	vector<double> proc;
+	proc.assign(g.size(), false);
+	proc[0] = true;
+	while(!q.empty())
+	{
+		unsigned v = q.front();
+		q.pop();
+		for(const auto& p : g.getNode(v))
+		{
+			if(!proc[p.first])
+			{
+				proc[p.first] = true;
+				iter[p.first] = iter[v] + 1;
+				q.push(p.first);
+			}
+		}
+	}
+	for(unsigned v = 0; v < g.size(); ++v)
+	{
+		assert(iter[v] == res[v].value());
+	}
+	cerr << "Mono Dijkstra test (E = " << a << "/" << b << " V) OK" << endl;
 	return true;
 }
 
@@ -177,22 +237,30 @@ int main()
 {
 	srand(43);
 
-	for(int i = 0; i < 100; ++i)
+	for(size_t i = 0; i < tests_count; ++i)
 		if(!testDFS(tests_size))
 			return -1;
 
-	for(int i = 0; i < 100; ++i)
+	for(size_t i = 0; i < tests_count; ++i)
 		if(!testStrongComps(tests_size))
 			return -1;
 
-	for(size_t i = tests_size; i < tests_size + 100; ++i)
+	for(size_t i = tests_size; i < tests_size + tests_count; ++i)
 		if(!primitiveWeightedTest(i))
 			return -1;
 
 	if(!primitiveAdapterTest())
 		return -1;
 
-	if(!primitiveDijkstraTest())
-		return -1;
+	for(size_t i = 0; i < tests_count; ++i)
+		if(!primitiveDijkstraTest())
+			return -1;
+
+	for(size_t i = 0; i < tests_count; ++i)
+		if(!monoDijkstraTest(tests_size))
+			return -1;
+
+	cerr << "All tests OK" << endl;
+
 	return 0;
 }

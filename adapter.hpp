@@ -16,6 +16,13 @@ public:
 	Adapter(Graph& gr, const std::vector<VType>& values);
 	unsigned add(std::unique_ptr<Node> node, const VType& name);
 	unsigned add(std::unique_ptr<Node> node, const VType& name, const std::vector<VType>& friends);
+
+	template<typename NodeType>
+	unsigned add(const VType& name);
+
+	template<typename NodeType>
+	unsigned add(const VType& name, const std::vector<VType>& friends);
+
 	void connect(const VType& v1, const VType& v2);
 	bool areConnected(const VType& v1, const VType& v2) const;
 	const Node& getNode(const VType& v) const;
@@ -48,6 +55,20 @@ unsigned Adapter<VType>::add(std::unique_ptr<Node> node, const VType& name, cons
 	for(const VType& u : friends)
 		connect(name, u);
 	return v;
+}
+
+template<typename VType>
+template<typename NodeType>
+unsigned Adapter<VType>::add(const VType& name)
+{
+	return add(std::unique_ptr<Node>(new NodeType()), name);
+}
+
+template<typename VType>
+template<typename NodeType>
+unsigned Adapter<VType>::add(const VType& name, const std::vector<VType>& friends)
+{
+	return add(std::unique_ptr<Node>(new NodeType()), name, friends);
 }
 
 template<typename VType>

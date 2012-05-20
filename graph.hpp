@@ -104,6 +104,13 @@ class Graph
 public:
 	unsigned add(std::unique_ptr<Node> node);
 	unsigned add(std::unique_ptr<Node> node, const std::vector<unsigned>& friends);
+
+	template<typename NodeType>
+	unsigned add();
+
+	template<typename NodeType>
+	unsigned add(const std::vector<unsigned>& friends);
+	
 	void connect(unsigned v1, unsigned v2);
 	bool areConnected(unsigned v1, unsigned v2) const;
 	const Node& getNode(unsigned v) const;
@@ -112,5 +119,17 @@ public:
 private:
 	std::vector<std::unique_ptr<Node>> nodes;
 };
+
+template<typename NodeType>
+unsigned Graph::add()
+{
+	return add(std::unique_ptr<Node>(new NodeType()));
+}
+
+template<typename NodeType>
+unsigned Graph::add(const std::vector<unsigned>& friends)
+{
+	return add(std::unique_ptr<Node>(new NodeType()), friends);
+}
 
 }

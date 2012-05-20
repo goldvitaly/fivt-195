@@ -47,6 +47,13 @@ public:
 	WeightedGraph();
 	unsigned add(std::unique_ptr<Node> node);
 	unsigned add(std::unique_ptr<Node> node, const std::vector<unsigned>& friends, const std::vector<WeightType>& edgesWeights);
+
+	template<typename NodeType>
+	unsigned add();
+
+	template<typename NodeType>
+	unsigned add(const std::vector<unsigned>& friends, const std::vector<WeightType>& edgesWeights);
+
 	void connect(unsigned v1, unsigned v2, WeightType weight);
 	bool areConnected(unsigned v1, unsigned v2) const;
 	WeightedNode<WeightType> getNode(unsigned v) const;
@@ -128,6 +135,20 @@ unsigned WeightedGraph<WeightType>::add(std::unique_ptr<Node> node, const std::v
 {
 	weights.push_back(edgesWeights);
 	return graph.add(std::move(node), friends);
+}
+
+template<typename WeightType>
+template<typename NodeType>
+unsigned WeightedGraph<WeightType>::add()
+{
+	return add(std::unique_ptr<Node>(new NodeType()));
+}
+
+template<typename WeightType>
+template<typename NodeType>
+unsigned WeightedGraph<WeightType>::add(const std::vector<unsigned>& friends, const std::vector<WeightType>& edgesWeights)
+{
+	return add(std::unique_ptr<Node>(new NodeType()), friends, edgesWeights);
 }
 
 template<typename WeightType>
