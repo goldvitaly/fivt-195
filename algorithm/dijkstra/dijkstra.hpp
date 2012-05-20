@@ -3,7 +3,7 @@
 
 #include "../../Graph/Graph.hpp"
 
-#include <iostream> // for size_t
+#include <algorithm>
 
 namespace DijkstraShortestPaths
 {
@@ -68,6 +68,8 @@ public:
         anc.assign(graph.size(), -1);
         dist.assign(graph.size(), zero);
         reach.assign(graph.size(), false);
+        incomingEdge.assign(graph.size(), TEdge()); // здесь должен быть boost::optional,
+                                                    // но я пока не умею им пользоваться
 
         inQueue[src] = true;
 
@@ -86,7 +88,7 @@ public:
             for (auto edge: graph[curv])
             {
                 size_t dest = iExtr(edge);
-                if (reach[dest])
+                if (dest == NO_VALUE || reach[dest])
                     continue;
                 TDist weight = wExtr(edge);
                 size_t newDist = plus(dist[curv], weight);
@@ -95,6 +97,7 @@ public:
                     inQueue[dest] = true;
                     dist[dest] = newDist;
                     anc[dest] = curv;
+                    incomingEdge[dest] = edge;
                 }
             }
         }
@@ -118,6 +121,19 @@ public:
         std::reverse(res.begin(), res.end());
         return res;
     }
+    std::vector<TEdge> getEdgePath(size_t dest)
+    {
+        std::vector<TEdge> res;
+        if (!reach[dest])
+            return res;
+        while (dest != NO_VALUE)
+        {
+            res.push_back(incomingEdge[dest]);
+            dest = anc[dest];
+        }
+        std::reverse(res.begin(), res.end());
+        return res;
+    }
 
 private: // user data
     const graph::Graph<TEdge>& graph;
@@ -129,6 +145,7 @@ private: // user data
 
 private: // algo stuff
     std::vector<size_t> anc;
+    std::vector<TEdge> incomingEdge;
     std::vector<TDist> dist;
     std::vector<char> reach;
 

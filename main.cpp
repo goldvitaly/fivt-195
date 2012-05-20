@@ -1,6 +1,7 @@
 #include "Graph/Graph.hpp"
 #include "incidences/VectorIncidence.hpp"
 #include "algorithm/dijkstra/dijkstra.hpp"
+#include "algorithm/maxflow/maxflow.hpp"
 #include <iostream>
 
 using namespace graph;
