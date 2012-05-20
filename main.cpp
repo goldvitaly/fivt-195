@@ -33,6 +33,10 @@ int main()
     {
         auto res = finder.getDist(i);
         std::cout << i+1 << ": " << res.reach << " " << res.dist << std::endl;
+        auto path = finder.getPath(i);
+        for (auto j: path)
+            std::cout << j+1 << " ";
+        std::cout << std::endl;
     }
 
 	return 0;

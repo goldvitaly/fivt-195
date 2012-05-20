@@ -106,7 +106,17 @@ public:
     }
     std::vector<size_t> getPath(size_t dest)
     {
-        return std::vector<size_t>();
+        std::vector<size_t> res;
+        if (!reach[dest])
+            return res;
+        do
+        {
+            res.push_back(dest);
+            dest = anc[dest];
+        }
+        while (dest != NO_VALUE);
+        std::reverse(res.begin(), res.end());
+        return res;
     }
 
 private: // user data
