@@ -39,6 +39,7 @@ public:
 	}
 };
 
+// поменять методы, завести структуры соответствующие
 template<typename TLength>
 class ShortestPathInfo
 {
@@ -47,7 +48,7 @@ private:
 	const std::vector<TLength> distances;
 	const std::vector<size_t> previous;
 public:
-	ShortestPathInfo(std::vector<char>& _isReached, std::vector<TLength>& _distances, std::vector<size_t>& _previous) : 
+	ShortestPathInfo(const std::vector<char>& _isReached, const std::vector<TLength>& _distances, const std::vector<size_t>& _previous) : 
 	distances(_distances), isReached(_isReached), previous(_previous){}
 	
 	TLength getLength(size_t v) const 
@@ -146,7 +147,7 @@ private:
         }
     };
 public:
-    Dijkstra(const Graph<TWeight>& _graph, const TCalcLength& _calcLength = TCalcLength(), const TCompLength& _compLength = TCompLength() ):
+    explicit Dijkstra(const Graph<TWeight>& _graph, const TCalcLength& _calcLength = TCalcLength(), const TCompLength& _compLength = TCompLength() ):
         graph(_graph), calcLength(_calcLength), compLength(_compLength) {}
 
     ShortestPathInfo<TLength> calcDist(size_t from)
