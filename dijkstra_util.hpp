@@ -8,32 +8,27 @@ namespace graph
 {
 
 //where is my std::priority_queue with decrease_key()?
-template<typename WeightType, typename PathType>
+template<typename PathType>
 class VertexQueue
 {
 public:
-	VertexQueue(Paths<WeightType, PathType>& paths);
 	virtual ~VertexQueue();
 	virtual unsigned pop() = 0;
 	virtual bool empty() = 0;
-	virtual void relax(unsigned v, unsigned u, WeightType edge) = 0;
-	virtual void push(unsigned v) = 0;
+	virtual void remove(unsigned v, PathType path) = 0;
+	virtual void push(unsigned v, PathType path) = 0;
 	virtual void clear() = 0;
-
-protected:
-	Paths<WeightType, PathType>& paths;
 };
 
-template<typename WeightType, typename PathType>
-class SetVertexQueue : public VertexQueue<WeightType, PathType>
+template<typename PathType>
+class SetVertexQueue : public VertexQueue<PathType>
 {
 public:
-	SetVertexQueue(Paths<WeightType, PathType>& paths);
 	virtual ~SetVertexQueue();
 	virtual unsigned pop();
 	virtual bool empty();
-	virtual void relax(unsigned v, unsigned u, WeightType edge);
-	virtual void push(unsigned v);
+	virtual void remove(unsigned v, PathType path);
+	virtual void push(unsigned v, PathType path);
 	virtual void clear();
 
 private:
@@ -41,52 +36,41 @@ private:
 
 };
 
-template<typename WeightType, typename PathType>
-VertexQueue<WeightType, PathType>::VertexQueue(Paths<WeightType, PathType>& paths) : paths(paths)
+template<typename PathType>
+VertexQueue<PathType>::~VertexQueue() {}
+
+template<typename PathType>
+SetVertexQueue<PathType>::~SetVertexQueue()
 {}
 
-template<typename WeightType, typename PathType>
-VertexQueue<WeightType, PathType>::~VertexQueue() {}
-
-template<typename WeightType, typename PathType>
-SetVertexQueue<WeightType, PathType>::SetVertexQueue(Paths<WeightType, PathType>& paths) : VertexQueue<WeightType, PathType>(paths)
-{}
-
-template<typename WeightType, typename PathType>
-SetVertexQueue<WeightType, PathType>::~SetVertexQueue()
-{}
-
-template<typename WeightType, typename PathType>
-unsigned SetVertexQueue<WeightType, PathType>::pop()
+template<typename PathType>
+unsigned SetVertexQueue<PathType>::pop()
 {
 	unsigned result = (*heap.begin()).second;
 	heap.erase(heap.begin());
 	return result;
 }
 
-template<typename WeightType, typename PathType>
-bool SetVertexQueue<WeightType, PathType>::empty()
+template<typename PathType>
+bool SetVertexQueue<PathType>::empty()
 {
 	return heap.empty();
 }
 
-template<typename WeightType, typename PathType>
-void SetVertexQueue<WeightType, PathType>::relax(unsigned v, unsigned u, WeightType edge)
+template<typename PathType>
+void SetVertexQueue<PathType>::remove(unsigned v, PathType path)
 {
-	heap.erase(heap.find(std::make_pair((this->paths).at(v), v)));
-	this->paths[v] = this->paths[u];
-	this->paths[v].addEdge(v, edge);
-	push(v);
+	heap.erase(heap.find(std::make_pair(path, v)));
 }
 
-template<typename WeightType, typename PathType>
-void SetVertexQueue<WeightType, PathType>::push(unsigned v)
+template<typename PathType>
+void SetVertexQueue<PathType>::push(unsigned v, PathType path)
 {
-	heap.insert(std::make_pair((this->paths).at(v), v));
+	heap.insert(std::make_pair(path, v));
 }
 
-template<typename WeightType, typename PathType>
-void SetVertexQueue<WeightType, PathType>::clear()
+template<typename PathType>
+void SetVertexQueue<PathType>::clear()
 {
 	heap.clear();
 }

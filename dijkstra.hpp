@@ -8,6 +8,8 @@
 #include <queue>
 #include <memory>
 
+#include <iostream>
+
 namespace graph
 {
 namespace algo
@@ -23,13 +25,13 @@ public:
 private:
 	const WeightedGraph<WeightType>& g;
 	Paths<WeightType, PathType> paths;
-	std::unique_ptr<VertexQueue<WeightType, PathType>> vq;
+	std::unique_ptr<VertexQueue<PathType>> vq;
 };
 
 template<typename WeightType, typename PathType>
 DijkstraMaker<WeightType, PathType>::DijkstraMaker(const WeightedGraph<WeightType>& gr) :	g(gr),
 																							paths(g.size()),
-																							vq(new SetVertexQueue<WeightType, PathType>(paths))
+																							vq(new SetVertexQueue<PathType>())
 {}
 
 template<typename WeightType, typename PathType>
@@ -41,7 +43,7 @@ Paths<WeightType, PathType>& DijkstraMaker<WeightType, PathType>::make(unsigned 
 	{
 		if(u != v)
 			paths[u].setInfinity();
-		vq->push(u);
+		vq->push(u, paths[u]);
 	}
 	while(!vq->empty())
 	{
@@ -50,7 +52,10 @@ Paths<WeightType, PathType>& DijkstraMaker<WeightType, PathType>::make(unsigned 
 		{
 			if(paths[p.first].worseThan(paths[u], p.second))
 			{
-				vq->relax(p.first, u, p.second);
+				vq->remove(p.first, paths[p.first]);
+				paths[p.first] = paths[u];
+				paths[p.first].addEdge(p.first, p.second);
+				vq->push(p.first, paths[p.first]);
 			}
 		}
 	}

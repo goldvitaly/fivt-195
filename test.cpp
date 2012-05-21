@@ -18,8 +18,8 @@ using namespace std;
 using namespace graph;
 using namespace algo;
 
-const size_t tests_size = 200;
-const size_t tests_count = 3000;
+const size_t tests_size = 50;
+const size_t tests_count = 300;
 
 void printComps(list<list<unsigned>>& comps)
 {
