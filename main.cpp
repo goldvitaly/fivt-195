@@ -2,6 +2,8 @@
 #include "graph_algorithm.hpp"
 #include <iostream>
 #include <algorithm>
+#include <cstdlib>
+#include <unistd.h>
 
 bool dijkstraTest (size_t vertexNum, size_t edgeNum)
 {
@@ -10,10 +12,7 @@ bool dijkstraTest (size_t vertexNum, size_t edgeNum)
     {
         for (size_t j = 0; j < vertexNum; ++j)
         {
-            if (i != j) 
-            {
-                g[i][j] = 1e9;
-            }
+            g[i][j] = 1e9;
         }
     }
         
@@ -30,12 +29,16 @@ bool dijkstraTest (size_t vertexNum, size_t edgeNum)
         t = rand() % vertexNum;
         v = rand() % 100;
         
-        g[f][t] = v;
+        g[f][t] = std::min(g[f][t], v);
         G.AddIncident(f, t, Edge(v));
     }
-    
-    g[0][vertexNum - 1] = 1e9;
+
     G.AddIncident(0, vertexNum - 1, Edge(1e9));
+    
+    for (size_t i = 0; i < vertexNum; ++i)
+    {
+        g[i][i] = 0;
+    }
     
     for (size_t k = 0; k < vertexNum; ++k)
     {
@@ -50,6 +53,12 @@ bool dijkstraTest (size_t vertexNum, size_t edgeNum)
     
     DijkstraAlgorithm<Edge, Path, PathComp<Path>, Relax<Edge, Path>> da;
     
+    if (da(G, 0, vertexNum - 1)() != g[0][vertexNum - 1])
+    {
+        std::cerr << da(G, 0, vertexNum - 1)() << std::endl;
+        std::cerr << g[0][vertexNum - 1] << std::endl;
+    }
+    
     return da(G, 0, vertexNum - 1)() == g[0][vertexNum - 1];
 }
 
@@ -60,15 +69,15 @@ int main ()
     {
         std::cout << "Test# " << test << ": ";
         
-        if (dijkstraTest(100, 100))
+        if (dijkstraTest(100, 2000))
         {
             std::cout << " ok." << std::endl;
         }
         else
         {
             std::cout << " failed!" << std::endl;
+            return 0;
         }
-        
     }
 
     return 0;
