@@ -69,7 +69,7 @@ int main ()
     {
         std::cout << "Test# " << test << ": ";
         
-        if (dijkstraTest(100, 2000))
+        if (dijkstraTest(100, 500))
         {
             std::cout << " ok." << std::endl;
         }

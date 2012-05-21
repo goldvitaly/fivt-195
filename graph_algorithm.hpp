@@ -2,6 +2,7 @@
 #define GRAPH_ALGORITHM_HPP
 
 #include <iostream>
+#include <set>
 #include <cassert>
 #include <vector>
 #include <memory>
@@ -71,6 +72,8 @@ public:
 private:
 };
 
+
+
 template<typename EdgeWeight, typename PathWeight, typename PathWeightComp, typename RelaxWeight>
 class DijkstraAlgorithm
 {
@@ -83,22 +86,13 @@ public:
         
         state[start] = inProcessVertex;
         
-        for (size_t Iter = 0; Iter < G.VertexNum(); ++Iter)
+        std::set<std::pair<PathWeight, size_t>, DijkstraComp> vertexQueue;
+        vertexQueue.insert(std::make_pair(pathWeight[start], start));
+        
+        while (!vertexQueue.empty())
         {
-            bool found = false;
-            size_t fndInd = 0;
-            
-            for (size_t v = 0; v < G.VertexNum(); ++v)
-            {
-                if (state[v] == inProcessVertex)
-                {
-                    if (!found || cmp(pathWeight[v], pathWeight[fndInd]))
-                    {
-                        fndInd = v;
-                        found = true;
-                    }
-                }
-            }
+            size_t fndInd = vertexQueue.begin()->second;
+            vertexQueue.erase(vertexQueue.begin());
             
             size_t EdgeIndex = 0;
             for (auto v : G.GetIncident(fndInd))
@@ -107,6 +101,8 @@ public:
                     (state[v.first] == undefinedVertex ||
                      cmp(relax(pathWeight[fndInd], v.second, EdgeIndex), pathWeight[v.first])))
                 {
+                    vertexQueue.erase(std::make_pair(pathWeight[v.first], v.first));
+                    vertexQueue.insert(std::make_pair(relax(pathWeight[fndInd], v.second, EdgeIndex), v.first));
                     state[v.first] = inProcessVertex;
                     pathWeight[v.first] = PathWeight(relax(pathWeight[fndInd], v.second, EdgeIndex));
                 }
@@ -119,6 +115,19 @@ public:
         return pathWeight[finish];
     }
 private:
+    class DijkstraComp
+    {
+    public:
+        DijkstraComp(): cmp(){}
+        bool operator () (const std::pair<PathWeight, size_t> &a, const std::pair<PathWeight, size_t> &b)
+        {
+            if (cmp(a.first, b.first)) return true;
+            if (cmp(b.first, a.first)) return false;
+            return a.second < b.second;
+        }
+    private:
+        PathWeightComp cmp;
+    };
     std::vector<size_t> state;
     std::vector<PathWeight> pathWeight;
     PathWeightComp cmp;

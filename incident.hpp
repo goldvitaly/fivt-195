@@ -28,10 +28,7 @@ public:
         iterator (const iterator&) = delete;
         iterator& operator = (const iterator&) = delete;
 
-        iterator (iterator&& It)
-        {
-            _It = std::move(It._It);
-        }
+        iterator (iterator&& It) = default;
 
         iterator& operator = (iterator&& It)
         {
