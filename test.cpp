@@ -17,14 +17,14 @@ using namespace std;
 using namespace graph;
 using namespace algo;
 
-const size_t tests_size = 300;
-const size_t tests_count = 1000;
+const size_t tests_size = 200;
+const size_t tests_count = 3000;
 
 void printComps(list<list<unsigned>>& comps)
 {
 	for(auto& comp : comps)
 	{
-		for(unsigned v : comp)
+ 		for(unsigned v : comp)
 			cout << v << " ";
 		cout << endl;
 	}
