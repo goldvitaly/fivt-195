@@ -1,6 +1,4 @@
-#include "graph.h"
-#include "shortest_paths_finder.h"
-#include "test_short_paths.h"
+#include "test_max_flow.h"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -9,12 +7,12 @@
 using namespace std;
 
 
-Graph<int, int> g;
+Graph<int> g;
 
 int main()
 {
     srand(time(NULL));
-    Test_For_Graph<int, int> test(&g);
+    Test_For_Graph<int> test(&g);
     test.run();
     return 0;
 }

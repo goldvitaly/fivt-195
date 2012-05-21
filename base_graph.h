@@ -3,16 +3,18 @@
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
+#include <utility>
 #include <set>
 
 template <class Weight>
 class Edge
 {
     public:
-        explicit Edge(const size_t& to, const Weight& weight)
+        explicit Edge(const size_t& to, const Weight& weight, const size_t& id = 0)
         {
             weight_ = weight;
             direction_ = to;
+            id_ = id;
         }
 
         void set_weight(Weight new_weight)
@@ -42,44 +44,17 @@ class Edge
                 return(weight_ < edge.get_weight());
             return(direction_ < *edge);
         }
+
+        size_t get_id() const
+        {
+            return id_;
+        }
     private:
         size_t direction_;
         Weight weight_;
+        size_t id_;
 };
 
-
-template <class Weight>
-class Path
-{
-public:
-    explicit Path(size_t direction): direction_(direction) {}
-
-    void add(size_t new_node)
-    {
-        path_.push_back(new_node);
-    }
-
-    void set_start(size_t start)
-    {
-        start_ = start;
-    }
-
-
-    void print()
-    {
-        for(int i = 0; i < path_.size(); i++)
-            std::cout << path_[i] << ' ';
-        std::cout << direction_ << std::endl;
-    }
-
-    void reverse_path()
-    {
-        reverse(path_.begin(), path_.end());
-    }
-private:
-    std::vector<size_t> path_;
-    size_t direction_, start_;
-};
 
 
 template <class Weight>
@@ -98,17 +73,27 @@ public:
         virtual Edge<Weight> operator * () const = 0;
         virtual BaseIterator& operator ++ () = 0;
         virtual ~BaseIterator(){};
+        virtual BaseIterator* copy() const = 0;
     };
 
 
     class Iterator
     {
     public:
+        Iterator():iterator_(nullptr){}
+
         explicit Iterator(BaseIterator* it)
         {
             iterator_ = std::unique_ptr<BaseIterator>(it);
         }
 
+        Iterator(Iterator&& it): iterator_(std::move(it.iterator_)){}
+
+        Iterator& operator =(Iterator&& it)
+        {
+            iterator_ = std::move(it.iterator_);
+            return *this;
+        }
         bool operator == (const Iterator& it)
         {
             return(*iterator_ == *(it.iterator_));
@@ -128,6 +113,13 @@ public:
         {
             ++(*iterator_);
         }
+
+        Iterator copy() const
+        {
+            if(iterator_.get() == nullptr)
+                return Iterator();
+            return Iterator(iterator_->copy());
+        }
     private:
         std::unique_ptr<BaseIterator> iterator_;
     };
@@ -138,7 +130,7 @@ public:
 };
 
 
-template<class Data, class Weight>
+template<class Weight>
 class SetNode: public BaseNode<Weight>
 {
 public:
@@ -146,11 +138,7 @@ public:
     typedef typename BaseNode<Weight>::Iterator Iterator;
 
 
-    explicit SetNode(const Data& value)
-    {
-        value_ = value;
-        edges_.clear();
-    }
+    explicit SetNode(){}
 
     void add_edge(Edge<Weight> edge)
     {
@@ -198,6 +186,11 @@ public:
             return *this;
         }
 
+        BaseIterator* copy() const
+        {
+            return new SetIterator(iterator_);
+        }
+
         virtual ~SetIterator() {}
     private:
         typename std::multiset<Edge<Weight> >::iterator iterator_;
@@ -217,11 +210,10 @@ public:
     ~SetNode()  {}
 private:
     std::multiset< Edge<Weight> > edges_;
-    Data value_;
 };
 
 
-template<class Data, class Weight>
+template<class Weight>
 class VectorNode: public BaseNode<Weight>
 {
 public:
@@ -229,11 +221,7 @@ public:
     typedef typename BaseNode<Weight>::Iterator Iterator;
 
 
-    explicit VectorNode(const Data& value = 0)
-    {
-        value_ = value;
-        edges_.clear();
-    }
+    explicit VectorNode(){}
 
     void add_edge(Edge<Weight> edge)
     {
@@ -283,9 +271,12 @@ public:
             return *this;
         }
 
-        ~VectorIterator()
+        BaseIterator* copy() const
         {
+            return new VectorIterator(iterator_);
         }
+
+        virtual ~VectorIterator() {}
     private:
         typename std::vector<Edge<Weight> >::iterator iterator_;
     };
@@ -304,7 +295,6 @@ public:
     ~VectorNode() {}
 private:
     std::vector<Edge<Weight> > edges_;
-    Data value_;
 };
 
 #endif // BASE_GRAPH_H_INCLUDED

@@ -5,11 +5,12 @@
 #include <vector>
 
 
-template<typename Data, typename Weight, typename PathLen = Weight, typename CalcPath = std::plus<PathLen>, typename CompPath = std::less<PathLen> >
+template<typename Weight, typename PathLen = Weight, typename CalcPath = std::plus<PathLen>, typename CompPath = std::less<PathLen> >
 class ShortestPathFinder
 {
 public:
-    explicit ShortestPathFinder(const Graph<Data, Weight>& graph):graph_(graph){}
+    typedef typename BaseNode<Weight>::Iterator Iterator;
+    explicit ShortestPathFinder(const Graph<Weight>& graph, const CalcPath& calc_path = CalcPath()):graph_(graph), calc_path_(calc_path){}
     void calculate(size_t node_num, PathLen empty_path = PathLen())
     {
         info_.clear();
@@ -24,15 +25,16 @@ public:
         {
             size_t curr_num = *queue.begin();
             BaseNode<Weight>* curr_node = graph_.graph_[curr_num].get();
-            for(typename BaseNode<Weight>::Iterator it = curr_node->begin(); it != curr_node->end(); ++it)
+            for(Iterator it = curr_node->begin(); it != curr_node->end(); ++it)
             {
-                PathLen new_len = calc_path_(info_[curr_num].dist.get(), (*it).get_weight());
+                PathLen new_len = calc_path_(info_[curr_num].dist.get(), *it);
                 if(!info_[**it].dist.is_initialized()  ||  comp_path_(new_len, info_[**it].dist.get()))
                 {
                     if(info_[**it].dist.is_initialized())
                         queue.erase(**it);
                     info_[**it].dist = new_len;
                     info_[**it].prev_node = curr_num;
+                    info_[**it].prev_edge = it.copy();
                     queue.insert(**it);
                 }
             }
@@ -52,22 +54,25 @@ public:
         Path<Weight> ret(to);
         while(info_[to].prev_node != to)
         {
-            ret.add(info_[to].prev_node);
+            ret.add(info_[to].prev_edge.copy());
             to = info_[to].prev_node;
         }
-        ret.set_start(to);
         ret.reverse_path();
+        ret.set_start(to);
         return ret;
     }
 
-
 private:
-    const Graph<Data, Weight>& graph_;
+    const Graph<Weight>& graph_;
     class State
     {
     public:
         size_t prev_node;
         boost::optional<PathLen> dist;
+        Iterator prev_edge;
+        State(State&& state):prev_edge(std::move(state.prev_edge)), dist(std::move(state.dist)), prev_node(std::move(state.prev_node)) {}
+        State(){}
+
     };
     std::vector<State> info_;
     CalcPath calc_path_;
@@ -85,13 +90,13 @@ private:
             return(first < second);
         }
 
-        void set_curr_finder(ShortestPathFinder<Data, Weight, PathLen, CalcPath, CompPath>* curr_finder)
+        void set_curr_finder(ShortestPathFinder<Weight, PathLen, CalcPath, CompPath>* curr_finder)
         {
             curr_finder_ = curr_finder;
         }
     private:
         CompPath comp_path_;
-        ShortestPathFinder<Data, Weight, PathLen, CalcPath, CompPath>* curr_finder_;
+        ShortestPathFinder<Weight, PathLen, CalcPath, CompPath>* curr_finder_;
     };
 };
 #endif // SHORTEST_PATHS_FINDER_H_INCLUDED
