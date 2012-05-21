@@ -21,7 +21,7 @@ namespace algorithm
 					PathInfo path_length): path(path), edges(edges), path_length(path_length)
 			{
 			}
-			explicit Path(const std::vector<unsigned int>& path, 
+			Path(const std::vector<unsigned int>& path, 
 					std::vector<typename graph::impl::Graph<GraphEdgeType>::edge_type*> edges): path(path), edges(edges)
 			{
 			}
