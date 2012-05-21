@@ -20,6 +20,7 @@ public:
     {
         for(int test_num = 0; test_num < 1000; test_num++)
         {
+            printf("Test #%d: ", test_num + 1);
             generate_graph();
             for(int i = 0; i < rand() % 20; i++)
             {
@@ -36,11 +37,13 @@ public:
                 int new_val = new_flow.calculate_flow(x, y);
                 if(new_val < prev)
                 {
-                    return;
+                    printf("Fail\n");
+                    continue;
                 }
             }
+            printf("OK\n");
         }
-        printf("OK\n");
+
         return;
     }
 private:

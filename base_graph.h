@@ -8,50 +8,50 @@
 template <class Weight>
 class Edge
 {
-    public:
-        explicit Edge(const size_t& to, const Weight& weight, const size_t& id = 0)
-        {
-            weight_ = weight;
-            direction_ = to;
-            id_ = id;
-        }
+public:
+    Edge(const size_t& to, const Weight& weight, const size_t& id = 0)
+    {
+        weight_ = weight;
+        direction_ = to;
+        id_ = id;
+    }
 
-        void set_weight(Weight new_weight)
-        {
-            weight_ = new_weight;
-        }
+    void set_weight(Weight new_weight)
+    {
+        weight_ = new_weight;
+    }
 
 
-        Weight get_weight() const
-        {
-            return weight_;
-        }
+    Weight get_weight() const
+    {
+        return weight_;
+    }
 
-        size_t operator * () const
-        {
-            return direction_;
-        }
+    size_t operator * () const
+    {
+        return direction_;
+    }
 
-        bool operator == (const Edge<Weight>& edge) const //This operator for STL's features
-        {
-            return(direction_ == *edge  &&  weight_ == edge.get_weight());
-        }
+    bool operator == (const Edge<Weight>& edge) const //This operator for STL's features
+    {
+        return(direction_ == *edge  &&  weight_ == edge.get_weight());
+    }
 
-        bool operator < (const Edge<Weight>& edge) const //This operator for STL's features
-        {
-            if(direction_ == *edge)
-                return(weight_ < edge.get_weight());
-            return(direction_ < *edge);
-        }
+    bool operator < (const Edge<Weight>& edge) const //This operator for STL's features
+    {
+        if(direction_ == *edge)
+            return(weight_ < edge.get_weight());
+        return(direction_ < *edge);
+    }
 
-        size_t get_id() const
-        {
-            return id_;
-        }
-    private:
-        size_t direction_;
-        Weight weight_;
-        size_t id_;
+    size_t get_id() const
+    {
+        return id_;
+    }
+private:
+    size_t direction_;
+    Weight weight_;
+    size_t id_;
 };
 
 
