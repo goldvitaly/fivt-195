@@ -43,5 +43,5 @@ const std::stack<unsigned>& DFSMaker::make()
 const std::stack<unsigned>& DFSMaker::getOutStack()
 { return out; }
 
-}
-}
+}//namespace algo
+}//namespace graph

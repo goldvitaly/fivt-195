@@ -52,5 +52,5 @@ void TarjanMaker::dfs(unsigned v)
 	}
 }
 
-}
-}
+}//namespace algo
+}//namespace graph

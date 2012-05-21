@@ -5,6 +5,7 @@
 #include "weighted.hpp"
 #include "dijkstra.hpp"
 #include "adapter.hpp"
+#include "maxflow.hpp"
 
 #include <iostream>
 #include <cstdlib>
@@ -41,12 +42,12 @@ bool testDFS(size_t testSize)
 {
 	Graph g;
 	size_t size = 0;
-	size_t root = sqrt(testSize);
+	size_t maxCompSize = sqrt(testSize);
 	size_t compCount1 = 0;
 	while(size < testSize)
 	{
 		++compCount1;
-		size_t compSize = rand() % (root - 1) + 1;
+		size_t compSize = rand() % (maxCompSize - 1) + 1;
 		for(size_t v = 0; v < compSize; ++v)
 		{
 			vector<unsigned> friends = {(unsigned)(size + (v + 1) % compSize)};
@@ -134,10 +135,10 @@ bool primitiveWeightedTest(size_t testSize)
 	return true;
 }
 
-bool primitiveAdapterTest()
+bool primitiveGraphAdapterTest()
 {
 	Graph gr;
-	Adapter<string> g(gr, {});
+	GraphAdapter<string> g(gr, {});
 	/*
 	g.add(std::unique_ptr<Node>(new TableNode()), "A");
 	g.add(std::unique_ptr<Node>(new TableNode()), "B");
@@ -159,7 +160,7 @@ bool primitiveAdapterTest()
 	assert(!g.areConnected("C", "E"));
 	assert(!g.areConnected("D", "F"));
 	assert(g.getNode("F").getFriends().size() == 5);
-	cerr << "Primitive adapter test OK" << endl;
+	cerr << "Primitive GraphAdapter test OK" << endl;
 	return true;
 }
 
@@ -276,6 +277,13 @@ bool dijkstraTraceTest(size_t testSize)
 	return true;
 }
 
+bool primitiveFlowTest()
+{
+	WeightedGraph<int> g;
+	MaxFlow<int> flow(g);
+	return true;
+}
+
 int main()
 {
 	srand(43);
@@ -292,7 +300,7 @@ int main()
 		if(!primitiveWeightedTest(i))
 			return -1;
 
-	if(!primitiveAdapterTest())
+	if(!primitiveGraphAdapterTest())
 		return -1;
 
 	for(size_t i = 0; i < tests_count; ++i)

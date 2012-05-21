@@ -33,5 +33,5 @@ private:
 	void dfs(unsigned v);
 };
 
-}
-}
+}//namespace algo
+}//namespace graph

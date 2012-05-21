@@ -132,4 +132,4 @@ unsigned Graph::add(const std::vector<unsigned>& friends)
 	return add(std::unique_ptr<Node>(new NodeType()), friends);
 }
 
-}
+}//namespace graph

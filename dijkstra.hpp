@@ -29,7 +29,7 @@ private:
 template<typename WeightType, typename PathType>
 DijkstraMaker<WeightType, PathType>::DijkstraMaker(const WeightedGraph<WeightType>& gr) :	g(gr),
 																							paths(g.size()),
-																							vq(new MapVertexQueue<WeightType, PathType>(paths))
+																							vq(new SetVertexQueue<WeightType, PathType>(paths))
 {}
 
 template<typename WeightType, typename PathType>
@@ -57,5 +57,5 @@ Paths<WeightType, PathType>& DijkstraMaker<WeightType, PathType>::make(unsigned 
 	return paths;
 }
 
-}
-}
+}//namespace algo
+}//namespace graph

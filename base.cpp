@@ -18,4 +18,4 @@ Graph reverse(const Graph& g)
 	return result;
 }
 
-}
+}//namespace graph

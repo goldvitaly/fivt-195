@@ -25,10 +25,11 @@ protected:
 };
 
 template<typename WeightType, typename PathType>
-class MapVertexQueue : public VertexQueue<WeightType, PathType>
+class SetVertexQueue : public VertexQueue<WeightType, PathType>
 {
 public:
-	MapVertexQueue(Paths<WeightType, PathType>& paths);
+	SetVertexQueue(Paths<WeightType, PathType>& paths);
+	virtual ~SetVertexQueue();
 	virtual unsigned pop();
 	virtual bool empty();
 	virtual void relax(unsigned v, unsigned u, WeightType edge);
@@ -48,11 +49,15 @@ template<typename WeightType, typename PathType>
 VertexQueue<WeightType, PathType>::~VertexQueue() {}
 
 template<typename WeightType, typename PathType>
-MapVertexQueue<WeightType, PathType>::MapVertexQueue(Paths<WeightType, PathType>& paths) : VertexQueue<WeightType, PathType>(paths)
+SetVertexQueue<WeightType, PathType>::SetVertexQueue(Paths<WeightType, PathType>& paths) : VertexQueue<WeightType, PathType>(paths)
 {}
 
 template<typename WeightType, typename PathType>
-unsigned MapVertexQueue<WeightType, PathType>::pop()
+SetVertexQueue<WeightType, PathType>::~SetVertexQueue()
+{}
+
+template<typename WeightType, typename PathType>
+unsigned SetVertexQueue<WeightType, PathType>::pop()
 {
 	unsigned result = (*heap.begin()).second;
 	heap.erase(heap.begin());
@@ -60,30 +65,30 @@ unsigned MapVertexQueue<WeightType, PathType>::pop()
 }
 
 template<typename WeightType, typename PathType>
-bool MapVertexQueue<WeightType, PathType>::empty()
+bool SetVertexQueue<WeightType, PathType>::empty()
 {
 	return heap.empty();
 }
 
 template<typename WeightType, typename PathType>
-void MapVertexQueue<WeightType, PathType>::relax(unsigned v, unsigned u, WeightType edge)
+void SetVertexQueue<WeightType, PathType>::relax(unsigned v, unsigned u, WeightType edge)
 {
 	heap.erase(heap.find(std::make_pair((this->paths).at(v), v)));
-	(this->paths)[v] = (this->paths)[u];
-	(this->paths)[v].addEdge(v, edge);
+	this->paths[v] = this->paths[u];
+	this->paths[v].addEdge(v, edge);
 	push(v);
 }
 
 template<typename WeightType, typename PathType>
-void MapVertexQueue<WeightType, PathType>::push(unsigned v)
+void SetVertexQueue<WeightType, PathType>::push(unsigned v)
 {
 	heap.insert(std::make_pair((this->paths).at(v), v));
 }
 
 template<typename WeightType, typename PathType>
-void MapVertexQueue<WeightType, PathType>::clear()
+void SetVertexQueue<WeightType, PathType>::clear()
 {
 	heap.clear();
 }
 
-}
+}//namespace graph

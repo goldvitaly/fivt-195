@@ -205,4 +205,4 @@ const Graph& WeightedGraph<WeightType>::getBaseGraph()
 	return graph;
 }
 
-}
+}//namespace graph

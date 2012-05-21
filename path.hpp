@@ -11,7 +11,7 @@ template<typename WeightType>
 class Path
 {
 public:
-	virtual ~Path() {};
+	virtual ~Path() {}
 	virtual void addEdge(unsigned to, WeightType edge) = 0;
 	virtual bool operator<(const Path<WeightType>& path) const = 0;
 	virtual void setInfinity() = 0;
@@ -24,6 +24,7 @@ class SumPath : public Path<WeightType>
 {
 public:
 	SumPath();
+	virtual ~SumPath() {}
 	virtual void addEdge(unsigned to, WeightType edge);
 	virtual bool operator<(const Path<WeightType>& path) const;
 	virtual void setInfinity();
@@ -39,6 +40,7 @@ template<typename WeightType>
 class TraceSumPath : public SumPath<WeightType>
 {
 public:
+	virtual ~TraceSumPath() {}
 	virtual void addEdge(unsigned to, WeightType edge);
 	virtual void setZero(unsigned start);
 	virtual const std::list<unsigned>& path() const;
@@ -72,7 +74,7 @@ void SumPath<WeightType>::addEdge(unsigned to, WeightType edge)
 template<typename WeightType>
 bool SumPath<WeightType>::operator<(const Path<WeightType>& path) const
 {
-	return sum < ((SumPath<WeightType>&)path).sum;
+	return sum < dynamic_cast<const SumPath<WeightType>&>(path).sum;
 }
 
 template<typename WeightType>
@@ -90,7 +92,7 @@ void SumPath<WeightType>::setZero(unsigned start)
 template<typename WeightType>
 bool SumPath<WeightType>::worseThan(const Path<WeightType>& path, WeightType edge) const
 {
-	return sum > ((SumPath<WeightType>&)path).sum + edge;
+	return sum > dynamic_cast<const SumPath<WeightType>&>(path).sum + edge;
 }
 
 template<typename WeightType>
@@ -139,4 +141,4 @@ const PathType& Paths<WeightType, PathType>::at(int index) const
 	return content[index];
 }
 
-}
+}//namespace graph

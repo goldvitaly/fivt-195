@@ -10,7 +10,7 @@ namespace graph
 namespace algo
 {
 
-enum
+enum color_t
 {
 	COLOR_WHITE, COLOR_GREY, COLOR_BLACK
 };
@@ -27,9 +27,9 @@ public:
 	
 private:
 	const Graph& g;
-	std::vector<int> color;
+	std::vector<color_t> color;
 	std::stack<unsigned> out;
 };
 
-}
-}
+}//namespace algo
+}//namespace graph

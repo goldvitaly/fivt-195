@@ -22,5 +22,5 @@ private:
 	std::list<std::list<unsigned>> result;
 };
 
-}
-}
+}//namespace algo
+}//namespace graph

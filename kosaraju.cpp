@@ -37,5 +37,5 @@ const std::list<std::list<unsigned>>& KosarajuMaker::make()
 	return result;
 }
 
-}
-}
+}//namespace algo
+}//namespace graph

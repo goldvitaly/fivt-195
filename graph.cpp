@@ -208,4 +208,4 @@ size_t Graph::size() const
 	return nodes.size();
 }
 
-}
+}//namespace graph
