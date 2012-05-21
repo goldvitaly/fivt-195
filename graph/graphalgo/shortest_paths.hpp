@@ -81,9 +81,11 @@ namespace impl
 			IntsByVectorComparator(std::vector<T>& values, Comp comparator = Comp()): values(values), comparator(comparator) {}
 		    bool operator() (unsigned int lhs, unsigned int rhs) {
 				bool ls = comparator(values[lhs], values[rhs]);
+				if (ls)
+					return true;
 				bool gt = comparator(values[rhs], values[lhs]);
 				if (!ls && !gt) return lhs < rhs;
-				return ls;
+				return false;
 			}
 	};
 }
