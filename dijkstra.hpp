@@ -36,7 +36,7 @@ template<typename WeightType, typename PathType>
 Paths<WeightType, PathType>& DijkstraMaker<WeightType, PathType>::make(unsigned v)
 {
 	vq->clear();
-	paths[v].setZero();
+	paths[v].setZero(v);
 	for(unsigned u = 0; u < g.size(); ++u)
 	{
 		if(u != v)

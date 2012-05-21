@@ -12,10 +12,10 @@ class Path
 {
 public:
 	virtual ~Path() {};
-	virtual void addEdge(unsigned from, unsigned to, WeightType edge) = 0;
+	virtual void addEdge(unsigned to, WeightType edge) = 0;
 	virtual bool operator<(const Path<WeightType>& path) const = 0;
 	virtual void setInfinity() = 0;
-	virtual void setZero() = 0;
+	virtual void setZero(unsigned start) = 0;
 	virtual bool worseThan(const Path<WeightType>& path, WeightType edge) const = 0;
 }; 
 
@@ -24,10 +24,10 @@ class SumPath : public Path<WeightType>
 {
 public:
 	SumPath();
-	virtual void addEdge(unsigned from, unsigned to, WeightType edge);
+	virtual void addEdge(unsigned to, WeightType edge);
 	virtual bool operator<(const Path<WeightType>& path) const;
 	virtual void setInfinity();
-	virtual void setZero();
+	virtual void setZero(unsigned start);
 	virtual bool worseThan(const Path<WeightType>& path, WeightType edge) const;
 	virtual const WeightType& length() const;
 
@@ -39,12 +39,12 @@ template<typename WeightType>
 class TraceSumPath : public SumPath<WeightType>
 {
 public:
-	virtual void addEdge(unsigned from, unsigned to, WeightType edge);
-	virtual void setZero();
-	virtual const std::list<std::pair<unsigned, unsigned>>& path() const;
+	virtual void addEdge(unsigned to, WeightType edge);
+	virtual void setZero(unsigned start);
+	virtual const std::list<unsigned>& path() const;
 
 private:
-	std::list<std::pair<unsigned, unsigned>> pathList;
+	std::list<unsigned> pathList;
 };
 
 template<typename WeightType, typename PathType>
@@ -64,7 +64,7 @@ SumPath<WeightType>::SumPath() : sum(0)
 {}
 
 template<typename WeightType>
-void SumPath<WeightType>::addEdge(unsigned from, unsigned to, WeightType edge)
+void SumPath<WeightType>::addEdge(unsigned to, WeightType edge)
 {
 	sum += edge;
 }
@@ -82,7 +82,7 @@ void SumPath<WeightType>::setInfinity()
 }
 
 template<typename WeightType>
-void SumPath<WeightType>::setZero()
+void SumPath<WeightType>::setZero(unsigned start)
 {
 	sum = 0;
 }
@@ -100,21 +100,22 @@ const WeightType& SumPath<WeightType>::length() const
 }
 
 template<typename WeightType>
-void TraceSumPath<WeightType>::addEdge(unsigned from, unsigned to, WeightType edge)
+void TraceSumPath<WeightType>::addEdge(unsigned to, WeightType edge)
 {
-	SumPath<WeightType>::addEdge(from, to, edge);
-	pathList.push_back(std::make_pair(from, to));
+	SumPath<WeightType>::addEdge(to, edge);
+	pathList.push_back(to);
 }
 
 template<typename WeightType>
-void TraceSumPath<WeightType>::setZero()
+void TraceSumPath<WeightType>::setZero(unsigned start)
 {
-	SumPath<WeightType>::setZero();
+	SumPath<WeightType>::setZero(start);
 	pathList.clear();
+	pathList.push_back(start);
 }
 
 template<typename WeightType>
-const std::list<std::pair<unsigned, unsigned>>& TraceSumPath<WeightType>::path() const
+const std::list<unsigned>& TraceSumPath<WeightType>::path() const
 {
 	return pathList;
 }

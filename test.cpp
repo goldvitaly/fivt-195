@@ -257,14 +257,14 @@ bool dijkstraTraceTest(size_t testSize)
 	{
 		const auto& path = res.at(v).path();
 		double length = res.at(v).length();
-		unsigned prev = 0;
-		double length2 = (path.empty() && v != 0) ? HUGE_VAL : 0;
-		for(const auto& p : path)
+		double length2 = path.empty() ? HUGE_VAL : 0;
+		auto it = path.begin();
+		unsigned prev = *it;
+		while(++it != path.end())
 		{
-			assert(p.first == prev);
-			prev = p.second;
-			auto wg =  g.getWeight(p.first, p.second);
+			auto wg =  g.getWeight(prev, *it);
 			length2 += *min_element(wg.begin(), wg.end());
+			prev = *it;
 		}
 		double checkLength = check.at(v).length();
 		assert(length == length2);

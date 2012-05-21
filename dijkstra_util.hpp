@@ -70,7 +70,7 @@ void MapVertexQueue<WeightType, PathType>::relax(unsigned v, unsigned u, WeightT
 {
 	heap.erase(heap.find(std::make_pair((this->paths).at(v), v)));
 	(this->paths)[v] = (this->paths)[u];
-	(this->paths)[v].addEdge(u, v, edge);
+	(this->paths)[v].addEdge(v, edge);
 	push(v);
 }
 
