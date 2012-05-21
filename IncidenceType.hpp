@@ -321,20 +321,21 @@ class SetIncidence : public IncidenceType<EdgeType>
 
 }; // SetIncidence
 
-/*
+template<typename EdgeType>
 class BitmaskIncidence : public IncidenceType<EdgeType>
 {
  public: 
-  void addEdge(size_t destination)
+  void addEdge(EdgeType edge)
   {
-    if (incident_.size() < destination + 1)
-      incident_.resize(destination + 1);
-    incident_[destination] = 1;
+    source = edge.source;
+    if (incident_.size() < edge.destination + 1)
+      incident_.resize(edge.destination + 1);
+    incident_[edge.destination] = 1;
   }
   
-  void removeEdge(size_t destination)
+  void removeEdge(EdgeType edge)
   {
-    incident_[destination] = 0;
+    incident_[edge.destination] = 0;
   }
 
   void clear()
@@ -342,9 +343,9 @@ class BitmaskIncidence : public IncidenceType<EdgeType>
     incident_.clear();
   }
 
-  bool isConnectedTo(size_t destination) const
+  bool hasEdge(EdgeType edge) const
   {
-    return incident_[destination];
+    return incident_[edge.destination];
   }
 
   size_t degree() const
@@ -352,29 +353,30 @@ class BitmaskIncidence : public IncidenceType<EdgeType>
     return count(incident_.begin(), incident_.end(), 1);
   }
 
-  Iterator begin() const
+  typename IncidenceType<EdgeType>::Iterator begin() const
   {
-    BitmaskBaseIterator* it = new BitmaskBaseIterator(-1, incident_);
+    BitmaskBaseIterator* it = new BitmaskBaseIterator(-1, incident_, source);
     ++(*it);
-    return Iterator(it);
+    return typename IncidenceType<EdgeType>::Iterator(it);
   }
 
-  Iterator end() const
+  typename IncidenceType<EdgeType>::Iterator end() const
   {
-    return Iterator(new BitmaskBaseIterator(incident_.size(), incident_));
+    return typename IncidenceType<EdgeType>::Iterator(new BitmaskBaseIterator(incident_.size(), incident_, source));
   }
 
-  class BitmaskBaseIterator : public BaseIterator
+  class BitmaskBaseIterator : public IncidenceType<EdgeType>::BaseIterator
   {
    public:
-    explicit BitmaskBaseIterator(int index, const std::vector<bool>& incident) : incident_(incident), 
-                                                                                 iterator_(index)
+    explicit BitmaskBaseIterator(int index, const std::vector<bool>& incident, int source) : incident_(incident), 
+                                                                                             iterator_(index),
+                                                                                             source(source)
     {
     }
 
-    size_t operator *() const
+    EdgeType operator *() const
     {
-      return iterator_;
+      return EdgeType(source, iterator_);
     }
 
     BitmaskBaseIterator& operator++()
@@ -388,13 +390,13 @@ class BitmaskIncidence : public IncidenceType<EdgeType>
       return *this;
     }
 
-    bool operator ==(const BaseIterator& it) const
+    bool operator ==(const typename IncidenceType<EdgeType>::BaseIterator& it) const
     {
       const BitmaskBaseIterator& b_it = dynamic_cast<const BitmaskBaseIterator&> (it);
       return (iterator_ == b_it.iterator_);
     }
 
-    bool operator !=(const BaseIterator& it) const
+    bool operator !=(const typename IncidenceType<EdgeType>::BaseIterator& it) const
     {
       return !(*this == it);
     }
@@ -406,13 +408,14 @@ class BitmaskIncidence : public IncidenceType<EdgeType>
    private:
     int iterator_;
     const std::vector<bool>& incident_;
+    size_t source;
 
   }; // BitmaskBaseIterator
 
  private:
+  size_t source;
   std::vector<bool> incident_;
 
 }; // BitsIncidence
-*/
 
-#endif /* IncidenceType<EdgeType>_HPP */
+#endif /* INCIDENCETYPE_HPP */

@@ -25,11 +25,79 @@
 #include <vector>
 #include <stack>
 
+#include <boost/optional.hpp>
+
 #include "Graph.hpp"
 #include "Edge.hpp"
 
 namespace graph_algorithms
 {
+
+// Get rid of weight!
+template <typename Weight,
+          typename PathInfo,
+          typename PathUpdater,
+          typename PathComparator = std::less<PathInfo> >
+class ShortestPathFinder
+{
+ public:
+  explicit ShortestPathFinder(const Graph< WeightedEdge<Weight> >& G): G(G) {}
+
+  void initShortestPathFinder()
+  {
+    previousVertex.resize(G.size());
+    distance.resize(G.size());
+    visited.assign(G.size(), 0);
+  }
+
+  void freeShortestPathFinder()
+  {
+    previousVertex.clear();
+    distance.clear();
+    visited.clear();
+  }
+
+  std::vector<size_t> findShortestPathToSingleVertex(size_t source, size_t destination)
+  {
+    initShortestPathFinder();
+    std::vector<size_t> shortestPath;
+    distance[source] = 0;
+    while (1) 
+    {
+      boost::optional<size_t> curV;
+      for(int i = 0; i < G.size(); ++i)
+      {
+        if (visited[i] || !distance[i])
+          continue;
+        if (!curV || (cmp(distance[curV], distance[i])))
+          curV = i;
+      }
+      if (!curV)
+        break;
+      visited[*curV] = 1;
+      for(auto edge : G.vertexIncidents[curV])
+      {
+        int nextV = edge.destination;
+        PathInfo newPath = upd(distance[curV], edge);
+        if (!distance[nextV] || cmp(newPath, *distance[nextV]))
+        {
+          *distance[nextV] = newPath;
+        }
+      }
+    }
+    freeShortestPathFinder();
+    return shortestPath;
+  }
+
+ private: 
+  const Graph< WeightedEdge<Weight> >& G;
+  std::vector< boost::optional<size_t> > previousVertex;
+  std::vector< boost::optional<PathInfo> > distance;
+  std::vector<char> visited;
+  PathUpdater upd;
+  PathComparator cmp;
+
+};
 
 class StronglyConnectedComponentsFinder
 {
