@@ -19,6 +19,7 @@ public:
     {
         for(int test_num = 0; test_num < 500; test_num++)
         {
+            printf("Test #%d: ", test_num + 1);
             generate_graph();
             simple_shortest_paths.clear();
             simple_shortest_paths.resize(graph_->size());
@@ -49,11 +50,13 @@ public:
                 my_shortest_paths.calculate(k, empty_path);
                 for(int j = 0; j < graph_->size(); j++)
                     if(my_shortest_paths.get_dist(j) != simple_shortest_paths[k][j])
-                        return;
+                    {
+                        printf("Incorrect calculate of flow!\n");
+                    }
             }
+            printf("OK\n");
         }
-        printf("OK\n");
-        return;
+
     }
 private:
 

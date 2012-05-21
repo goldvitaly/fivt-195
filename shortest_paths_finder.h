@@ -14,8 +14,7 @@ public:
     {
         info_.clear();
         info_.resize(graph_.size());
-        CompState queue_comp(comp_path_);
-        queue_comp.set_curr_finder(this);
+        CompState queue_comp(comp_path_, this);
         info_[node_num].dist = empty_path;
         info_[node_num].prev_node = node_num;
         std::set<size_t, CompState> queue(queue_comp);
@@ -27,7 +26,7 @@ public:
             for(typename BaseNode<Weight>::Iterator it = curr_node->begin(); it != curr_node->end(); ++it)
             {
                 PathLen new_len = calc_path_(info_[curr_num].dist.get(), (*it).get_weight());
-                if(!info_[**it].dist.is_initialized()  ||  comp_path_(new_len, info_[**it].dist.get()))
+                if(!info_[**it].dist  ||  comp_path_(new_len, info_[**it].dist.get()))
                 {
                     if(info_[**it].dist.is_initialized())
                         queue.erase(**it);
@@ -41,13 +40,13 @@ public:
     }
 
 
-    boost::optional<PathLen> get_dist(size_t node_num)
+    boost::optional<PathLen> get_dist(size_t node_num) const
     {
         return info_[node_num].dist;
     }
 
 
-    Path<Weight> get_path(size_t to)
+    Path<Weight> get_path(size_t to) const
     {
         Path<Weight> ret(to);
         while(info_[to].prev_node != to)
@@ -74,21 +73,19 @@ private:
     CompPath comp_path_;
     struct CompState
     {
-        CompState(const CompPath& comp_path): comp_path_(comp_path){}
+        CompState(const CompPath& comp_path, ShortestPathFinder<Data, Weight, PathLen, CalcPath, CompPath>* curr_finder): curr_finder_(curr_finder), comp_path_(comp_path){}
 
-        bool operator ()(const size_t&   first,const size_t& second) const
+        bool operator ()(size_t first, size_t second) const
         {
-            if(comp_path_(curr_finder_->info_[first].dist.get(), curr_finder_->info_[second].dist.get()))
+            PathLen& first_obj = curr_finder_->info_[first].dist.get();
+            PathLen& second_obj = curr_finder_->info_[second].dist.get();
+            if(comp_path_(first_obj, second_obj))
                 return true;
-            if(comp_path_(curr_finder_->info_[second].dist.get(), curr_finder_->info_[first].dist.get()))
+            if(comp_path_(second_obj, first_obj))
                 return false;
             return(first < second);
         }
 
-        void set_curr_finder(ShortestPathFinder<Data, Weight, PathLen, CalcPath, CompPath>* curr_finder)
-        {
-            curr_finder_ = curr_finder;
-        }
     private:
         CompPath comp_path_;
         ShortestPathFinder<Data, Weight, PathLen, CalcPath, CompPath>* curr_finder_;

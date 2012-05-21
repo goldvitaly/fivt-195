@@ -8,43 +8,43 @@
 template <class Weight>
 class Edge
 {
-    public:
-        explicit Edge(const size_t& to, const Weight& weight)
-        {
-            weight_ = weight;
-            direction_ = to;
-        }
+public:
+    Edge(const size_t& to, const Weight& weight)
+    {
+        weight_ = weight;
+        direction_ = to;
+    }
 
-        void set_weight(Weight new_weight)
-        {
-            weight_ = new_weight;
-        }
+    void set_weight(Weight new_weight)
+    {
+        weight_ = new_weight;
+    }
 
 
-        Weight get_weight() const
-        {
-            return weight_;
-        }
+    Weight get_weight() const
+    {
+        return weight_;
+    }
 
-        size_t operator * () const
-        {
-            return direction_;
-        }
+    size_t operator * () const
+    {
+        return direction_;
+    }
 
-        bool operator == (const Edge<Weight>& edge) const //This operator for STL's features
-        {
-            return(direction_ == *edge  &&  weight_ == edge.get_weight());
-        }
+    bool operator == (const Edge<Weight>& edge) const //This operator for STL's features
+    {
+        return(direction_ == *edge  &&  weight_ == edge.get_weight());
+    }
 
-        bool operator < (const Edge<Weight>& edge) const //This operator for STL's features
-        {
-            if(direction_ == *edge)
-                return(weight_ < edge.get_weight());
-            return(direction_ < *edge);
-        }
-    private:
-        size_t direction_;
-        Weight weight_;
+    bool operator < (const Edge<Weight>& edge) const //This operator for STL's features
+    {
+        if(direction_ == *edge)
+            return(weight_ < edge.get_weight());
+        return(direction_ < *edge);
+    }
+private:
+    size_t direction_;
+    Weight weight_;
 };
 
 
@@ -52,33 +52,31 @@ template <class Weight>
 class Path
 {
 public:
-    explicit Path(size_t direction): direction_(direction) {}
+    explicit Path(size_t direction)
+    {
+        path_.push_back(direction);
+    }
 
     void add(size_t new_node)
     {
         path_.push_back(new_node);
     }
 
-    void set_start(size_t start)
-    {
-        start_ = start;
-    }
-
-
     void print()
     {
         for(int i = 0; i < path_.size(); i++)
             std::cout << path_[i] << ' ';
-        std::cout << direction_ << std::endl;
+        std::cout << std::endl;
     }
 
     void reverse_path()
     {
         reverse(path_.begin(), path_.end());
     }
+
+
 private:
     std::vector<size_t> path_;
-    size_t direction_, start_;
 };
 
 
@@ -86,10 +84,6 @@ template <class Weight>
 class BaseNode
 {
 public:
-    virtual void add_edge(Edge<Weight> edge) = 0;
-    virtual void delete_edge(Edge<Weight> edge) = 0;
-    virtual size_t number_of_edges() const = 0;
-
     class BaseIterator
     {
     public:
@@ -132,6 +126,10 @@ public:
         std::unique_ptr<BaseIterator> iterator_;
     };
 
+
+    virtual void add_edge(Edge<Weight> edge) = 0;
+    virtual void delete_edge(Edge<Weight> edge) = 0;
+    virtual size_t number_of_edges() const = 0;
     virtual Iterator begin() = 0;
     virtual Iterator end() = 0;
     virtual ~BaseNode(){};
