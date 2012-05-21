@@ -5,7 +5,6 @@
 #include <cstdlib>
 #include <utility>
 #include <set>
-
 template <class Weight>
 class Edge
 {

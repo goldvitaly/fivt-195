@@ -10,7 +10,8 @@ public:
     {
         empty_flow_ = empty_flow;
         for(int i = 0; i < graph.size(); i++)
-            graph_.add_node(new VectorNode<Weight>());
+            graph_.add_node(new VectorNode<Weight>);
+
         for(int i = 0; i < graph.size(); i++)
         {
             BaseNode<Weight>* curr_node = graph.graph_[i].get();
@@ -30,7 +31,7 @@ public:
         {
             ShortestPathFinder<Weight, Weight, CalcWeight, CompWeight> flow_finder(graph_, CalcWeight(poss_flow_));
             flow_finder.calculate(from, std::numeric_limits<Weight>::max());
-            if(!flow_finder.get_dist(to)  ||  flow_finder.get_dist(to).get() == empty_flow_)
+            if(!flow_finder.get_dist(to)  ||  flow_finder.get_dist(to).get() <= empty_flow_)
                 return res;
             Path<Weight> flow = flow_finder.get_path(to);
             Weight curr_flow_value = flow_finder.get_dist(to).get();
@@ -46,7 +47,7 @@ public:
 
 
 private:
-    Graph<Weight>& graph_;
+    Graph<Weight> graph_;
     CompWeight comp_weight_;
     std::vector<Weight> poss_flow_;
     Weight empty_flow_;
