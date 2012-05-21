@@ -22,24 +22,32 @@ namespace impl
 		private:
 			int edge_id;
 			FlowInfo<FlowWeight>* flow_info;
-		public:
 			bool reversed;
+			FlowWeight& get_flow_reference()
+			{
+				return flow_info->current_flow[edge_id];
+			}
+			const FlowWeight& get_flow_reference() const
+			{
+				return flow_info->current_flow[edge_id];
+			}
+		public:
 			FlowNetworkEdgeType(FlowInfo<FlowWeight>& flow_info, const FlowWeight& capacity, int edge_id, bool reversed): 
 				flow_info(&flow_info), capacity(capacity), edge_id(edge_id), reversed(reversed) {};
 			FlowWeight capacity;
 			void add_flow(const FlowWeight& flow)
 			{
 				if (reversed)
-					flow_info->current_flow[edge_id] -= flow;
+					get_flow_reference() -= flow;
 				else
-					flow_info->current_flow[edge_id] += flow;
+					get_flow_reference() += flow;
 			}
 			FlowWeight get_flow() const
 			{
 				if (reversed)
-					return -flow_info->current_flow[edge_id];
+					return - get_flow_reference();
 				else
-					return flow_info->current_flow[edge_id];
+					return get_flow_reference();
 			}
 			FlowWeight get_rest_capacity() const
 			{
