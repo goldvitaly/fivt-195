@@ -126,7 +126,7 @@ public:
         std::vector<TEdge> res;
         if (!reach[dest])
             return res;
-        while (dest != NO_VALUE)
+        while (anc[dest] != NO_VALUE)
         {
             res.push_back(incomingEdge[dest]);
             dest = anc[dest];

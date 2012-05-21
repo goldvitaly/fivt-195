@@ -5,7 +5,8 @@
 #include "../dijkstra/dijkstra.hpp"
 #include "../../incidences/VectorIncidence.hpp"
 
-// написано на коленке, пока нет поддержки пользовательских величин пропускной способности
+#include <iostream>
+
 class MaxflowFinder
 {
 public:
@@ -15,22 +16,23 @@ public:
         for (size_t i = 0; i < network.size(); i++)
             graph.addVertex(graph::Graph<size_t>::IncidencePtr(new VectorIncidence<size_t>()));
         int edgesNum = 0;
-        for (size_t i = 0; i < network.size(); i++) for (auto edge: network[i])
-        {
-            int from = i, to = edge.first, capacity_ = edge.second;
-            graph.addEdge(from, edgesNum);
-            graph.addEdge(to, edgesNum);
+        for (size_t i = 0; i < network.size(); i++) 
+            for (auto edge: network[i])
+            {
+                int from = i, to = edge.first, capacity_ = edge.second;
+                graph.addEdge(from, edgesNum);
+                graph.addEdge(to, edgesNum);
 
-            incident.push_back(to);
-            capacity.push_back(capacity_);
-            rev.push_back(edgesNum+1);
+                incident.push_back(to);
+                capacity.push_back(capacity_);
+                rev.push_back(edgesNum+1);
 
-            incident.push_back(from);
-            capacity.push_back(0);
-            rev.push_back(edgesNum);
-            
-            edgesNum += 2;
-        }
+                incident.push_back(from);
+                capacity.push_back(0);
+                rev.push_back(edgesNum);
+                
+                edgesNum += 2;
+            }
     }
 
     int maxFlow(size_t source_, size_t sink_)
@@ -38,7 +40,7 @@ public:
         source = source_;
         sink = sink_;
 
-        flow.assign(flow.size(), 0);
+        flow.assign(incident.size(), 0);
         int res = 0;
 
         while (int curFlow = applyAugPath(findShortestPath()))
@@ -74,20 +76,24 @@ private:
     
     // returns value of a minimum edge on the path
     // here path is a sequence of edges, NOT VERTICES!
-    int applyAugPath(std::vector<size_t> path)
+    int applyAugPath(std::vector<size_t> edgeIds)
     {
+        if (edgeIds.empty())
+            return 0;
+
         int min = std::numeric_limits<int>::max();
-        for (size_t edge: path)
+        for (size_t edge: edgeIds)
             min = std::min(capacity[edge] - flow[edge], min);
-        for (size_t edge: path)
+
+        for (size_t edge: edgeIds)
         {
-            flow[edge] -= min;
-            flow[rev[edge]] += min;
+            flow[edge] += min;
+            flow[rev[edge]] -= min;
         }
         return min;
     }
 
-    // finds an arbitrary path in a residual network
+    // finds a shortest path in a residual network
     std::vector<size_t> findShortestPath()
     {
         DijkstraShortestPaths::SPFinder<size_t, int, int, std::plus<int>, std::less<int>, Extractor, Extractor> finder(
