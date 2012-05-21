@@ -51,7 +51,8 @@ public:
                 for(int j = 0; j < graph_->size(); j++)
                     if(my_shortest_paths.get_dist(j) != simple_shortest_paths[k][j])
                     {
-                        printf("Incorrect calculate of flow!\n");
+                        printf("Incorrect calculate of way!\n");
+                        continue;
                     }
             }
             printf("OK\n");
