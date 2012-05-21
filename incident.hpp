@@ -63,6 +63,7 @@ public:
     virtual void AddIncident (std::pair<size_t, EdgeWeight> Vertex) = 0;
     virtual void RemoveIncident (size_t Vertex) = 0;
     virtual bool CheckIncident (size_t Vertex) const = 0;
+    virtual std::pair<size_t, EdgeWeight> GetIncident (size_t EdgeIndex) const = 0;
     virtual size_t IncidentNum () const = 0;
     virtual Incident<EdgeWeight>::iterator begin () const = 0;
     virtual Incident<EdgeWeight>::iterator end () const = 0;
@@ -124,6 +125,12 @@ public:
             if (_Incident[i].first == Vertex)
                 return true;
         return false;
+    }
+
+    virtual std::pair<size_t, EdgeWeight> GetIncident (size_t EdgeIndex) const
+    {
+        if (EdgeIndex < _Incident.size()) return _Incident[EdgeIndex];
+        return std::make_pair(0, EdgeWeight());
     }
 
     virtual size_t IncidentNum () const

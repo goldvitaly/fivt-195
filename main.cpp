@@ -51,7 +51,7 @@ bool dijkstraTest (size_t vertexNum, size_t edgeNum)
         }
     }
     
-    DijkstraAlgorithm<Edge, Path, PathComp<Path>, Relax<Edge, Path>> da;
+    DijkstraAlgorithm<Edge, Path<Edge>, PathComp<Path<Edge>>, Relax<Edge, Path<Edge>>> da;
     
     if (da(G, 0, vertexNum - 1)() != g[0][vertexNum - 1])
     {

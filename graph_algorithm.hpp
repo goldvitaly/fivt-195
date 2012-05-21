@@ -21,18 +21,28 @@ private:
     size_t weight;
 };
 
+template<typename EdgeWeight>
 class Path
 {    
 public:
-    Path(): weight(0){};
-    explicit Path(size_t Weight): weight(Weight){}
-    Path(const Path &p): weight(p()){}
+    Path(): weight(0), edge(){};
+    Path(const Path &p): weight(p()), edge(p.GetPath()){}
     size_t operator () () const
     {
         return weight;
     }
+    void AddEdge (const EdgeWeight &e, size_t EdgeIndex)
+    {
+        weight += e();
+        edge.push_back(EdgeIndex);
+    }
+    const std::vector<size_t>& GetPath () const
+    { 
+        return edge;
+    }
 private:
     size_t weight;
+    std::vector<size_t> edge;
 };
 
 template<typename PathWeight>
@@ -52,9 +62,11 @@ class Relax
 {
 public:
     Relax(){};
-    PathWeight operator () (const PathWeight &p, const EdgeWeight &e) const
+    PathWeight operator () (const PathWeight &p, const EdgeWeight &e, size_t EdgeIndex) const
     {
-        return PathWeight(p() + e());
+        PathWeight ans(p);
+        ans.AddEdge(e, EdgeIndex);
+        return ans;
     }
 private:
 };
@@ -88,20 +100,22 @@ public:
                 }
             }
             
+            size_t EdgeIndex = 0;
             for (auto v : G.GetIncident(fndInd))
             {
                 if (state[v.first] != processedVertex && 
                     (state[v.first] == undefinedVertex ||
-                     cmp(relax(pathWeight[fndInd], v.second), pathWeight[v.first])))
+                     cmp(relax(pathWeight[fndInd], v.second, EdgeIndex), pathWeight[v.first])))
                 {
                     state[v.first] = inProcessVertex;
-                    pathWeight[v.first] = PathWeight(relax(pathWeight[fndInd], v.second));
+                    pathWeight[v.first] = PathWeight(relax(pathWeight[fndInd], v.second, EdgeIndex));
                 }
+                EdgeIndex++;
             }
             
             state[fndInd] = processedVertex;
         }
-        
+    
         return pathWeight[finish];
     }
 private:
