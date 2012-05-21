@@ -2,7 +2,6 @@
 #define GRAPH_ALGORITHM_HPP
 
 #include <iostream>
-
 #include <cassert>
 #include <vector>
 #include <memory>
@@ -67,17 +66,17 @@ public:
     DijkstraAlgorithm (): undefinedVertex(0), inProcessVertex(1), processedVertex(2){}
     PathWeight operator () (const Graph<EdgeWeight> &G, size_t start, size_t finish)
     {
-        state.resize(G.IncidentNum(), undefinedVertex);
-        pathWeight.resize(G.IncidentNum());
+        state.resize(G.VertexNum(), undefinedVertex);
+        pathWeight.resize(G.VertexNum());
         
         state[start] = inProcessVertex;
         
-        for (size_t Iter = 0; Iter < G.IncidentNum(); ++Iter)
+        for (size_t Iter = 0; Iter < G.VertexNum(); ++Iter)
         {
             bool found = false;
             size_t fndInd = 0;
             
-            for (size_t v = 0; v < G.IncidentNum(); ++v)
+            for (size_t v = 0; v < G.VertexNum(); ++v)
             {
                 if (state[v] == inProcessVertex)
                 {
