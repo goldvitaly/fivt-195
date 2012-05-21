@@ -20,12 +20,12 @@ public:
 template <typename Capacity>
 class Min {
 public:
-	explicit Min(std::vector<Capacity>& capacities):capacities(capacities){}
+	explicit Min(const std::vector<Capacity>& capacities):capacities(capacities){}
 	Capacity operator()(Capacity oldMin, size_t newEdgeID, const Path<size_t>&) const {
 		return std::min(oldMin, capacities[newEdgeID]);
 	}
 private:
-	std::vector<Capacity>& capacities;
+	const std::vector<Capacity>& capacities;
 };
 
 template<typename Weight, typename GetCapacity = Identity<Weight> >
@@ -46,7 +46,7 @@ public:
 		}
 	}
 	
-	Capacity flow(size_t from, size_t to){
+	Capacity maxFlow(size_t from, size_t to){
 		Capacity flow(0);
 		while(true){
 			ShortestPaths<size_t, Capacity, Min<Capacity>, std::greater<Capacity> > sp(graph, std::numeric_limits<Capacity>::max(), Min<Capacity>(edges));

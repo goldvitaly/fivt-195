@@ -38,7 +38,7 @@ public:
 			return *this;
 		}
 		Iterator copy() const {
-			if(it.get() == 0)
+			if(it.get() == nullptr)
 				return Iterator();
 			return Iterator(IteratorPointer(it->copy()));
 		}

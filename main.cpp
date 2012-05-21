@@ -150,7 +150,7 @@ void testFlow(int times){
 				prev = a[t];
 			}
 		}
-		int foundFlow = MaxFlow<int>(g).flow(start, end);
+		int foundFlow = MaxFlow<int>(g).maxFlow(start, end);
 		assert(foundFlow == flow);
 	}
 }
@@ -159,13 +159,13 @@ void handMadeTestFlow(){
 	Graph<int> g;
 	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
 	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
-	assert(MaxFlow<int>(g).flow(0,1) == 0);
+	assert(MaxFlow<int>(g).maxFlow(0,1) == 0);
 	g.addEdge(0,1, 42);
-	assert(MaxFlow<int>(g).flow(0,1) == 42);
-	assert(MaxFlow<int>(g).flow(1,0) == 0);
+	assert(MaxFlow<int>(g).maxFlow(0,1) == 42);
+	assert(MaxFlow<int>(g).maxFlow(1,0) == 0);
 	g.addVertex(std::unique_ptr<Incidents<int> >(new VectorIncidents<int>()));
 	g.addEdge(2,0, 423);
-	assert(MaxFlow<int>(g).flow(2, 1) == 42);
+	assert(MaxFlow<int>(g).maxFlow(2, 1) == 42);
 }
 int main() {
 	//testTarjan();
