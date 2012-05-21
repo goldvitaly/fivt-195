@@ -16,7 +16,7 @@ public:
 	virtual bool operator<(const Path<WeightType>& path) const = 0;
 	virtual void setInfinity() = 0;
 	virtual void setZero() = 0;
-	virtual bool worseThan(const Path<WeightType>& path, WeightType edge) = 0;
+	virtual bool worseThan(const Path<WeightType>& path, WeightType edge) const = 0;
 }; 
 
 template<typename WeightType>
@@ -28,11 +28,23 @@ public:
 	virtual bool operator<(const Path<WeightType>& path) const;
 	virtual void setInfinity();
 	virtual void setZero();
-	virtual bool worseThan(const Path<WeightType>& path, WeightType edge);
-	virtual WeightType& value();
+	virtual bool worseThan(const Path<WeightType>& path, WeightType edge) const;
+	virtual const WeightType& length() const;
+
+protected:
+	WeightType sum;
+};
+
+template<typename WeightType>
+class TraceSumPath : public SumPath<WeightType>
+{
+public:
+	virtual void addEdge(unsigned from, unsigned to, WeightType edge);
+	virtual void setZero();
+	virtual const std::list<std::pair<unsigned, unsigned>>& path() const;
 
 private:
-	WeightType sum;
+	std::list<std::pair<unsigned, unsigned>> pathList;
 };
 
 template<typename WeightType, typename PathType>
@@ -76,15 +88,35 @@ void SumPath<WeightType>::setZero()
 }
 
 template<typename WeightType>
-bool SumPath<WeightType>::worseThan(const Path<WeightType>& path, WeightType edge)
+bool SumPath<WeightType>::worseThan(const Path<WeightType>& path, WeightType edge) const
 {
 	return sum > ((SumPath<WeightType>&)path).sum + edge;
 }
 
 template<typename WeightType>
-WeightType& SumPath<WeightType>::value()
+const WeightType& SumPath<WeightType>::length() const
 {
 	return sum;
+}
+
+template<typename WeightType>
+void TraceSumPath<WeightType>::addEdge(unsigned from, unsigned to, WeightType edge)
+{
+	SumPath<WeightType>::addEdge(from, to, edge);
+	pathList.push_back(std::make_pair(from, to));
+}
+
+template<typename WeightType>
+void TraceSumPath<WeightType>::setZero()
+{
+	SumPath<WeightType>::setZero();
+	pathList.clear();
+}
+
+template<typename WeightType>
+const std::list<std::pair<unsigned, unsigned>>& TraceSumPath<WeightType>::path() const
+{
+	return pathList;
 }
 
 template<typename WeightType, typename PathType>

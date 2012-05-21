@@ -3,6 +3,7 @@
 #include "graph.hpp"
 
 #include <vector>
+#include <list>
 #include <memory>
 
 namespace graph
@@ -34,6 +35,7 @@ public:
 	WeightedNode(const Node& nd, const std::vector<WeightType>& wg);
 	WeightedIterator<WeightType> begin();
 	WeightedIterator<WeightType> end();
+	std::list<WeightType> getWeight(unsigned v) const;
 
 private:
 	const Node& node;
@@ -56,6 +58,7 @@ public:
 
 	void connect(unsigned v1, unsigned v2, WeightType weight);
 	bool areConnected(unsigned v1, unsigned v2) const;
+	std::list<WeightType> getWeight(unsigned v1, unsigned v2) const;
 	WeightedNode<WeightType> getNode(unsigned v) const;
 	size_t size() const;
 	const Graph& getBaseGraph();
@@ -121,6 +124,20 @@ WeightedIterator<WeightType> WeightedNode<WeightType>::end()
 }	
 
 template<typename WeightType>
+std::list<WeightType> WeightedNode<WeightType>::getWeight(unsigned v) const
+{
+	std::list<WeightType> res;
+	size_t index = 0;
+	for(unsigned u : node)
+	{
+		if(u == v)
+			res.push_back(weights[index]);
+		++index;
+	}
+	return res;
+}
+
+template<typename WeightType>
 WeightedGraph<WeightType>::WeightedGraph() : graph(), weights() {}
 
 template<typename WeightType>
@@ -162,6 +179,12 @@ template<typename WeightType>
 bool WeightedGraph<WeightType>::areConnected(unsigned v1, unsigned v2) const
 {
 	return graph.areConnected(v1, v2);
+}	
+
+template<typename WeightType>
+std::list<WeightType> WeightedGraph<WeightType>::getWeight(unsigned v1, unsigned v2) const
+{
+	return getNode(v1).getWeight(v2);
 }	
 
 template<typename WeightType>

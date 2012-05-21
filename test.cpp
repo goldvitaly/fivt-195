@@ -11,12 +11,13 @@
 #include <memory>
 #include <cmath>
 #include <cassert>
+#include <algorithm>
 
 using namespace std;
 using namespace graph;
 using namespace algo;
 
-const size_t tests_size = 1000;
+const size_t tests_size = 300;
 const size_t tests_count = 1000;
 
 void printComps(list<list<unsigned>>& comps)
@@ -178,7 +179,7 @@ bool primitiveDijkstraTest()
 	auto& res = maker.make(0);
 	double dist[4];
 	for(size_t i = 0; i < 4; ++i)
-		dist[i] = res[i].value();
+		dist[i] = res[i].length();
 	assert(dist[0] == 0);
 	assert(dist[1] == wg[0]);
 	assert(dist[2] == wg[1]);
@@ -227,9 +228,51 @@ bool monoDijkstraTest(size_t testSize)
 	}
 	for(unsigned v = 0; v < g.size(); ++v)
 	{
-		assert(iter[v] == res[v].value());
+		assert(iter[v] == res[v].length());
 	}
 	cerr << "Mono Dijkstra test (E = " << a << "/" << b << " V) OK" << endl;
+	return true;
+}
+
+bool dijkstraTraceTest(size_t testSize)
+{
+	WeightedGraph<double> g;
+	for(unsigned v = 0; v < testSize; ++v)
+		g.add<ListNode>();
+	size_t edges = testSize * testSize / 16;
+	for(unsigned e = 0; e < edges; ++e)
+	{
+		unsigned from = rand() % testSize;
+		unsigned to = rand() % testSize;
+		double w = rand() % 10000 / 7.0;
+		g.connect(from, to, w);
+	}
+
+	DijkstraMaker<double, TraceSumPath<double>> maker(g);
+	DijkstraMaker<double, SumPath<double>> simple(g);
+	const auto& res = maker.make(0);
+	const auto& check = simple.make(0);
+	double sum = 0;
+	for(unsigned v = 0; v < g.size(); ++v)
+	{
+		const auto& path = res.at(v).path();
+		double length = res.at(v).length();
+		unsigned prev = 0;
+		double length2 = (path.empty() && v != 0) ? HUGE_VAL : 0;
+		for(const auto& p : path)
+		{
+			assert(p.first == prev);
+			prev = p.second;
+			auto wg =  g.getWeight(p.first, p.second);
+			length2 += *min_element(wg.begin(), wg.end());
+		}
+		double checkLength = check.at(v).length();
+		assert(length == length2);
+		assert(length == checkLength);
+		if(length != HUGE_VAL)
+			sum += length;
+	}
+	cerr << "Dijkstra trace test OK (paths of " << sum << " checked)" << endl;
 	return true;
 }
 
@@ -258,6 +301,10 @@ int main()
 
 	for(size_t i = 0; i < tests_count; ++i)
 		if(!monoDijkstraTest(tests_size))
+			return -1;
+
+	for(size_t i = 0; i < tests_count; ++i)
+		if(!dijkstraTraceTest(tests_size))
 			return -1;
 
 	cerr << "All tests OK" << endl;
