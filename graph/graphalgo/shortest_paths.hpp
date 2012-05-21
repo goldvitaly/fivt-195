@@ -97,8 +97,8 @@ namespace impl
 	{
 		ShortestPathsInfo<PathInfo, WeightType> result(g.size(), initial_dist, from); 
 		std::vector<char> proceeded(g.size(), 0);
-		std::set<unsigned int, impl::IntsByVectorComparator<PathInfo,PathInfoComparator>> active 
-			(impl::IntsByVectorComparator<PathInfo, PathInfoComparator>(result.dist,comp));
+		typedef impl::IntsByVectorComparator<PathInfo,PathInfoComparator> comparator;
+		std::set<unsigned int, comparator> active(comparator(result.dist,comp));
 		active.insert(from);
 		result.parents[from] = from;
 		result.used[from] = 1;
