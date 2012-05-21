@@ -78,7 +78,7 @@ private:
 
     size_t pairedEdge(size_t edgeID) const
     {
-        return edgeID | 1;
+        return edgeID ^ 1;
     }
 
 public:
