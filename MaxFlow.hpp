@@ -52,10 +52,10 @@ public:
 			ShortestPaths<size_t, Capacity, Min<Capacity>, std::greater<Capacity> > sp(graph, std::numeric_limits<Capacity>::max(), Min<Capacity>(edges));
 			ShortestPathsInfo<Capacity, size_t> result = sp.calculate(from);
 			if(!result.length(to))
-				return flow;
+				break;
 			Capacity addFlow = *result.length(to);
 			if(addFlow == Capacity(0))
-				return flow;
+				break;
 			std::vector<typename Incidents<size_t>::Iterator> path = result.path(to);
 			for(const Incidents<size_t>::Iterator& edge: path){
 				size_t curEdgeID = (*edge).weight;
@@ -65,6 +65,7 @@ public:
 			}
 			flow += addFlow;
 		}
+		return flow;
 	}
 	
 private:
