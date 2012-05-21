@@ -89,16 +89,17 @@ namespace impl
 				last_edge_id += 1;
 			}
 		FlowWeight result(0);
-		Path<FlowWeight, flow_edge_type> path = find_shortest_path(flow_network, from, to, 
-			impl::FlowRecountFunc<FlowWeight>(), std::greater<FlowWeight>(), std::numeric_limits<FlowWeight>::max());
-		while (path && path.path_length.get() != FlowWeight(0))
+		Path<FlowWeight, flow_edge_type> path;
+		while (1)
 		{
+			path = find_shortest_path(flow_network, from, to, 
+				impl::FlowRecountFunc<FlowWeight>(), std::greater<FlowWeight>(), std::numeric_limits<FlowWeight>::max());
+			if (!(path && path.path_length.get() != FlowWeight(0)))
+				break;
 			FlowWeight cur_flow = path.path_length.get();
 			result += cur_flow;
 			for (int i = 0; i < path.edges.size(); i ++) 
 				path.edges[i]->info.add_flow(cur_flow);
-			path = find_shortest_path(flow_network, from, to, 
-				impl::FlowRecountFunc<FlowWeight>(), std::greater<FlowWeight>(), std::numeric_limits<FlowWeight>::max());
 		}
 		return result;
 	}

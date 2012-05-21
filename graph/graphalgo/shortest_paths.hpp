@@ -15,6 +15,7 @@ namespace algorithm
 			std::vector<unsigned int> path; // vertices in path
 			std::vector<typename graph::impl::Graph<GraphEdgeType>::edge_type*> edges;
 			boost::optional<PathInfo> path_length;
+			Path() { };
 			Path(const std::vector<unsigned int>& path, 
 					std::vector<typename graph::impl::Graph<GraphEdgeType>::edge_type*> edges,
 					PathInfo path_length): path(path), edges(edges), path_length(path_length)
