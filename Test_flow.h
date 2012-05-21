@@ -181,6 +181,32 @@ private:
             cur.numVertices = 5;
             tests.push_back(cur);
         }
+        
+        {
+            Test cur;
+            cur.edges.push_back(Edge(0, 1, 4));
+            cur.edges.push_back(Edge(0, 6, 2));
+            cur.edges.push_back(Edge(0, 7, 2));
+            cur.edges.push_back(Edge(0, 8, 2));
+            cur.edges.push_back(Edge(0, 9, 2));
+            cur.edges.push_back(Edge(0, 2, 3));
+            cur.edges.push_back(Edge(1, 2, 4));
+            cur.edges.push_back(Edge(1, 3, 3));
+            cur.edges.push_back(Edge(1, 4, 1));
+            cur.edges.push_back(Edge(1, 5, 2));
+            cur.edges.push_back(Edge(2, 3, 4));
+            cur.edges.push_back(Edge(4, 3, 1));
+            cur.edges.push_back(Edge(5, 3, 2));
+            cur.edges.push_back(Edge(6, 2, 2));
+            cur.edges.push_back(Edge(7, 2, 2));
+            cur.edges.push_back(Edge(8, 2, 2));
+            cur.edges.push_back(Edge(9, 2, 2));
+            cur.ans = 8;
+            cur.st = 0;
+            cur.fin = 3;
+            cur.numVertices = 10;
+            tests.push_back(cur);
+        }
     };
 
 public:
