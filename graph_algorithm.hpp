@@ -162,7 +162,6 @@ public:
     FlowType operator () (size_t Start, size_t Finish)
     {
         flow = FlowType();
-        flowWeight.resize(g.VertexNum());
         
         DijkstraAlgorithm<EdgeWeight, PathWeight, PathWeightComp, RelaxWeight> da;            
         PathWeight pathWeight;
