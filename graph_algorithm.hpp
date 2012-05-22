@@ -211,7 +211,6 @@ private:
     const Graph<EdgeWeight> &g;
     FlowType flow;
     RelaxWeight relax;
-    std::vector<std::vector<std::unique_ptr<EdgeWeight>>> flowWeight;
 };
 
 #endif /* GRAPH_ALGORITHM_HPP */
