@@ -45,9 +45,9 @@ bool areEqual(const Graph<EdgeType>& G1, const Graph<EdgeType>& G2)
 
 void testGraphClass(size_t size)
 {
-  Graph<BasicEdge> graph_with_vector_incidence  = graph_algorithms::getRandomGraph<VectorIncidence>  (size, 4.0 / size);
-  Graph<BasicEdge> graph_with_set_incidence     = graph_algorithms::getRandomGraph<SetIncidence>     (size, 4.0 / size);
-  Graph<BasicEdge> graph_with_bitmask_incidence = graph_algorithms::getRandomGraph<BitmaskIncidence> (size, 4.0 / size);
+  Graph<BasicEdge> graph_with_vector_incidence  = graph_algorithms::genRandomGraph<VectorIncidence>  (size, 4.0 / size);
+  Graph<BasicEdge> graph_with_set_incidence     = graph_algorithms::genRandomGraph<SetIncidence>     (size, 4.0 / size);
+  Graph<BasicEdge> graph_with_bitmask_incidence = graph_algorithms::genRandomGraph<BitmaskIncidence> (size, 4.0 / size);
 
   if (!areEqual(graph_with_vector_incidence, graph_with_set_incidence))
     throw std::logic_error("Vector and Set based graphs are not equal. Graph size = " + toString(size));
@@ -59,7 +59,7 @@ void testGraphClass(size_t size)
 
 void testStronglyConnectedComponentsAlgorithm(size_t size)
 {
-  Graph<BasicEdge> graph = graph_algorithms::getRandomGraph<VectorIncidence> (size, 4.0 / size, size);
+  Graph<BasicEdge> graph = graph_algorithms::genRandomGraph<VectorIncidence> (size, 4.0 / size, size);
   graph_algorithms::StronglyConnectedComponentsFinder finder(graph);
   std::vector<int> component = finder.getStronglyConnectedComponents();
   int vertexNumber = graph.size();
@@ -78,28 +78,33 @@ void testStronglyConnectedComponentsAlgorithm(size_t size)
   }
 }
 
-template<typename T>
-struct Plus
-{
-  const T& operator() (const T& a, const T& b) const
-  {
-    return a + b;
-  }
-};
-
-template<typename T>
-struct Less
-{
-  bool operator() (const T& a, const T& b) const
-  {
-    return a < b;
-  }
-};
-
-void testShortestPathAlgorithm(size_t size)
+void testShortestPathAlgorithm(size_t vertexNumber)
 {
   Graph< WeightedEdge<int> > graph;
-  graph_algorithms::ShortestPathFinder< int, int, Plus<int>, Less<int> > finder(graph);
+  graph.addVerticies<VectorIncidence>(vertexNumber);
+  for(int i = 0; i < vertexNumber * log(vertexNumber); i++)
+    graph.addEdge(WeightedEdge<int>(rand() % vertexNumber, rand() % vertexNumber, rand() % 10000));
+
+  graph_algorithms::ShortestPathFinder< WeightedEdge<int>, int, std::plus<int>, std::less<int> > finder(graph);
+  graph_algorithms::ShortestPathHolder< int, WeightedEdge<int> > pathInfo = finder.findShortestPaths(0);
+
+  graph_algorithms::NaiveShortestPathFinder< WeightedEdge<int>, int, std::plus<int>, std::less<int> > naiveFinder(graph);
+  graph_algorithms::ShortestPathHolder< int, WeightedEdge<int> > naivePathInfo = naiveFinder.findShortestPaths(0);
+
+  for(int v = 0; v < vertexNumber; v++)
+  {
+    boost::optional<int> dist = pathInfo.getDistance(v);
+    boost::optional<int> naiveDist = naivePathInfo.getDistance(v);
+    if (dist != naiveDist)
+    {
+      if (naiveDist)
+        throw std::logic_error("ShortestPathFinder missed path to " + toString(v));
+      else
+        throw std::logic_error("ShortestPathFinder found wrong path to " + toString(v));
+    }
+    if (dist && (*dist != *naiveDist))
+      throw std::logic_error("Wrong distance to " + toString(v));
+  }
 }
 
 int main()
@@ -110,15 +115,15 @@ int main()
   for(int i = 0; i < 10; i++)
     G.addEdge(BasicEdge(rand() % vertexNumber, rand() % vertexNumber));
 
-  for(int v = 0; v < vertexNumber; v++)
   {
-    for(auto edge : G.vertexIncidents[v])
-    {
-      std::cout << "Edge from " << edge.source << " to " << edge.destination << std::endl;
-    }
+    Timer timer("Testing Shortest Path Finder");
+    timer.start();
+    testShortestPathAlgorithm(1e1);
+    testShortestPathAlgorithm(1e2);
+    testShortestPathAlgorithm(1e3);
+    timer.printTime();
+    std::cout << "Shortest Path Finder has passed tests" << std::endl;
   }
-  testShortestPathAlgorithm(10);
-  /*
   {
     Timer timer("Testing Graph class");
     timer.start();
@@ -137,6 +142,5 @@ int main()
     timer.printTime();
     std::cout << "Strongly Connected Components Finder has passed tests" << std::endl;
   }
-  */
   return 0;
 }

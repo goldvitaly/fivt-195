@@ -33,71 +33,159 @@
 namespace graph_algorithms
 {
 
+template
+<typename PathInfo,
+ typename EdgeType>
+class ShortestPathHolder
+{
+ public:
+  ShortestPathHolder() {}
+  explicit ShortestPathHolder(size_t source,
+                              std::vector< boost::optional<PathInfo> > distance,
+                              std::vector< boost::optional<EdgeType> > parentEdge) 
+                              : source(source),
+                                distance(distance),
+                                parentEdge(parentEdge) {}
+
+  boost::optional<PathInfo> getDistance(size_t destination)
+  {
+    if (destination >= distance.size())
+      throw std::out_of_range("Try to get distance to wrong vertex " + toString(destination));
+    return distance[destination];
+  }
+  boost::optional< std::vector<EdgeType> > getPath(size_t destination)
+  {
+    if (destination >= distance.size())
+      throw std::out_of_range("Try to get path to wrong vertex " + toString(destination));
+    boost::optional< std::vector<EdgeType> > path;
+    while (parentEdge[destination])
+    {
+      *path.push_back(parentEdge[destination]);
+      destination = parentEdge[destination].source;
+    }
+    return path;
+  }
+ private:
+  size_t source;
+  std::vector< boost::optional<PathInfo> > distance;
+  std::vector< boost::optional<EdgeType> > parentEdge;
+}; // ShortestPathHolder
+
 // Get rid of weight!
-template <typename Weight,
+template <typename EdgeType,
           typename PathInfo,
           typename PathUpdater,
           typename PathComparator = std::less<PathInfo> >
 class ShortestPathFinder
 {
  public:
-  explicit ShortestPathFinder(const Graph< WeightedEdge<Weight> >& G): G(G) {}
+  explicit ShortestPathFinder(const Graph<EdgeType>& G): G(G) {}
 
   void initShortestPathFinder()
   {
-    previousVertex.resize(G.size());
-    distance.resize(G.size());
+    distance.assign(G.size(), boost::none);
+    parentEdge.assign(G.size(), boost::none);
     visited.assign(G.size(), 0);
   }
 
   void freeShortestPathFinder()
   {
-    previousVertex.clear();
-    distance.clear();
     visited.clear();
   }
 
-  std::vector<size_t> findShortestPathToSingleVertex(size_t source, size_t destination)
+  ShortestPathHolder<PathInfo, EdgeType> findShortestPaths(size_t source)
   {
+    if (source >= G.size())
+      throw std::out_of_range("Try to find shortest path to wrong vertex " + toString(source));
     initShortestPathFinder();
-    std::vector<size_t> shortestPath;
-    distance[source] = 0;
+    distance[source] = PathInfo();
     while (1) 
     {
       boost::optional<size_t> curV;
-      for(int i = 0; i < G.size(); ++i)
+      for(size_t i = 0; i < G.size(); ++i)
       {
         if (visited[i] || !distance[i])
           continue;
-        if (!curV || (cmp(distance[curV], distance[i])))
+        if (!curV || (comparePaths(*distance[i], *distance[*curV])))
           curV = i;
       }
       if (!curV)
         break;
       visited[*curV] = 1;
-      for(auto edge : G.vertexIncidents[curV])
+      for(auto edge : G.vertexIncidents[*curV])
       {
         int nextV = edge.destination;
-        PathInfo newPath = upd(distance[curV], edge);
-        if (!distance[nextV] || cmp(newPath, *distance[nextV]))
+        PathInfo newPath = updatePath(*distance[*curV], edge.weight);
+        if (!distance[nextV] || comparePaths(newPath, *distance[nextV]))
         {
-          *distance[nextV] = newPath;
+          distance[nextV] = newPath;
+          parentEdge[nextV] = edge;
         }
       }
     }
     freeShortestPathFinder();
-    return shortestPath;
-  }
+    return ShortestPathHolder<PathInfo, EdgeType> (source, std::move(distance), std::move(parentEdge));
+  } // ShortestPathFinder
 
  private: 
-  const Graph< WeightedEdge<Weight> >& G;
-  std::vector< boost::optional<size_t> > previousVertex;
+  const Graph<EdgeType>& G;
   std::vector< boost::optional<PathInfo> > distance;
+  std::vector< boost::optional<EdgeType> > parentEdge;
   std::vector<char> visited;
-  PathUpdater upd;
-  PathComparator cmp;
+  PathUpdater updatePath;
+  PathComparator comparePaths;
 
 };
+
+template <typename EdgeType,
+          typename PathInfo,
+          typename PathUpdater,
+          typename PathComparator = std::less<PathInfo> >
+class NaiveShortestPathFinder
+{
+ public:
+  explicit NaiveShortestPathFinder(const Graph<EdgeType>& G): G(G) {}
+
+  void initNaiveShortestPathFinder()
+  {
+    distance.assign(G.size(), boost::none);
+    parentEdge.assign(G.size(), boost::none);
+  }
+
+  ShortestPathHolder<PathInfo, EdgeType> findShortestPaths(size_t source)
+  {
+    if (source >= G.size())
+      throw std::out_of_range("Try to find shortest path to wrong vertex " + toString(source));
+    initNaiveShortestPathFinder();
+    distance[source] = PathInfo();
+    for(size_t iteration = 0; iteration < G.size(); iteration++)
+    {
+      for(size_t vertex = 0; vertex < G.size(); vertex++)
+      {
+        for(auto edge : G.vertexIncidents[vertex])
+        {
+          if (!distance[edge.source])
+            continue;
+          PathInfo newPath = updatePath(*distance[edge.source], edge.weight);
+          if (!distance[edge.destination] || comparePaths(newPath, *distance[edge.destination]))
+          {
+            distance[edge.destination] = newPath;
+            parentEdge[edge.destination] = edge;
+          }
+        }
+      }
+    }
+    return ShortestPathHolder<PathInfo, EdgeType> (source, std::move(distance), std::move(parentEdge));
+  }
+
+
+ private:
+  const Graph<EdgeType>& G;
+  std::vector< boost::optional<PathInfo> > distance;
+  std::vector< boost::optional<EdgeType> > parentEdge;
+  PathUpdater updatePath;
+  PathComparator comparePaths;
+}; // NaiveShortestPathFinder
 
 class StronglyConnectedComponentsFinder
 {
@@ -207,7 +295,7 @@ class ConnectivityChecker
 }; // ConnectivityChecker
 
 template< template<typename EdgeTypeT> class IncidenceTypeT = VectorIncidence >
-Graph<BasicEdge> getRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t seed = 42)
+Graph<BasicEdge> genRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t seed = 42)
 {
   srand(seed);
   Graph<BasicEdge> G;
@@ -226,29 +314,6 @@ Graph<BasicEdge> getRandomGraph(size_t vertexNumber, double edgeCreationProbabil
   }
   return G;
 }
-
-/*
-template< template<typename EdgeTypeT> class IncidenceTypeT = VectorIncidence, typename EdgeType >
-Graph<EdgeType> getRandomGraph(size_t vertexNumber, double edgeCreationProbability, size_t seed = 42)
-{
-  srand(seed);
-  Graph<EdgeType> G;
-  G.addVertices< IncidenceTypeT<EdgeType> > (vertexNumber);
-
-  for(int i = 0; i < vertexNumber; i++)
-  {
-    for(int j = 0; j < vertexNumber; j++)
-    {
-      double probability = rand() * 1.0 / RAND_MAX;
-      if (edgeCreationProbability > probability)
-      {
-        G.vertexIncidents[i].addEdge(EdgeType(i, j));
-      }
-    }
-  }
-  return G;
-}
-*/
 
 } // namespace graph_algorithms
 
