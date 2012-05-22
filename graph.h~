@@ -15,7 +15,7 @@ class Graph
 		{
 			inc[vertex] = std::move(vInc);
 		}
-		const Incidents& getIncidents(int vertex) const
+		Incidents& getIncidents(int vertex) const
 		{
 			return *inc[vertex];
 		}
@@ -33,11 +33,6 @@ class Graph
 		void checkEdge(int from, int to) const
 		{
 			inc[from]->check(to);
-		}
-		
-		int size() const 
-		{
-			return inc.size();
 		}
 	private:
 		std::vector<std::unique_ptr<Incidents> > inc;

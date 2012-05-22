@@ -51,7 +51,7 @@ template <typename Itr>
 class STLGraphIterator : public BaseIterator
 {
 	public:
-		STLGraphIterator(Itr iter, Itr end):cur(iter),end(end){}
+		STLGraphIterator(Itr iter, Itr end) : cur(iter),end(end){}
 		virtual ~STLGraphIterator()
 		{}
 		bool operator != (const BaseIterator& second) const
@@ -130,3 +130,4 @@ class SetIncidents : public Incidents
 };
 
 #endif /* INCIDENTS_H */
+ 
