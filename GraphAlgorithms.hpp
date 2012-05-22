@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <vector>
 #include <stack>
+#include <queue>
 
 #include <boost/optional.hpp>
 
@@ -41,19 +42,19 @@ class ShortestPathHolder
  public:
   ShortestPathHolder() {}
   explicit ShortestPathHolder(size_t source,
-                              std::vector< boost::optional<PathInfo> > distance,
-                              std::vector< boost::optional<EdgeType> > parentEdge) 
+                              const std::vector< boost::optional<PathInfo> >& distance,
+                              const std::vector< boost::optional<EdgeType> >& parentEdge) 
                               : source(source),
                                 distance(distance),
                                 parentEdge(parentEdge) {}
 
-  boost::optional<PathInfo> getDistance(size_t destination)
+  boost::optional<PathInfo> getDistance(size_t destination) const
   {
     if (destination >= distance.size())
       throw std::out_of_range("Try to get distance to wrong vertex " + toString(destination));
     return distance[destination];
   }
-  boost::optional< std::vector<EdgeType> > getPath(size_t destination)
+  boost::optional< std::vector<EdgeType> > getPath(size_t destination) const
   {
     if (destination >= distance.size())
       throw std::out_of_range("Try to get path to wrong vertex " + toString(destination));
@@ -74,7 +75,7 @@ class ShortestPathHolder
 // Get rid of weight!
 template <typename EdgeType,
           typename PathInfo,
-          typename PathUpdater,
+          typename PathUpdater = std::plus<PathInfo>,
           typename PathComparator = std::less<PathInfo> >
 class ShortestPathFinder
 {
@@ -99,43 +100,55 @@ class ShortestPathFinder
       throw std::out_of_range("Try to find shortest path to wrong vertex " + toString(source));
     initShortestPathFinder();
     distance[source] = PathInfo();
-    while (1) 
+    Q.push(queueState(*distance[source], source));
+    while (!Q.empty()) 
     {
-      boost::optional<size_t> curV;
-      for(size_t i = 0; i < G.size(); ++i)
+      queueState qTop = Q.top();
+      Q.pop();
+      size_t curV = qTop.vertexId;
+      if (visited[curV])
+        continue;
+      visited[curV] = 1;
+      for(auto edge : G.vertexIncidents[curV])
       {
-        if (visited[i] || !distance[i])
-          continue;
-        if (!curV || (comparePaths(*distance[i], *distance[*curV])))
-          curV = i;
-      }
-      if (!curV)
-        break;
-      visited[*curV] = 1;
-      for(auto edge : G.vertexIncidents[*curV])
-      {
-        int nextV = edge.destination;
-        PathInfo newPath = updatePath(*distance[*curV], edge.weight);
+        size_t nextV = edge.destination;
+        PathInfo newPath = updatePath(*distance[curV], edge.weight);
         if (!distance[nextV] || comparePaths(newPath, *distance[nextV]))
         {
           distance[nextV] = newPath;
+          Q.push(queueState(*distance[nextV], nextV));
           parentEdge[nextV] = edge;
         }
       }
     }
     freeShortestPathFinder();
     return ShortestPathHolder<PathInfo, EdgeType> (source, std::move(distance), std::move(parentEdge));
-  } // ShortestPathFinder
+  }
 
  private: 
+  PathUpdater updatePath;
+  PathComparator comparePaths;
+  struct queueState
+  {
+    queueState(PathInfo pathInfo, size_t vertexId) : pathInfo(pathInfo), vertexId(vertexId) {}
+    PathInfo pathInfo;
+    size_t vertexId;
+    bool operator <(const queueState& qState) const
+    {
+      if (PathComparator()(pathInfo, qState.pathInfo))
+        return false;
+      if (PathComparator()(qState.pathInfo, pathInfo))
+        return true;
+      return vertexId < qState.vertexId;
+    }
+  };
   const Graph<EdgeType>& G;
   std::vector< boost::optional<PathInfo> > distance;
   std::vector< boost::optional<EdgeType> > parentEdge;
   std::vector<char> visited;
-  PathUpdater updatePath;
-  PathComparator comparePaths;
+  std::priority_queue<queueState> Q;
 
-};
+}; // ShortestPathFinder
 
 template <typename EdgeType,
           typename PathInfo,
