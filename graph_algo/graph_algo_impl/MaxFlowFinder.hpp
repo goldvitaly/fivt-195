@@ -28,12 +28,12 @@
 namespace graph_algorithms
 {
 
-template<typename FlowType>
+template<typename FlowType, typename EdgeType>
 struct MinEdgeInPath
 {
-  FlowType operator() (const FlowType& currentEdge, const FlowType& currentMinEdgeInPath) const
+  FlowType operator() (const FlowType& currentMinCapacityInPath, const EdgeType& currentEdge) const
   {
-    return std::min(currentEdge, currentMinEdgeInPath);
+    return std::min(currentEdge.getResidualCapacity(), currentMinCapacityInPath);
   }
 };
 
@@ -54,23 +54,23 @@ class MaxFlowFinder
 
   FlowType calculateMaxFlow(size_t source, size_t sink)
   {
-    ShortestPathFinder<EdgeType, FlowType, MinEdgeInPath<FlowType>, std::greater<FlowType> > shortestPathFinder(G);
+    ShortestPathFinder<EdgeType, FlowType, 
+      MinEdgeInPath<FlowType, EdgeType>, std::greater<FlowType> > shortestPathFinder(G);
     FlowType flow = FlowType(0);
     while (true)
     {
       auto shortestPathHolder = shortestPathFinder.findShortestPaths(source);
-      boost::optional<FlowType> distance = shortestPathHolder.getDistance(sink);
-      if ((!distance) || (*distance == FlowType(0)))
+      boost::optional<FlowType> addFlow = shortestPathHolder.getDistance(sink);
+      if ((!addFlow) || (*addFlow == FlowType(0)))
         break;
-      FlowType addFlow = *distance;
 
       std::vector<EdgeType> shortestPath = *shortestPathHolder.getPath(sink);
       for(auto edge : shortestPath)
       {
-        graphEdge[edge.index]->flow += addFlow;
-        graphEdge[edge.backEdgeIndex]->flow -= addFlow;
+        graphEdge[edge.index]->flow += *addFlow;
+        graphEdge[edge.backEdgeIndex]->flow -= *addFlow;
       }
-      flow += addFlow;
+      flow += *addFlow;
     }
     return flow;
   }

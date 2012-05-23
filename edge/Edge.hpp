@@ -92,6 +92,10 @@ class FlowEdge: public BasicEdge, public WithFlow<FlowType>, public Indexed
                                                 Indexed(index),
                                                 backEdgeIndex(backEdgeIndex) {}
   size_t backEdgeIndex;                                                                                  
+  FlowType getResidualCapacity() const
+  {
+    return this->capacity - this->flow;
+  }
 };
 
 #endif /* EDGE_HPP */

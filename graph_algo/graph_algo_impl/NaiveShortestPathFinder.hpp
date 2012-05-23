@@ -52,7 +52,7 @@ class NaiveShortestPathFinder
     if (source >= G.size())
       throw std::out_of_range("Try to find shortest path to wrong vertex " + toString(source));
     initNaiveShortestPathFinder();
-    distance[source] = PathInfo();
+    distance[source] = PathInfo(0);
     for(size_t iteration = 0; iteration < G.size(); iteration++)
     {
       for(size_t vertex = 0; vertex < G.size(); vertex++)
@@ -61,7 +61,7 @@ class NaiveShortestPathFinder
         {
           if (!distance[edge.source])
             continue;
-          PathInfo newPath = updatePath(*distance[edge.source], edge.weight);
+          PathInfo newPath = updatePath(*distance[edge.source], edge);
           if (!distance[edge.destination] || comparePaths(newPath, *distance[edge.destination]))
           {
             distance[edge.destination] = newPath;

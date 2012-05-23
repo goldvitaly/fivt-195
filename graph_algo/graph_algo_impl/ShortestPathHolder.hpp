@@ -54,8 +54,8 @@ class ShortestPathHolder
     boost::optional< std::vector<EdgeType> > path;
     while (parentEdge[destination])
     {
-      *path.push_back(parentEdge[destination]);
-      destination = parentEdge[destination].source;
+      (*path).push_back(*parentEdge[destination]);
+      destination = parentEdge[destination]->source;
     }
     return path;
   }

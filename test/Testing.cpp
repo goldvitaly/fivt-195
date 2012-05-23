@@ -79,6 +79,15 @@ void testStronglyConnectedComponentsAlgorithm(size_t size)
   }
 }
 
+template<typename PathInfo, typename EdgeType>
+struct PlusWeightUpdater
+{
+  PathInfo operator() (const PathInfo& pathInfo, const EdgeType& edge)
+  {
+    return pathInfo + edge.weight;
+  }
+};
+
 void testShortestPathAlgorithm(size_t vertexNumber)
 {
   Graph< WeightedEdge<int> > graph;
@@ -86,10 +95,12 @@ void testShortestPathAlgorithm(size_t vertexNumber)
   for(int i = 0; i < vertexNumber * log(vertexNumber); i++)
     graph.addEdge(WeightedEdge<int>(rand() % vertexNumber, rand() % vertexNumber, rand() % 10000));
 
-  graph_algorithms::ShortestPathFinder< WeightedEdge<int>, int, std::plus<int>, std::less<int> > finder(graph);
+  graph_algorithms::ShortestPathFinder< WeightedEdge<int>, int, 
+    PlusWeightUpdater< int, WeightedEdge<int> >, std::less<int> > finder(graph);
   graph_algorithms::ShortestPathHolder< int, WeightedEdge<int> > pathInfo = finder.findShortestPaths(0);
 
-  graph_algorithms::NaiveShortestPathFinder< WeightedEdge<int>, int, std::plus<int>, std::less<int> > naiveFinder(graph);
+  graph_algorithms::NaiveShortestPathFinder< WeightedEdge<int>, int, 
+    PlusWeightUpdater<int, WeightedEdge<int> >, std::less<int> > naiveFinder(graph);
   graph_algorithms::ShortestPathHolder< int, WeightedEdge<int> > naivePathInfo = naiveFinder.findShortestPaths(0);
 
   for(int v = 0; v < vertexNumber; v++)
@@ -118,7 +129,6 @@ void addFlowEdge(Graph< FlowEdge<FlowType> >& G, size_t source, size_t destinati
 
 int main()
 {
-  /*
   int vertexNumber = 10;
   Graph< FlowEdge<int> > G;
   G.addVerticies<VectorIncidence>(vertexNumber);
@@ -128,7 +138,6 @@ int main()
   }
   graph_algorithms::MaxFlowFinder<FlowEdge<int>, int> maxFlowFinder(G);
   std::cout << maxFlowFinder.calculateMaxFlow(0, 10) << std::endl;
-  */
   {
     Timer timer("Testing Graph class");
     timer.start();

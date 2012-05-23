@@ -24,7 +24,7 @@
 #include <queue>
 
 #include <boost/optional.hpp>
- 
+
 #include "ShortestPathHolder.hpp"
 
 namespace graph_algorithms
@@ -60,7 +60,7 @@ class ShortestPathFinder
     if (source >= G.size())
       throw std::out_of_range("Try to find shortest path to wrong vertex " + toString(source));
     initShortestPathFinder();
-    distance[source] = PathInfo();
+    distance[source] = PathInfo(0);
     Q.push(queueState(*distance[source], source));
     while (!Q.empty()) 
     {
@@ -73,7 +73,7 @@ class ShortestPathFinder
       for(auto edge : G.vertexIncidents[curV])
       {
         size_t nextV = edge.destination;
-        PathInfo newPath = updatePath(*distance[curV], edge.weight);
+        PathInfo newPath = updatePath(*distance[curV], edge);
         if (!distance[nextV] || comparePaths(newPath, *distance[nextV]))
         {
           distance[nextV] = newPath;
