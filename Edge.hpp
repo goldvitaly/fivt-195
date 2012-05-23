@@ -63,12 +63,35 @@ class Indexed
   Indexed(size_t index): index(index) {}
 };
 
+template<typename FlowType>
+class WithFlow
+{
+ public:
+  FlowType capacity, flow;
+  WithFlow(): capacity(0), flow(0) {}
+  WithFlow(FlowType capacity, FlowType flow): capacity(capacity), flow(flow) {}
+
+};
+
 template<typename Weight>
 class WeightedEdge: public BasicEdge, public Weighted<Weight>
 {
  public:
   WeightedEdge(size_t source, size_t destination, Weight weight): BasicEdge(source, destination),
                                                                   Weighted<Weight>(weight) {}
+};
+
+template<typename FlowType>
+class FlowEdge: public BasicEdge, public WithFlow<FlowType>, public Indexed
+{
+ public:
+  FlowEdge(size_t source, size_t destination, 
+           FlowType capacity, FlowType flow, 
+           size_t index, size_t backEdgeIndex): BasicEdge(source, destination),
+                                                WithFlow<FlowType>(capacity, flow),
+                                                Indexed(index),
+                                                backEdgeIndex(backEdgeIndex) {}
+  size_t backEdgeIndex;                                                                                  
 };
 
 #endif /* EDGE_HPP */

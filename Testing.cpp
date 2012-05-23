@@ -107,14 +107,25 @@ void testShortestPathAlgorithm(size_t vertexNumber)
   }
 }
 
+template<typename FlowType>
+void addFlowEdge(Graph< FlowEdge<FlowType> >& G, size_t source, size_t destination, 
+                 FlowType capacity, size_t index1, size_t index2)
+{
+  G.addEdge(FlowEdge<FlowType>(source, destination, capacity, FlowType(0), index1, index2));
+  G.addEdge(FlowEdge<FlowType>(destination, source, FlowType(0), FlowType(0), index2, index1));
+}
+
 int main()
 {
   int vertexNumber = 10;
-  Graph<BasicEdge> G;
-  G.addVerticies<BitmaskIncidence>(vertexNumber);
+  Graph< FlowEdge<int> > G;
+  G.addVerticies<VectorIncidence>(vertexNumber);
   for(int i = 0; i < 10; i++)
-    G.addEdge(BasicEdge(rand() % vertexNumber, rand() % vertexNumber));
-
+  {
+    addFlowEdge(G, rand() % vertexNumber, rand()%vertexNumber, rand()%1000, 2*i, 2*i + 1);
+  }
+  graph_algorithms::MaxFlowFinder<FlowEdge<int>, int> maxFlowFinder(G);
+  std::cout << maxFlowFinder.calculateMaxFlow(0, 10) << std::endl;
   {
     Timer timer("Testing Shortest Path Finder");
     timer.start();

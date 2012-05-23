@@ -25,6 +25,7 @@
 #include <vector>
 #include <stack>
 #include <queue>
+#include <unordered_map>
 
 #include <boost/optional.hpp>
 
@@ -80,7 +81,10 @@ template <typename EdgeType,
 class ShortestPathFinder
 {
  public:
-  explicit ShortestPathFinder(const Graph<EdgeType>& G): G(G) {}
+  explicit ShortestPathFinder(const Graph<EdgeType>& G, 
+                              PathUpdater updatePath = PathUpdater(),
+                              PathComparator comparePaths = PathComparator())
+                              : G(G), updatePath(updatePath), comparePaths(comparePaths) {}
 
   void initShortestPathFinder()
   {
@@ -157,7 +161,10 @@ template <typename EdgeType,
 class NaiveShortestPathFinder
 {
  public:
-  explicit NaiveShortestPathFinder(const Graph<EdgeType>& G): G(G) {}
+  explicit NaiveShortestPathFinder(const Graph<EdgeType>& G, 
+                                    PathUpdater updatePath = PathUpdater(),
+                                    PathComparator comparePaths = PathComparator())
+                                    : G(G), updatePath(updatePath), comparePaths(comparePaths) {}
 
   void initNaiveShortestPathFinder()
   {
@@ -199,6 +206,58 @@ class NaiveShortestPathFinder
   PathUpdater updatePath;
   PathComparator comparePaths;
 }; // NaiveShortestPathFinder
+
+template<typename FlowType>
+struct MinEdgeInPath
+{
+  FlowType operator() (const FlowType& currentEdge, const FlowType& currentMinEdgeInPath) const
+  {
+    return std::min(currentEdge, currentMinEdgeInPath);
+  }
+};
+
+template<typename EdgeType, typename FlowType>
+class MaxFlowFinder
+{
+ public:
+  explicit MaxFlowFinder(Graph<EdgeType>& G) : G(G) 
+  {
+    for(int v = 0; v < G.size(); ++v)
+    {
+      for(const auto& edge : G.vertexIncidents[v])
+      {
+        graphEdge[edge.index] = edge;
+      }
+    }
+  }
+
+  FlowType calculateMaxFlow(size_t source, size_t sink)
+  {
+    ShortestPathFinder<EdgeType, FlowType, MinEdgeInPath<FlowType>, std::greater<FlowType> > shortestPathFinder(G);
+    FlowType flow = FlowType(0);
+    while (true)
+    {
+      auto shortestPathHolder = shortestPathFinder.findShortestPaths(source);
+      boost::optional<FlowType> distance = shortestPathHolder.getDistance(sink);
+      if ((!distance) || (*distance == FlowType(0)))
+        break;
+      FlowType addFlow = *distance;
+
+      std::vector<EdgeType> shortestPath = *shortestPathHolder.getPath(sink);
+      for(auto edge : shortestPath)
+      {
+        graphEdge[edge.index]->flow += addFlow;
+        graphEdge[edge.backEdgeIndex]->flow -= addFlow;
+      }
+      flow += addFlow;
+    }
+    return flow;
+  }
+
+ private:
+  Graph<EdgeType>& G;
+  std::unordered_map<size_t, EdgeType*> graphEdge;
+}; // MaxFlowFinder
 
 class StronglyConnectedComponentsFinder
 {
