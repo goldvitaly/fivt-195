@@ -18,9 +18,9 @@
 #include <vector>
 #include <stdexcept>
 
-#include "IncidenceType.hpp"
-#include "Edge.hpp"
-#include "Utils.hpp"
+#include "incidence/VertexIncidence.hpp"
+#include "../edge/Edge.hpp"
+#include "../utils/Utils.hpp"
 
 template<typename EdgeType>
 class Graph

@@ -21,8 +21,11 @@
 #include <cstdio>
 #include <algorithm>
 #include <vector>
+#include <queue>
 
 #include <boost/optional.hpp>
+ 
+#include "ShortestPathHolder.hpp"
 
 namespace graph_algorithms
 {

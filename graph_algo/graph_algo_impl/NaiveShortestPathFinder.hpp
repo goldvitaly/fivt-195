@@ -24,6 +24,8 @@
 
 #include <boost/optional.hpp>
 
+#include "ShortestPathHolder.hpp"
+
 namespace graph_algorithms
 {
 

@@ -21,10 +21,11 @@
 #include <cstdio>
 #include <vector>
 #include <unordered_set>
-#include "Graph.hpp"
-#include "GraphAlgorithms.hpp"
-#include "Edge.hpp"
-#include "Utils.hpp"
+
+#include "../graph/Graph.hpp"
+#include "../graph_algo/GraphAlgorithms.hpp"
+#include "../edge/Edge.hpp"
+#include "../utils/Utils.hpp"
 
 template<typename EdgeType>
 bool areEqual(const Graph<EdgeType>& G1, const Graph<EdgeType>& G2)
@@ -117,6 +118,7 @@ void addFlowEdge(Graph< FlowEdge<FlowType> >& G, size_t source, size_t destinati
 
 int main()
 {
+  /*
   int vertexNumber = 10;
   Graph< FlowEdge<int> > G;
   G.addVerticies<VectorIncidence>(vertexNumber);
@@ -126,22 +128,13 @@ int main()
   }
   graph_algorithms::MaxFlowFinder<FlowEdge<int>, int> maxFlowFinder(G);
   std::cout << maxFlowFinder.calculateMaxFlow(0, 10) << std::endl;
-  {
-    Timer timer("Testing Shortest Path Finder");
-    timer.start();
-    testShortestPathAlgorithm(1e1);
-    testShortestPathAlgorithm(1e2);
-    testShortestPathAlgorithm(1e3);
-    timer.printTime();
-    std::cout << "Shortest Path Finder has passed tests" << std::endl;
-  }
+  */
   {
     Timer timer("Testing Graph class");
     timer.start();
     testGraphClass(1e1);
     testGraphClass(1e2);
     testGraphClass(1e3);
-    testGraphClass(1e4);
     timer.printTime();
     std::cout << "Graph class has passed tests" << std::endl;
   }
@@ -152,6 +145,15 @@ int main()
     testStronglyConnectedComponentsAlgorithm(1e2);
     timer.printTime();
     std::cout << "Strongly Connected Components Finder has passed tests" << std::endl;
+  }
+  {
+    Timer timer("Testing Shortest Path Finder");
+    timer.start();
+    testShortestPathAlgorithm(1e1);
+    testShortestPathAlgorithm(1e2);
+    testShortestPathAlgorithm(1e3);
+    timer.printTime();
+    std::cout << "Shortest Path Finder has passed tests" << std::endl;
   }
   return 0;
 }
