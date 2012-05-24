@@ -27,6 +27,7 @@ class Graph
 {
  public:
   std::vector< VertexIncidenceType<EdgeType> > vertexIncidents;
+  size_t edgeNumber;
 
   bool isOutOfBound(size_t index) const
   {
@@ -65,6 +66,7 @@ class Graph
                                   + toString(edge.source) + " " 
                                   + toString(edge.destination));
 
+    edgeNumber++;
     vertexIncidents[edge.source].addEdge(edge);
   }
 

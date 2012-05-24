@@ -127,18 +127,41 @@ void addFlowEdge(Graph< FlowEdge<FlowType> >& G, size_t source, size_t destinati
   G.addEdge(FlowEdge<FlowType>(destination, source, FlowType(0), FlowType(0), index2, index1));
 }
 
-int main()
+template<typename FlowType>
+void addFlowPath(Graph< FlowEdge<FlowType> >& G, 
+                 size_t source, size_t destination, 
+                 FlowType capacity, size_t pathLen)
 {
-  int vertexNumber = 10;
+  size_t current = source;
+  for(int i = 0; i < pathLen; i++)
+  {
+    size_t next = rand() % (G.size() - 2) + 1;
+    addFlowEdge(G, current, next, capacity, G.edgeNumber, G.edgeNumber + 1);
+    current = next;
+  }
+  addFlowEdge(G, current, destination, capacity, G.edgeNumber, G.edgeNumber + 1);
+}
+
+void testMaxFlowFinder(size_t vertexNumber, size_t pathNumber)
+{
   Graph< FlowEdge<int> > G;
   G.addVerticies<VectorIncidence>(vertexNumber);
-  for(int i = 0; i < 100; i++)
+  int expectedFlow = 0;
+  for(int i = 0; i < pathNumber; i++)
   {
-    addFlowEdge(G, rand() % vertexNumber, rand()%vertexNumber, rand()%1000, 2*i, 2*i + 1);
+    int capacity = rand() % 1000;
+    addFlowPath(G, 0, vertexNumber - 1, capacity, vertexNumber / 2);
+    expectedFlow += capacity;
   }
   graph_algorithms::MaxFlowFinder<FlowEdge<int>, int> maxFlowFinder(G);
-  std::cout << maxFlowFinder.calculateMaxFlow(0, 9) << std::endl;
-  return 0;
+  int flow = maxFlowFinder.calculateMaxFlow(0, vertexNumber - 1);
+  if (flow != expectedFlow)
+    throw std::logic_error("flow " + toString(flow) + 
+                           " is different from expectedFlow " + toString(expectedFlow));
+}
+
+int main()
+{
   {
     Timer timer("Testing Graph class");
     timer.start();
@@ -164,6 +187,17 @@ int main()
     testShortestPathAlgorithm(1e3);
     timer.printTime();
     std::cout << "Shortest Path Finder has passed tests" << std::endl;
+  }
+  {
+    Timer timer("Testing Max Flow Finder");
+    timer.start();
+    testMaxFlowFinder(1e1, 1e1);
+    testMaxFlowFinder(1e2, 1e1);
+    testMaxFlowFinder(1e2, 1e2);
+    testMaxFlowFinder(1e3, 1e1);
+    testMaxFlowFinder(1e3, 1e2);
+    timer.printTime();
+    std::cout << "Max Flow Finder has passed tests" << std::endl;
   }
   return 0;
 }
