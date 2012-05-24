@@ -137,7 +137,7 @@ int main()
     addFlowEdge(G, rand() % vertexNumber, rand()%vertexNumber, rand()%1000, 2*i, 2*i + 1);
   }
   graph_algorithms::MaxFlowFinder<FlowEdge<int>, int> maxFlowFinder(G);
-  std::cout << maxFlowFinder.calculateMaxFlow(0, 10) << std::endl;
+  std::cout << maxFlowFinder.calculateMaxFlow(0, 9) << std::endl;
   {
     Timer timer("Testing Graph class");
     timer.start();

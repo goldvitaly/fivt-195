@@ -45,9 +45,9 @@ class MaxFlowFinder
   {
     for(int v = 0; v < G.size(); ++v)
     {
-      for(const auto& edge : G.vertexIncidents[v])
+      for(auto& edge : G.vertexIncidents[v])
       {
-        graphEdge[edge.index] = edge;
+        graphEdge[edge.index] = &edge;
       }
     }
   }

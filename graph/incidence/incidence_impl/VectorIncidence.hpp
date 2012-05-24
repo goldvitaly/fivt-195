@@ -26,14 +26,16 @@ class VectorIncidence : public IncidenceType<EdgeType>
  public: 
   void addEdge(EdgeType edge)
   {
-    incident_.push_back(edge);
+    incident_.push_back(std::make_shared<EdgeType>(edge));
   }
 
   void removeEdge(EdgeType edge)
   {
+    /*
     typename std::vector<EdgeType>::iterator it = find(incident_.begin(), incident_.end(), edge);
     if (it != incident_.end())
       incident_.erase(it);
+    */
   }
 
   void clear()
@@ -43,7 +45,10 @@ class VectorIncidence : public IncidenceType<EdgeType>
 
   bool hasEdge(EdgeType edge) const
   {
+    return false;
+    /*
     return find(incident_.begin(), incident_.end(), edge) != incident_.end();
+    */
   }
 
   size_t degree() const
@@ -51,12 +56,12 @@ class VectorIncidence : public IncidenceType<EdgeType>
     return incident_.size();
   }
 
-  typename IncidenceType<EdgeType>::Iterator begin() const
+  typename IncidenceType<EdgeType>::Iterator begin()
   {
     return typename IncidenceType<EdgeType>::Iterator(new VectorBaseIterator(incident_.begin()));
   }
 
-  typename IncidenceType<EdgeType>::Iterator end() const
+  typename IncidenceType<EdgeType>::Iterator end()
   {
     return typename IncidenceType<EdgeType>::Iterator(new VectorBaseIterator(incident_.end()));
   }
@@ -64,13 +69,14 @@ class VectorIncidence : public IncidenceType<EdgeType>
   class VectorBaseIterator : public IncidenceType<EdgeType>::BaseIterator
   {
    public:
-    explicit VectorBaseIterator(typename std::vector<EdgeType>::const_iterator it) : vector_iterator(it)
+    explicit VectorBaseIterator(typename std::vector<std::shared_ptr<EdgeType> >::iterator it) 
+      : vector_iterator(it)
     {
     }
 
-    EdgeType operator *() const
+    EdgeType& operator *() 
     {
-      return *vector_iterator;
+      return **vector_iterator;
     }
 
     VectorBaseIterator& operator ++()
@@ -95,12 +101,12 @@ class VectorIncidence : public IncidenceType<EdgeType>
     }
 
    private:
-    typename std::vector<EdgeType>::const_iterator vector_iterator;
+    typename std::vector< std::shared_ptr<EdgeType> >::iterator vector_iterator;
     
   }; // VectorBaseIterator
 
  private:
-  std::vector<EdgeType> incident_;
+  std::vector< std::shared_ptr<EdgeType> > incident_;
 
 }; // VectorIncidence
 

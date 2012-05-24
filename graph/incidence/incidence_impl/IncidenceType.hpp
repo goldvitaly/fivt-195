@@ -30,8 +30,8 @@ class IncidenceType
   virtual void     clear() = 0;
   virtual bool     hasEdge(EdgeType edge) const = 0;
   virtual size_t   degree() const = 0;
-  virtual Iterator begin() const = 0;
-  virtual Iterator end()   const = 0;
+  virtual Iterator begin() = 0;
+  virtual Iterator end()   = 0;
   virtual ~IncidenceType() {}
 
   class BaseIterator
@@ -39,7 +39,7 @@ class IncidenceType
    public:
     virtual bool operator ==(const BaseIterator& it) const = 0;
     virtual bool operator !=(const BaseIterator& it) const = 0;
-    virtual EdgeType      operator *() const   = 0;
+    virtual EdgeType&     operator *()   = 0;
     virtual BaseIterator& operator ++()  = 0;
     virtual ~BaseIterator() {};
   }; // BaseIterator
@@ -57,7 +57,7 @@ class IncidenceType
       iterator_ = std::move(iterator.iterator_);
     }
 
-    EdgeType operator *() const
+    EdgeType& operator *() const
     {
       return **iterator_;
     }

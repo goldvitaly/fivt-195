@@ -26,12 +26,14 @@ class SetIncidence : public IncidenceType<EdgeType>
  public: 
   void addEdge(EdgeType edge)
   {
-    incident_.insert(edge);
+    incident_.insert(std::make_shared<EdgeType> (edge));
   }
 
   void removeEdge(EdgeType edge)
   {
+    /*
     incident_.erase(edge);
+    */
   }
 
   void clear()
@@ -41,7 +43,10 @@ class SetIncidence : public IncidenceType<EdgeType>
 
   bool hasEdge(EdgeType edge) const
   {
+    return false;
+    /*
     return (incident_.find(edge) != incident_.end());
+    */
   }
 
   size_t degree() const
@@ -49,12 +54,12 @@ class SetIncidence : public IncidenceType<EdgeType>
     return incident_.size();
   }
 
-  typename IncidenceType<EdgeType>::Iterator begin() const
+  typename IncidenceType<EdgeType>::Iterator begin() 
   {
     return typename IncidenceType<EdgeType>::Iterator(new SetBaseIterator(incident_.begin()));
   }
 
-  typename IncidenceType<EdgeType>::Iterator end() const
+  typename IncidenceType<EdgeType>::Iterator end() 
   {
     return typename IncidenceType<EdgeType>::Iterator(new SetBaseIterator(incident_.end()));
   }
@@ -62,13 +67,14 @@ class SetIncidence : public IncidenceType<EdgeType>
   class SetBaseIterator : public IncidenceType<EdgeType>::BaseIterator
   {
    public:
-    explicit SetBaseIterator(typename std::unordered_set<EdgeType>::const_iterator it) : set_iterator(it)
+    explicit SetBaseIterator(typename std::unordered_set< std::shared_ptr<EdgeType> >::iterator it) 
+      : set_iterator(it)
     {
     }
 
-    EdgeType operator *() const
+    EdgeType& operator *() 
     {
-      return *set_iterator;
+      return **set_iterator;
     }
 
     SetBaseIterator& operator ++()
@@ -93,12 +99,12 @@ class SetIncidence : public IncidenceType<EdgeType>
     }
 
    private:
-    typename std::unordered_set<EdgeType>::const_iterator set_iterator;
+    typename std::unordered_set< std::shared_ptr<EdgeType> >::iterator set_iterator;
 
   }; // SetBaseIterator
 
  private:
-  std::unordered_set<EdgeType> incident_;
+  std::unordered_set< std::shared_ptr<EdgeType> > incident_;
 
 }; // SetIncidence
 

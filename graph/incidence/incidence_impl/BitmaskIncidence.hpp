@@ -53,14 +53,14 @@ class BitmaskIncidence : public IncidenceType<EdgeType>
     return count(incident_.begin(), incident_.end(), 1);
   }
 
-  typename IncidenceType<EdgeType>::Iterator begin() const
+  typename IncidenceType<EdgeType>::Iterator begin() 
   {
     BitmaskBaseIterator* it = new BitmaskBaseIterator(-1, incident_, source);
     ++(*it);
     return typename IncidenceType<EdgeType>::Iterator(it);
   }
 
-  typename IncidenceType<EdgeType>::Iterator end() const
+  typename IncidenceType<EdgeType>::Iterator end()
   {
     return typename IncidenceType<EdgeType>::Iterator(new BitmaskBaseIterator(incident_.size(), incident_, source));
   }
@@ -70,13 +70,16 @@ class BitmaskIncidence : public IncidenceType<EdgeType>
    public:
     explicit BitmaskBaseIterator(int index, const std::vector<bool>& incident, int source) : incident_(incident), 
                                                                                              iterator_(index),
-                                                                                             source(source)
+                                                                                             source(source),
+                                                                                             edge(0, 0)
     {
     }
 
-    EdgeType operator *() const
+    EdgeType& operator *() 
     {
-      return EdgeType(source, iterator_);
+      edge.source = source;
+      edge.destination = iterator_;
+      return edge;
     }
 
     BitmaskBaseIterator& operator++()
@@ -109,6 +112,7 @@ class BitmaskIncidence : public IncidenceType<EdgeType>
     int iterator_;
     const std::vector<bool>& incident_;
     size_t source;
+    EdgeType edge;
 
   }; // BitmaskBaseIterator
 
