@@ -31,11 +31,10 @@ class VectorIncidence : public IncidenceType<EdgeType>
 
   void removeEdge(EdgeType edge)
   {
-    /*
-    typename std::vector<EdgeType>::iterator it = find(incident_.begin(), incident_.end(), edge);
+    auto it = find_if(incident_.begin(), incident_.end(), 
+      [&](std::shared_ptr<EdgeType> edge_ptr) { return *edge_ptr == edge; } );
     if (it != incident_.end())
       incident_.erase(it);
-    */
   }
 
   void clear()
@@ -45,10 +44,9 @@ class VectorIncidence : public IncidenceType<EdgeType>
 
   bool hasEdge(EdgeType edge) const
   {
-    return false;
-    /*
-    return find(incident_.begin(), incident_.end(), edge) != incident_.end();
-    */
+    return find_if(incident_.begin(), incident_.end(), 
+      [&](std::shared_ptr<EdgeType> edge_ptr) { return *edge_ptr == edge; } ) 
+      != incident_.end();
   }
 
   size_t degree() const

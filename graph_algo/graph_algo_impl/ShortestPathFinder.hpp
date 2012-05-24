@@ -55,12 +55,13 @@ class ShortestPathFinder
     visited.clear();
   }
 
-  ShortestPathHolder<PathInfo, EdgeType> findShortestPaths(size_t source)
+  ShortestPathHolder<PathInfo, EdgeType> findShortestPaths(size_t source, 
+                                                           PathInfo initDistance = PathInfo(0))
   {
     if (source >= G.size())
       throw std::out_of_range("Try to find shortest path to wrong vertex " + toString(source));
     initShortestPathFinder();
-    distance[source] = PathInfo(0);
+    distance[source] = initDistance;
     Q.push(queueState(*distance[source], source));
     while (!Q.empty()) 
     {
@@ -70,7 +71,7 @@ class ShortestPathFinder
       if (visited[curV])
         continue;
       visited[curV] = 1;
-      for(auto edge : G.vertexIncidents[curV])
+      for(const auto& edge : G.vertexIncidents[curV])
       {
         size_t nextV = edge.destination;
         PathInfo newPath = updatePath(*distance[curV], edge);

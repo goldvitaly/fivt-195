@@ -52,10 +52,14 @@ class ShortestPathHolder
     if (destination >= distance.size())
       throw std::out_of_range("Try to get path to wrong vertex " + toString(destination));
     boost::optional< std::vector<EdgeType> > path;
-    while (parentEdge[destination])
+    if (parentEdge[destination])
     {
-      (*path).push_back(*parentEdge[destination]);
-      destination = parentEdge[destination]->source;
+      path = std::vector<EdgeType>();
+      while (parentEdge[destination])
+      {
+        (*path).push_back(*parentEdge[destination]);
+        destination = (*parentEdge[destination]).source;
+      }
     }
     return path;
   }

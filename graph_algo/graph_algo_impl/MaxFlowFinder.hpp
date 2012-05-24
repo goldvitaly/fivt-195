@@ -59,13 +59,14 @@ class MaxFlowFinder
     FlowType flow = FlowType(0);
     while (true)
     {
-      auto shortestPathHolder = shortestPathFinder.findShortestPaths(source);
+      auto shortestPathHolder = 
+        shortestPathFinder.findShortestPaths(source, std::numeric_limits<FlowType>::max());
       boost::optional<FlowType> addFlow = shortestPathHolder.getDistance(sink);
       if ((!addFlow) || (*addFlow == FlowType(0)))
         break;
 
       std::vector<EdgeType> shortestPath = *shortestPathHolder.getPath(sink);
-      for(auto edge : shortestPath)
+      for(const auto& edge : shortestPath)
       {
         graphEdge[edge.index]->flow += *addFlow;
         graphEdge[edge.backEdgeIndex]->flow -= *addFlow;

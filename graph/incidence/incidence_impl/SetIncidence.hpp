@@ -31,9 +31,7 @@ class SetIncidence : public IncidenceType<EdgeType>
 
   void removeEdge(EdgeType edge)
   {
-    /*
-    incident_.erase(edge);
-    */
+    incident_.erase(std::make_shared<EdgeType> (edge));
   }
 
   void clear()
@@ -43,10 +41,7 @@ class SetIncidence : public IncidenceType<EdgeType>
 
   bool hasEdge(EdgeType edge) const
   {
-    return false;
-    /*
-    return (incident_.find(edge) != incident_.end());
-    */
+    return (incident_.find(std::make_shared<EdgeType> (edge)) != incident_.end());
   }
 
   size_t degree() const
@@ -104,7 +99,16 @@ class SetIncidence : public IncidenceType<EdgeType>
   }; // SetBaseIterator
 
  private:
-  std::unordered_set< std::shared_ptr<EdgeType> > incident_;
+  struct EdgeEquality
+    : std::binary_function<std::shared_ptr<EdgeType>, std::shared_ptr<EdgeType>, bool>
+  {
+      bool operator()(std::shared_ptr<EdgeType> i1, std::shared_ptr<EdgeType> i2) const {
+          return *i1 == *i2;
+      }
+  };
+
+  std::unordered_set< std::shared_ptr<EdgeType>, 
+                      std::hash<std::shared_ptr<EdgeType> >, EdgeEquality > incident_;
 
 }; // SetIncidence
 

@@ -132,12 +132,13 @@ int main()
   int vertexNumber = 10;
   Graph< FlowEdge<int> > G;
   G.addVerticies<VectorIncidence>(vertexNumber);
-  for(int i = 0; i < 10; i++)
+  for(int i = 0; i < 100; i++)
   {
     addFlowEdge(G, rand() % vertexNumber, rand()%vertexNumber, rand()%1000, 2*i, 2*i + 1);
   }
   graph_algorithms::MaxFlowFinder<FlowEdge<int>, int> maxFlowFinder(G);
   std::cout << maxFlowFinder.calculateMaxFlow(0, 9) << std::endl;
+  return 0;
   {
     Timer timer("Testing Graph class");
     timer.start();
