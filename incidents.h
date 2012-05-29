@@ -4,16 +4,32 @@
 #include <memory>
 #include <utility>
 #include <set>
-class BaseIterator{
+
+struct Edge
+{
+	int to, weight;
+	bool operator < (const Edge &a) const
+	{
+		return (to < a.to); 				
+	}
+	bool operator == (const Edge &a) const
+	{
+		return (to == a.to);	
+	}			
+};
+
+class BaseIterator
+{
 public:
 	virtual bool operator != (const BaseIterator&) const = 0;
 	virtual BaseIterator& operator ++() = 0;
-	virtual int operator *() const = 0;
+	virtual Edge operator *() const = 0;
 	virtual ~BaseIterator()
 	{}
 };
 
-class Incidents {
+class Incidents 
+{
 	public:
 		class Iterator 
 		{
@@ -30,7 +46,7 @@ class Incidents {
 					return *this;
 				}
 				
-				int operator *() const 
+				Edge operator *() const 
 				{
 					return **base;
 				}
@@ -38,9 +54,9 @@ class Incidents {
 				std::unique_ptr<BaseIterator> base;
 		};
 		
-		virtual void add(int to) = 0;
-		virtual void remove(int to) = 0;
-		virtual bool check(int to) const = 0;
+		virtual void add(Edge to) = 0;
+		virtual void remove(Edge to) = 0;
+		virtual bool check(Edge to) const = 0;
 		virtual Iterator begin() const = 0;
 		virtual Iterator end() const = 0;
 		virtual ~Incidents()
@@ -63,7 +79,7 @@ class STLGraphIterator : public BaseIterator
 			++cur;
 			return *this;
 		}
-		int operator *() const
+		Edge operator *() const
 		{
 			return *cur;
 		}
@@ -73,22 +89,22 @@ class STLGraphIterator : public BaseIterator
 class VecIncidents : public Incidents
 {
 	public:
-		void add(int to)
+		void add(Edge to)
 		{
 			incidents.push_back(to);
 		}
-		void remove(int to)
+		void remove(Edge to)
 		{
 			auto iter = std::find(incidents.begin(), incidents.end(), to);
 			if(iter != incidents.end())
 				incidents.erase(iter);
 		}
-		bool check(int to) const
+		bool check(Edge to) const
 		{
 			auto iter = std::find(incidents.begin(), incidents.end(), to);
 			return iter != incidents.end();
 		}
-		typedef STLGraphIterator<std::vector<int>::const_iterator > InnerIterator;
+		typedef STLGraphIterator<std::vector<Edge>::const_iterator > InnerIterator;
 		Iterator begin() const 
 		{ 
 			return Iterator(std::unique_ptr<BaseIterator>(new InnerIterator(incidents.begin(), incidents.end())));
@@ -98,25 +114,26 @@ class VecIncidents : public Incidents
 			return Iterator(std::unique_ptr<BaseIterator>(new InnerIterator(incidents.end  (), incidents.end())));
 		}
 	private:
-		std::vector<int> incidents;
+		
+		std::vector<Edge> incidents;
 };
 
 class SetIncidents : public Incidents 
 {
 	public:
-		void add(int to)
+		void add(Edge to)
 		{
 			incidents.insert(to);
 		}
-		void remove(int to)
+		void remove(Edge to)
 		{
 			incidents.erase(to);
 		}
-		bool check(int to) const
+		bool check(Edge to) const
 		{
 			return incidents.find(to) != incidents.end();
 		}
-		typedef STLGraphIterator<std::set<int>::const_iterator> InnerIterator;
+		typedef STLGraphIterator<std::set<Edge>::const_iterator> InnerIterator;
 		Iterator begin() const
 		{ 
 			return Iterator(std::unique_ptr<BaseIterator>(new InnerIterator(incidents.begin(), incidents.end())));
@@ -126,7 +143,7 @@ class SetIncidents : public Incidents
 			return Iterator(std::unique_ptr<BaseIterator>(new InnerIterator(incidents.end  (), incidents.end())));
 		}
 	private:
-		std::set<int> incidents;
+		std::set<Edge> incidents;
 };
 
 #endif /* INCIDENTS_H */

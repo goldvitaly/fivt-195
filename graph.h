@@ -3,6 +3,7 @@
 #include <vector>
 #include "incidents.h"
 
+
 class Graph
 {
 	public:
@@ -20,17 +21,17 @@ class Graph
 			return *inc[vertex];
 		}
 		
-		void addEdge(int from, int to)
+		void addEdge(int from, Edge to)
 		{
 			inc[from]->add(to);
 		}
 		
-		void removeEdge(int from, int to)
+		void removeEdge(int from, Edge to)
 		{
 			inc[from]->remove(to);
 		}
 		
-		void checkEdge(int from, int to) const
+		void checkEdge(int from, Edge to) const
 		{
 			inc[from]->check(to);
 		}
