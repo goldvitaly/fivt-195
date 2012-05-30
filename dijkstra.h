@@ -15,7 +15,7 @@ class Dijkstra
 		std::vector<int> findPath(int s)
 		{				
 			const int INF = 1<<30;
-			std::vector<int> dist(graph.size(), INF),  par(graph.size());
+			std::vector<Weight> dist(graph.size(), INF);
 			dist[s] = 0;
 			std::priority_queue <std::pair<int, int>> queue;
 			queue.push (std::make_pair (0, s));
@@ -31,12 +31,11 @@ class Dijkstra
 					if (dist[ver] + weight < dist[to])
 					{
 						dist[to] = dist[ver] + weight;
-						par[to] = ver;
 						queue.push(std::make_pair (-dist[to], to));
 					}
 					
 				}
-			}
+			} 
 			return dist;
 		}
 	private:
