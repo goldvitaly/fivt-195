@@ -38,16 +38,16 @@ int main()
 		cout<< "WRONG_GRAPH\n";
 		* */
 	freopen("input.txt", "r", stdin);
-	Graph g;
+	Graph<int> g;
 	int n, m;
 	cin>> n>> m;
-	Edge tmp;
+	Edge<int> tmp;
 	int x;
 	for (int i = 1; i <= n; i++)
 		if (i % 2 == 0)
-			g.addVertex(std::unique_ptr<Incidents>(new VecIncidents));
+			g.addVertex(std::unique_ptr<Incidents<int>>(new VecIncidents<int>));
 		else
-			g.addVertex(std::unique_ptr<Incidents>(new SetIncidents));	
+			g.addVertex(std::unique_ptr<Incidents<int>>(new SetIncidents<int>));	
 
 	for (int i = 0; i < m; i++)
 	{
@@ -58,7 +58,7 @@ int main()
 		//cout<< x<<' '<<tmp.to<<'\n';
 		g.addEdge(x, tmp);
 	}
-	vector<int> d(Dijkstra(g).findPath(0));
+	vector<int> d(Dijkstra<int>(g).findPath(0));
 	for (int i = 0; i < n; i++)
 		cout<< d[i]<<' ';
 	cout<< "\nFinished";

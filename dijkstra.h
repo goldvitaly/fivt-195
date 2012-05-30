@@ -4,10 +4,12 @@
 #include <queue>
 #include <utility>
 
+
+template<class Weight> 
 class Dijkstra
 {
 	public:
-		explicit Dijkstra(const Graph& graph):graph(graph)
+		explicit Dijkstra(const Graph<Weight>& graph):graph(graph)
 		{			
 		}
 		std::vector<int> findPath(int s)
@@ -23,7 +25,7 @@ class Dijkstra
 				queue.pop();
 				if (cur_d > dist[ver])  continue;
 		 
-				for (Incidents::Iterator j = graph.getIncidents(ver).begin(); j != graph.getIncidents(ver).end(); ++j) 
+				for (Incidents<int>::Iterator j = graph.getIncidents(ver).begin(); j != graph.getIncidents(ver).end(); ++j) 
 				{
 					int to = (*j).to, weight = (*j).weight;
 					if (dist[ver] + weight < dist[to])
@@ -38,7 +40,7 @@ class Dijkstra
 			return dist;
 		}
 	private:
-		const Graph &graph;					
+		const Graph<Weight> &graph;					
 };
 
 #endif /* DIJKSTRA_H */
