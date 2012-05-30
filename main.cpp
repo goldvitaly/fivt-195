@@ -1,74 +1,67 @@
 #include <cstring>
+#include <iostream>
+#include <cmath>
 #include "graph.h"
 #include "dijkstra.h"
-#include <iostream>
 
 using namespace std;
 
-const int n = 50, m = 100;
+const int n = 100, m = 1000;
 
-vector<int> Dijkstra_(const vector<pair<int, int>> *g, int s)
-{ 
-	const int INF = 1<<30;
-	vector<int> d(n, INF),  p (n);
-	d[s] = 0;
-	priority_queue < pair<int,int> > q;
-	q.push (make_pair (0, s));
-	while (!q.empty()) 
-	{
-		int v = q.top().second,  cur_d = -q.top().first;
-		q.pop();
-		if (cur_d > d[v])  continue;
- 
-		for (int j = 0; j < (int)g[v].size(); ++j)
-		{
-			int to = g[v][j].first,
-				len = g[v][j].second;
-			if (d[v] + len < d[to])
-			{
-				d[to] = d[v] + len;
-				p[to] = v;
-				q.push (make_pair (-d[to], to));
-			}
-		}
-	}
-	return d;
+void Floyd(vector<vector<int>> &a)
+{
+	for (int k = 0; k < n; k++)
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++)
+				a[i][j] = min(a[i][j], a[i][k] + a[k][j]);	
 }
-
 int main()
 {
+	const int INF = 1<< 29;
 	srand(time(NULL));
 	Graph<int> g;
-	vector<pair<int, int>> gr[n];
-	bool a[n][n] = {};
+	vector<vector<int>> a(n, vector<int> (n, INF));
+	for (int i = 0; i < n; i++)
+		a[i][i] = 0;
 	Edge<int> tmp;
 	int x;
-	for (int i = 1; i <= n; i++)
+	for (int i = 0; i < n; i++)
 		if (rand() % 2 == 0)
 			g.addVertex(std::unique_ptr<Incidents<int>>(new VecIncidents<int>));
 		else
 			g.addVertex(std::unique_ptr<Incidents<int>>(new SetIncidents<int>));	
-
+			
 	for (int i = 0; i < m; i++)
 	{
 		x = rand() % n;
 		tmp.to = rand() % n;
 		tmp.weight = rand() % n;
-		if (a[x][tmp.to])
+		if (a[x][tmp.to] != INF)
 			continue;
 		g.addEdge(x, tmp);
-		gr[x].push_back(make_pair(tmp.to, tmp.weight));
+		a[x][tmp.to] = tmp.weight;
 		swap(x, tmp.to);
 		g.addEdge(x, tmp);
-		gr[x].push_back(make_pair(tmp.to, tmp.weight));
+		a[x][tmp.to] = tmp.weight;
 		
 	}
-	vector<int> d(Dijkstra<int>(g).findPath(0));
-	vector<int> res(Dijkstra_(gr, 0));
-	
+	DijkstraInfo<int> d(Dijkstra<int>(g).doDijkstra(0));
+	Floyd(a);
 	for (int i = 0; i < n; i++)
-		if (res[i] != d[i])
-			cout<< "WRONG";
+	{
+		if (d.isPath(i))
+		{
+			if (a[0][i] != d.distTo(i))
+			{
+				cout<< "WRONG";
+			}
+		}
+		else
+		{
+			if (a[0][i] != INF)
+				cout<< "WRONG";
+		}
+	}
 	cout<< "\nFinished\n";
 	return 0;
 }
