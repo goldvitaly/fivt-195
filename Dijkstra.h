@@ -21,50 +21,50 @@ public:
     std::vector<size_t> getPath() const
     {
         std::vector<size_t> res;
-		size_t curVertex = to, prevVertex = previous[to];
-		while (curVertex != prevVertex)
-		{
-			res.push_back(curVertex);
-			curVertex = prevVertex;
-			prevVertex = previous[curVertex];
-		}
-		res.push_back(curVertex);
-		reverse(res.begin(), res.end());
-		return res;
+        size_t curVertex = to, prevVertex = previous[to];
+        while (curVertex != prevVertex)
+        {
+            res.push_back(curVertex);
+            curVertex = prevVertex;
+            prevVertex = previous[curVertex];
+        }
+        res.push_back(curVertex);
+        reverse(res.begin(), res.end());
+        return res;
     } 
-	size_t getPrev()
-	{
-		to = previous[to];
-		return to;
-	}
+    size_t getPrev()
+    {
+        to = previous[to];
+        return to;
+    }
 };
 
 template<typename TLength>
 class ShortestPathInfo
 {
 private:
-	const std::vector<char> isReached;
-	const std::vector<TLength> distances;
-	const std::vector<size_t> previous;
+    const std::vector<char> isReached;
+    const std::vector<TLength> distances;
+    const std::vector<size_t> previous;
 public:
-	ShortestPathInfo(const std::vector<char>& _isReached, const std::vector<TLength>& _distances, const std::vector<size_t>& _previous) : 
-	distances(_distances), isReached(_isReached), previous(_previous){}
-	
-	TLength getLength(size_t v) const 
-	{
-		return distances[v];
-	}
-	
-	bool isReach(size_t v) const 
-	{
-		return isReached[v];
-	}
+    ShortestPathInfo(const std::vector<char>& _isReached, const std::vector<TLength>& _distances, const std::vector<size_t>& _previous) : 
+    distances(_distances), isReached(_isReached), previous(_previous){}
+    
+    TLength getLength(size_t v) const 
+    {
+        return distances[v];
+    }
+    
+    bool isReach(size_t v) const 
+    {
+        return isReached[v];
+    }
 
-	Path calcPath() const
-	{
-		Path path(isReached, previous);
-		return path;
-	}
+    Path calcPath() const
+    {
+        Path path(isReached, previous);
+        return path;
+    }
 };
 
 template<typename TLength>
@@ -165,8 +165,8 @@ public:
             relaxFunc.curVertex = curVertex;
             graph.foreachIncidence(curVertex, relaxFunc);
         }
-		ShortestPathInfo<TLength> res(info.isReached, info.curDist, info.previous);
-		return res;
+        ShortestPathInfo<TLength> res(info.isReached, info.curDist, info.previous);
+        return res;
     }
 };
 
